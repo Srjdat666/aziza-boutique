@@ -10,12 +10,17 @@
 <meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/paz1.jpg">
 <meta property="og:type" content="website">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<link rel="icon" type="image/png" href="logo.jpg">
+<link rel="apple-touch-icon" href="logo.jpg">
       <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f3460">
+<link rel="icon" type="image/png" href="logo.jpg">
+<link rel="apple-touch-icon" href="logo.jpg">
   <style>
     *{
       margin:0;
@@ -44,7 +49,7 @@
     .card {
       background: #fff;
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       border-radius: 24px;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
@@ -147,12 +152,6 @@ p{
       margin-top: 6px;
     }
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
     /* استثناء صور المعرض من قاعدة .card img */
    .gallery{
     display:grid;
@@ -168,13 +167,16 @@ p{
     border-radius:12px;
 }
 
-    .gallery img:hover { transform: scale(1.03); }
-
 .gallery img{
     box-shadow:0 4px 12px rgba(0,0,0,0.12);
 }
+.gallery img{
+ transition: .3s ease;
+}
 
-    /* ===== زر إنستغرام ===== */
+.gallery img:hover{
+ transform: scale(1.05);
+}
     /* ===== صف الدوائر الاجتماعية ===== */
     .social-row {
       display: flex;
@@ -217,6 +219,69 @@ p{
 
     .facebook-circle {
       background: #1877F2;
+    }
+    /* ===== Lightbox ===== */
+    .gallery img {
+      cursor: pointer;
+    }
+
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: lbFade 0.25s ease;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    @keyframes lbFade {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 88vh;
+      width: auto;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      animation: lbZoom 0.3s ease;
+    }
+
+    @keyframes lbZoom {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 1.6rem;
+      line-height: 1;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.25s ease;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255, 255, 255, 0.3);
     }
   </style>
 </head>
@@ -279,6 +344,52 @@ p{
           <path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12z"/>
         </svg>
       </a>
-    </div>
+    </div>   <!-- نهاية social-row -->
+  </div>     <!-- نهاية card -->
+  <!-- ===== Lightbox ===== -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close" aria-label="إغلاق">✕</button>
+    <img src="" alt="" id="lightbox-img">
+  </div>
+  <script>
+    (function () {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const closeBtn = document.getElementById('lightbox-close');
+      const galleryImgs = document.querySelectorAll('.gallery img');
+
+      galleryImgs.forEach(img => {
+        img.addEventListener('click', () => {
+          lightboxImg.src = img.src;
+          lightboxImg.alt = img.alt;
+          lightbox.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+
+      function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+        lightboxImg.src = '';
+      }
+
+      closeBtn.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
+      });
+    })();
+  </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('SW registered ✅'))
+        .catch((err) => console.log('SW error', err));
+    });
+  }
+</script>
 </body>
 </html>
