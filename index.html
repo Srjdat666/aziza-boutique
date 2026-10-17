@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
       <head>
+        <title>AZIZA Boutique | أزياء نسائية - سرت</title>
+<meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تواصلي معنا عبر واتساب.">
+<meta property="og:title" content="AZIZA Boutique">
+<meta property="og:description" content="أحدث صيحات الموضة النسائية - سرت">
+<meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/paz1.jpg">
+<meta property="og:type" content="website">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -85,7 +91,7 @@
       font-weight: bold;
       padding: 14px 36px;
       border-radius: 50px;
-      margin-bottom: 28px;
+      margin-bottom: 18px;
       transition: all 0.3s ease;
       box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
     }
@@ -156,6 +162,7 @@ p{
 
 .gallery img{
     width:100%;
+    height: auto;
     aspect-ratio:1/1;
     object-fit:cover;
     border-radius:12px;
@@ -168,28 +175,49 @@ p{
 }
 
     /* ===== زر إنستغرام ===== */
-    .insta-btn {
+    /* ===== صف الدوائر الاجتماعية ===== */
+    .social-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .social-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-      color: #fff;
       text-decoration: none;
-      font-size: 1.05rem;
-      font-weight: bold;
-      padding: 14px 30px;
-      border-radius: 50px;
-      margin-bottom: 28px;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 20px rgba(220, 39, 67, 0.45);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     }
-    .insta-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px rgba(220, 39, 67, 0.6);
-    }
-    .insta-btn svg { width: 22px; height: 22px; fill: #fff; }
 
+    .social-circle:hover {
+      transform: translateY(-4px) scale(1.08);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .social-circle svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+    }
+
+    .insta-circle {
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    }
+
+    .tiktok-circle {
+      background: #000;
+    }
+
+    .facebook-circle {
+      background: #1877F2;
+    }
   </style>
 </head>
 <body>
@@ -209,7 +237,22 @@ p{
  <p><a href="tel:+218944467520">0944467520</a></p>
   <p>📩 راسلونا على الخاص للطلبات!</p>
 
-<p>#AZIZA #clothing 👑. تواصلوا معنا الآن عبر واتساب.</p></div>
+
+    <!-- ===== معرض «وصل حديثًا» ===== -->
+    <div class="gallery-section">
+      <div class="gallery-title"> من داخل البوتيــك </div>
+      <div class="gallery">
+        <img src="paz1.jpg" alt="فستان أسود" loading="lazy">
+        <img src="paz2.jpg" alt="بدلة خيال" loading="lazy">
+        <img src="paz3.jpg" alt="تيشرتات" loading="lazy">
+        <img src="paz4.jpg" alt="تركيبات عزيزة" loading="lazy">
+      </div>
+
+
+<p>#AZIZA #clothing 👑
+  . تواصلوا معنا الآن عبر واتساب.
+</p>
+</div>
 
     <a class="whatsapp-btn"
    href="https://wa.me/218944467520"
@@ -222,21 +265,26 @@ p{
 
   تواصل عبر واتساب
 </a>
-<a class="insta-btn" href="https://www.instagram.com/aziza.boutique01?utm_source=qr" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 1.8a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2zm5.1-2.7a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z"/>
-      </svg>
-      تابعينا على إنستغرام
-    </a>
-    <!-- ===== معرض «وصل حديثًا» ===== -->
-    <div class="gallery-section">
-      <div class="gallery-title"> من داخل البوتيــك </div>
-      <div class="gallery">
-        <img src="paz1.jpg" alt="فستان أسود" loading="lazy">
-        <img src="paz2.jpg" alt="بدلة خيال" loading="lazy">
-        <img src="paz3.jpg" alt="تيشرتات" loading="lazy">
-        <img src="paz4.jpg" alt="تركيبات عزيزة" loading="lazy">
-      </div>
+<!-- صف الدوائر الاجتماعية -->
+    <div class="social-row">
+      <a class="social-circle insta-circle" href="https://www.instagram.com/aziza.boutique01?utm_source=qr" target="_blank" rel="noopener" aria-label="إنستغرام">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 1.8a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2zm5.1-2.7a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z"/>
+        </svg>
+      </a>
+
+      <a class="social-circle tiktok-circle" href="https://www.tiktok.com/@aziza.boutique01" target="_blank" rel="noopener" aria-label="تيك توك">
+        <svg viewBox="0 0 24 24">
+          <path d="M19.6 6.3c-1.3-.9-2.2-2.3-2.4-3.9h-3.1v13.5c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .6 0 .9.1V9.9c-.3 0-.6-.1-.9-.1-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6V9.2c1.2 1 2.7 1.6 4.3 1.6V7.7c-.7 0-1.4-.2-1.9-.5z"/>
+        </svg>
+      </a>
+
+      <a class="social-circle facebook-circle" href="https://www.facebook.com/aziza.boutique01" target="_blank" rel="noopener" aria-label="فيسبوك">
+        <svg viewBox="0 0 24 24">
+          <path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12z"/>
+        </svg>
+      </a>
+    </div>
   </div>
 </div>
 </body>
