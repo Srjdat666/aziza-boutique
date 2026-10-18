@@ -151,32 +151,28 @@ p{
       border-radius: 3px;
       margin-top: 6px;
     }
+/* ===== قسم المعرض ===== */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+  
+    .gallery img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
 
-    /* استثناء صور المعرض من قاعدة .card img */
-   .gallery{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:12px;
-}
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
 
-.gallery img{
-    width:100%;
-    height: auto;
-    aspect-ratio:1/1;
-    object-fit:cover;
-    border-radius:12px;
-}
-
-.gallery img{
-    box-shadow:0 4px 12px rgba(0,0,0,0.12);
-}
-.gallery img{
- transition: .3s ease;
-}
-
-.gallery img:hover{
- transform: scale(1.05);
-}
     /* ===== صف الدوائر الاجتماعية ===== */
     .social-row {
       display: flex;
