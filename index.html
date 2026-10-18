@@ -531,18 +531,28 @@ p{
     });
 
     sendBtn.addEventListener('click', () => {
-      const name = document.getElementById('orderName').value.trim() || 'زبون';
-      const phone = document.getElementById('orderPhone').value.trim();
+  const name = document.getElementById('orderName').value.trim() || 'زبون';
+  const phone = document.getElementById('orderPhone').value.trim();
 
-      if (!phone) {
-        alert('يرجى إدخال رقم الهاتف لنتمكن من التواصل معك.');
-        return;
-      }
-// تجهيز الرسالة
-      const message =` مرحباً AZIZA Boutique،\nأنا ${name}.\nأرغب في الطلب / الاستفسار عن المنتجات.\nرقم هاتفي: ${phone}`;
-      
-// فتح واتساب
-      const waUrl =` https://wa.me/218944467520?text=${encodeURIComponent(message)};
+  if (!phone) {
+    alert('يرجى إدخال رقم الهاتف لنتمكن من التواصل معك.');
+    return;
+  }
+
+  const message =
+`مرحباً AZIZA Boutique،
+أنا ${name}.
+أرغب في الطلب / الاستفسار عن المنتجات.
+رقم هاتفي: ${phone}`;
+
+  const waUrl =
+`https://wa.me/218944467520?text=${encodeURIComponent(message)}`;
+
+  window.open(waUrl, '_blank');
+
+  orderModal.classList.remove('active');
+  document.body.style.overflow = '';
+});
 </script>
 </body>
 </html>
