@@ -538,18 +538,11 @@ p{
         alert('يرجى إدخال رقم الهاتف لنتمكن من التواصل معك.');
         return;
       }
-
-      // تجهيز الرسالة (تم تصحيح الأقواس هنا)
-      const message = مرحباً AZIZA Boutique،\nأنا ${name}.\nأرغب في الطلب / الاستفسار عن المنتجات.\nرقم هاتفي: ${phone};
+// تجهيز الرسالة
+      const message =` مرحباً AZIZA Boutique،\nأنا ${name}.\nأرغب في الطلب / الاستفسار عن المنتجات.\nرقم هاتفي: ${phone}`;
       
-      // فتح واتساب (تم تصحيح الرابط هنا)
-      const waUrl = https://wa.me/218944467520?text=${encodeURIComponent(message)};
-      window.open(waUrl, '_blank');
-      
-      // إغلاق النافذة
-      orderModal.classList.remove('active');
-      document.body.style.overflow = '';
-    });
+// فتح واتساب
+      const waUrl =` https://wa.me/218944467520?text=${encodeURIComponent(message)};
 </script>
 </body>
 </html>
