@@ -1,579 +1,406 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-      <head>   
-       <meta charset="UTF-8">
-
-        <title>AZIZA Boutique | أزياء نسائية - سرت</title>
-<meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تواصلي معنا عبر واتساب.">
-<meta property="og:title" content="AZIZA Boutique">
-<meta property="og:description" content="أحدث صيحات الموضة النسائية - سرت">
-<meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/paz1.jpg">
-<meta property="og:type" content="website">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/jpeg" href="logo.jpg">
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f3460">
-<link rel="apple-touch-icon" href="logo.jpg">
-  <style>
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZIZA Boutique | أزياء نسائية - سرت</title>
+  <meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تواصلي معنا عبر واتساب.">
+  <meta property="og:title" content="AZIZA Boutique">
+  <meta property="og:description" content="أحدث صيحات الموضة النسائية - سرت">
+  <meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/paz1.jpg">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0f3460">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+ 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+ 
+ <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+ 
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+      padding:20px;
+      font-family:'Cairo','Poppins',sans-serif;
     }
-
-    h1{
-      font-family:'Playfair Display', serif;
+ 
+    h1{ font-family:'Playfair Display',serif; }
+    p,.contact a{ font-family:'Poppins','Cairo',sans-serif; }
+ 
+    /* ===== البطاقة ===== */
+    .card{
+      background:#fff;
+      width:100%;
+      max-width:400px;
+      border-radius:24px;
+      overflow:hidden;
+      box-shadow:0 20px 60px rgba(0,0,0,.4);
+      text-align:center;
+      animation:fadeIn .8s ease;
     }
-
-    p,
-    .contact a{
-      font-family:'Poppins', sans-serif;
+    @keyframes fadeIn{
+      from{ opacity:0; transform:translateY(20px); }
+      to{ opacity:1; transform:translateY(0); }
     }
-  
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-      padding: 20px;
+ 
+    .card > img{
+      width:100%;
+      height:260px;
+      object-fit:cover;
+      display:block;
     }
-
-    .card {
-      background: #fff;
-      width: 100%;
-      max-width: 400px;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-      text-align: center;
-      animation: fadeIn 0.8s ease;
+    .card h1{
+      font-size:2.4rem;
+      color:#0f3460;
+      margin:20px 0 8px;
+      letter-spacing:2px;
     }
-
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .card p{
+      color:#666;
+      font-size:1rem;
+      padding:0 24px 24px;
+      line-height:1.6;
     }
-
-    .card img {
-      width: 100%;
-      height: 260px;
-      object-fit: cover;
-      display: block;
+ 
+    /* ===== إشعار وصول جديد ===== */
+    .new-badge{
+      display:inline-block;
+      background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+      color:#fff;
+      font-weight:bold;
+      font-size:.95rem;
+      padding:8px 40px;
+      border-radius:50px;
+      margin-bottom:5px;
+      box-shadow:0 4px 15px rgba(220,39,67,.4);
+      animation:pulse 2s infinite;
     }
-
-    .card h1 {
-      font-size: 2.4rem;
-      color: #0f3460;
-      margin: 20px 0 8px;
-      letter-spacing: 2px;
+    @keyframes pulse{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.05); }
     }
-
-    .card p {
-      color: #666;
-      font-size: 1rem;
-      padding: 0 24px 24px;
-      line-height: 1.6;
+ 
+    /* ===== التواصل ===== */
+    .contact a{ color:#0f3460; font-weight:bold; text-decoration:none; }
+    .contact p{ padding:0 24px 6px; }
+ 
+    /* ===== المعرض ===== */
+    .gallery-section{ padding:0 22px 8px; text-align:right; }
+    .gallery-title{
+      font-size:1.15rem;
+      font-weight:700;
+      color:#0f3460;
+      margin-bottom:12px;
+      display:inline-block;
     }
-
-    .whatsapp-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: #25D366;
-      color: #fff;
-      text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: bold;
-      padding: 14px 36px;
-      border-radius: 50px;
-      margin-bottom: 10px auto;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+    .gallery-title::after{
+      content:"";
+      display:block;
+      width:40px;
+      height:3px;
+      background:#7597de;
+      border-radius:3px;
+      margin-top:6px;
     }
-
-    .whatsapp-btn:hover {
-      background: #1ebe5b;
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px rgba(37, 211, 102, 0.55);
+    .gallery{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
     }
-
-    .whatsapp-btn svg {
-      width: 24px;
-      height: 24px;
-      fill: #fff;
+    .gallery img{
+      width:100%;
+      height:auto;
+      aspect-ratio:1/1;
+      object-fit:cover;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,.12);
+      transition:transform .3s ease;
+      cursor:pointer;
     }
-h1{
-    font-family: 'Playfair Display', serif;
-    font-size: 40px;
-}
-.contact a { color: #0f3460; text-decoration: none; font-weight: bold; } 
-p{
-    font-family: 'Poppins', sans-serif;
-}
-
-    .contact p { padding: 0 24px 6px; }
-
-
-    .contact a{
-    color: #0f3460;
-    font-weight: bold;
-    text-decoration: none;
-}
-/* ===== قسم المعرض ===== */
-    .gallery-section {
-      padding: 0 22px 8px;
-      text-align: right;
+    .gallery img:hover{ transform:scale(1.05); }
+ 
+    /* ===== زر واتساب ===== */
+    .whatsapp-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      background:#25D366;
+      color:#fff;
+      text-decoration:none;
+      font-size:1.1rem;
+      font-weight:bold;
+      padding:14px 36px;
+      border-radius:50px;
+      margin:10px auto;
+      transition:all .3s ease;
+      box-shadow:0 8px 20px rgba(37,211,102,.4);
     }
-
-    .gallery-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #0f3460;
-      margin-bottom: 12px;
-      display: inline-block;
+    .whatsapp-btn:hover{
+      background:#1ebe5b;
+      transform:translateY(-3px);
+      box-shadow:0 12px 28px rgba(37,211,102,.55);
     }
-    .gallery-title::after {
-      content: "";
-      display: block;
-      width: 40px;
-      height: 3px;
-      background: #7597de;
-      border-radius: 3px;
-      margin-top: 6px;
+    .whatsapp-btn svg{ width:24px; height:24px; fill:#fff; }
+ 
+    /* ===== الدوائر الاجتماعية ===== */
+    .social-row{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:15px;
+      margin-top:35px;
+      margin-bottom:28px;
+      padding:0 10px;
+      flex-wrap:nowrap;
     }
-/* ===== قسم المعرض ===== */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+    .social-circle{
+      width:45px;
+      height:45px;
+      border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      transition:transform .3s ease, box-shadow .3s ease;
+      box-shadow:0 6px 16px rgba(0,0,0,.2);
+      flex-shrink:0;
     }
-  
-    .gallery img {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      transition: transform 0.3s ease;
-      cursor: pointer;
+    .social-circle:hover{
+      transform:translateY(-4px) scale(1.08);
+      box-shadow:0 10px 24px rgba(0,0,0,.3);
     }
-
-    .gallery img:hover {
-      transform: scale(1.05);
-    }
-
-  /* ===== صف الدوائر الاجتماعية ===== */
-    .social-row {
-      display: flex;
-      justify-content: center; 
-      align-items: center;
-      gap: 15px; /* المسافة بين الدوائر وبعضها */
-      margin-top: 35px; /* 👈 هذه المسافة الجديدة ستنزل الدوائر بعيداً عن زر الواتساب */
-      margin-bottom: 28px;
-      padding: 0 10px; 
-      flex-wrap: nowrap; /* 👈 هذا الكود يجبر جميع الدوائر على البقاء في سطر واحد وعدم النزول لسطر جديد */
-    }
-
-    .social-circle {
-      width: 45px;  /* 👈 تم تصغير العرض من 52 إلى 45 لتناسب السطر الواحد */
-      height: 45px; /* 👈 تم تصغير الطول من 52 إلى 45 */
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      flex-shrink: 0; /* يمنع الأزرار من الانضغاط */
-    }
-
-    .social-circle:hover {
-      transform: translateY(-4px) scale(1.08);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    .social-circle svg {
-      width: 24px;
-      height: 24px;
-      fill: #fff;
-    }
-
-    .insta-circle {
-      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-    }
-
-    .tiktok-circle {
-      background: #000;
-    }
-
-    .facebook-circle {
-      background: #1877F2;
-    }
-  .snapchat-circle {
-  background-color: #FFFC00; /* لون خلفية سناب شات الأصفر */
-}
-
-.snapchat-circle img {
-  width: 28px; /* تم تكبير العرض */
-  height: 28px; /* تم تكبير الطول */
-  object-fit: contain; /* لضمان عدم تشوه الصورة */
-}
-
+    .social-circle svg{ width:24px; height:24px; fill:#fff; }
+    .insta-circle{ background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+    .tiktok-circle{ background:#000; }
+    .facebook-circle{ background:#1877F2; }
+    .snapchat-circle{ background-color:#FFFC00; }
+    .snapchat-circle img{ width:28px; height:28px; object-fit:contain; }
+ 
     /* ===== Lightbox ===== */
-    .gallery img {
-      cursor: pointer;
+    .lightbox{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.88);
+      z-index:999;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      animation:lbFade .25s ease;
     }
-
-    .lightbox {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.88);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      animation: lbFade 0.25s ease;
+    .lightbox.active{ display:flex; }
+    @keyframes lbFade{ from{opacity:0;} to{opacity:1;} }
+    .lightbox img{
+      max-width:92vw;
+      max-height:88vh;
+      width:auto;
+      height:auto;
+      border-radius:12px;
+      box-shadow:0 20px 60px rgba(0,0,0,.6);
+      animation:lbZoom .3s ease;
     }
-
-    .lightbox.active {
-      display: flex;
+    @keyframes lbZoom{
+      from{ transform:scale(.85); opacity:0; }
+      to{ transform:scale(1); opacity:1; }
     }
-
-    @keyframes lbFade {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    .lightbox-close{
+      position:absolute;
+      top:18px;
+      right:22px;
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      background:rgba(255,255,255,.15);
+      color:#fff;
+      font-size:1.6rem;
+      line-height:1;
+      border:none;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:background .25s ease;
     }
-
-    .lightbox img {
-      max-width: 92vw;
-      max-height: 88vh;
-      width: auto;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      animation: lbZoom 0.3s ease;
+    .lightbox-close:hover{ background:rgba(255,255,255,.3); }
+ 
+    /* ===== شاشة التحميل ===== */
+    #loader{
+      position:fixed;
+      inset:0;
+      background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:9999;
+      transition:opacity .6s ease;
     }
-
-    @keyframes lbZoom {
-      from { transform: scale(0.85); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
+    #loader::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+        url("Loading.jpg");
+      background-size:cover;
+      background-position:center;
+      filter:blur(1.5px);
+      transform:scale(1.03);
     }
-
-    .lightbox-close {
-      position: absolute;
-      top: 18px;
-      right: 22px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      font-size: 1.6rem;
-      line-height: 1;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.25s ease;
+    .loader-content{ position:relative; z-index:2; text-align:center; }
+    .loader-title{
+      font-family:'Cinzel Decorative',serif;
+      font-size:3rem;
+      color:#fff;
+      letter-spacing:4px;
+      text-shadow:0 0 20px rgba(255,255,255,.25);
+      animation:fadeGlow 2s ease-in-out infinite;
     }
-
-    .lightbox-close:hover {
-      background: rgba(255, 255, 255, 0.3);
+    .loader-subtitle{
+      font-family:'Playfair Display',serif;
+      color:#d4af37;
+      font-size:1.1rem;
+      letter-spacing:6px;
+      margin-top:12px;
+      text-transform:uppercase;
     }
-
-/* ===== إشعار وصول جديد ===== */
-    .new-badge {
-      display: inline-block;
-      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-      color: #fff;
-      font-weight: bold;
-      font-size: 0.95rem;
-      padding: 8px 40px;
-      border-radius: 50px;
-      margin-bottom: 5px;
-      box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);
-      animation: pulse 2s infinite;
-      font-family: 'Poppins', sans-serif;
+    .loading-text{
+      color:#fff;
+      letter-spacing:4px;
+      margin-top:15px;
+      font-size:.9rem;
+      font-family:'Playfair Display',serif;
     }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    @keyframes fadeGlow{
+      0%,100%{ opacity:.7; transform:scale(1); }
+      50%{
+        opacity:1;
+        transform:scale(1.05);
+        text-shadow:0 0 15px rgba(212,175,55,.4), 0 0 35px rgba(212,175,55,.3);
+      }
     }
-#loader{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
-
-.spinner{
-  width:50px;
-  height:50px;
-  border:4px solid #eee;
-  border-top:4px solid #d4af37;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-  100%{
-    transform:rotate(360deg);
-  }
-}
-
-#loader{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
-
-.loader-content{
-  text-align:center;
-}
-
-.loader-title{
-  font-family:'Cinzel Decorative', serif;
-  font-size:3rem;
-  color:#ffffff;
-  letter-spacing:4px;
-  text-shadow:0 0 20px rgba(255,255,255,.25);
-  animation:fadeGlow 2s ease-in-out infinite;
-}
-
-.loader-subtitle{
-  font-family:'Playfair Display', serif;
-  color:#d4af37;
-  font-size:1.1rem;
-  letter-spacing:6px;
-  margin-top:12px;
-  text-transform:uppercase;
-}
-
-@keyframes fadeGlow{
-  0%,100%{
-    opacity:.7;
-    transform:scale(1);
-  }
-
-  50%{
-    opacity:1;
-    transform:scale(1.05);
-    text-shadow:
-      0 0 15px rgba(212,175,55,.4),
-      0 0 35px rgba(212,175,55,.3);
-  }
-}
-.loading-text{
-  margin-top:15px;
-  color:#888;
-  font-family:'Playfair Display', serif;
-  letter-spacing:3px;
-}
-#loader{
-  transition: opacity .6s ease;
-}
-#loader::before{
-  content:"";
-  position:absolute;
-  inset:0;
-
-  background:
-    linear-gradient(
-      rgba(0,0,0,.55),
-      rgba(0,0,0,.55)
-    ),
-    url("Loading.jpg");
-
-  background: size cover;
-  background-position:center;
-
-  filter:blur(1.5px);
-  transform:scale(1.03);
-}
-.loader-content{
-  position:relative;
-  z-index:2;
-}
-.loading-text{
-  color:#ffffff;
-  letter-spacing:4px;
-  margin-top:15px;
-  font-size:.9rem;
-  font-family:'Playfair Display', serif;
-}
-.loading-dots{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-  margin-top:22px;
-}
-
-.loading-dots span{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  background:#d4af37;
-  animation:dots 1.4s infinite ease-in-out;
-}
-
-.loading-dots span:nth-child(2){
-  animation-delay:.2s;
-}
-
-.loading-dots span:nth-child(3){
-  animation-delay:.4s;
-}
-
-@keyframes dots{
-  0%,80%,100%{
-    transform:translateY(0);
-    opacity:.3;
-  }
-
-  40%{
-    transform:translateY(-10px);
-    opacity:1;
-  }
-}
+    .loading-dots{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin-top:22px;
+    }
+    .loading-dots span{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#d4af37;
+      animation:dots 1.4s infinite ease-in-out;
+    }
+    .loading-dots span:nth-child(2){ animation-delay:.2s; }
+    .loading-dots span:nth-child(3){ animation-delay:.4s; }
+    @keyframes dots{
+      0%,80%,100%{ transform:translateY(0); opacity:.3; }
+      40%{ transform:translateY(-10px); opacity:1; }
+    }
   </style>
 </head>
 <body>
-
+ 
   <div class="card">
-    
-    <!-- إشعار وصول جديد -->
+ 
     <div class="new-badge">✨ وصل حديثاً - تشكيلة جديدة ✨</div>
-    <!-- ضع رابط صورتك هنا -->
-<img src="shop.png.png" alt="AZIZA">
-<h1>AZIZA Boutique</h1>
-<p>
-مرحبًا بكم في AZIZA Boutique،
-حيث تعبّر الأناقة عنكِ.
-نوفر أحدث صيحات الموضة النسائية بجودة عالية وتصاميم مميزة تناسب جميع الأذواق ✨
-</p>
-<div class="contact">
-<p>📍- سـرت - شارع 5 - العمارة رقم "89" </p>
-<p> للتواصل </p>
-  <p><a href="tel:+218919652924">0919652924</a> </p>
- <p><a href="tel:+218944467520">0944467520</a></p>
-  <p>📩 راسلونا على الخاص للطلبات!</p>
- </div>
-
-    <!-- ===== معرض «وصل حديثًا» ===== -->
+ 
+    <!-- ملاحظة: أعد تسمية الملف إلى shop.png ثم عدّل السطر التالي -->
+    <img src="shop.png" alt="AZIZA">
+    <h1>AZIZA Boutique</h1>
+    <p>
+      مرحبًا بكم في AZIZA Boutique،
+      حيث تعبّر الأناقة عنكِ.
+      نوفر أحدث صيحات الموضة النسائية بجودة عالية وتصاميم مميزة تناسب جميع الأذواق ✨
+    </p>
+ 
+    <div class="contact">
+      <p>📍- سـرت - شارع 5 - العمارة رقم "89"</p>
+      <p>للتواصل</p>
+      <p><a href="tel:+218919652924">0919652924</a></p>
+      <p><a href="tel:+218944467520">0944467520</a></p>
+      <p>📩 راسلونا على الخاص للطلبات!</p>
+    </div>
+ 
+    <!-- ===== المعرض ===== -->
     <div class="gallery-section">
-      <div class="gallery-title"> من داخل البوتيــك </div>
+      <div class="gallery-title">من داخل البوتيــك</div>
       <div class="gallery">
         <img src="paz1.jpg" alt="فستان أسود" loading="lazy">
         <img src="paz2.jpg" alt="بدلة خيال" loading="lazy">
         <img src="paz3.jpg" alt="تيشرتات" loading="lazy">
         <img src="paz4.jpg" alt="تركيبات عزيزة" loading="lazy">
       </div>
-
-</div>
-
-<a class="whatsapp-btn"
- data-goatcounter-click="WhatsApp-Click"
- data-goatcounter-title="زر واتساب"
- href="https://wa.me/218944467520"
- target="_blank"
- rel="noopener">
-
- <svg viewBox="0 0 32 32">
-  <path d="M16 .8C7.6.8.8 7.6.8 16c0 2.7.7 5.3 2 7.6L.8 31.2l7.8-2c2.2 1.2 4.8 1.9 7.4 1.9 8.4 0 15.2-6.8 15.2-15.2S24.4.8 16 .8zm0 27.8c-2.3 0-4.5-.6-6.4-1.8l-.5-.3-4.6 1.2 1.2-4.5-.3-.5c-1.3-2-2-4.3-2-6.7C3.4 9 9 3.4 16 3.4S28.6 9 28.6 16 23 28.6 16 28.6zm6.9-9.5c-.4-.2-2.2-1.1-2.6-1.2-.3-.1-.6-.2-.8.2-.2.4-.9 1.2-1.1 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.7.2-.2.2-.4.4-.6.1-.2 0-.5 0-.7-.1-.2-.8-1.9-1.1-2.6-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.7 5.9 5.2.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.6.2-1.8-.1-.1-.3-.2-.6-.3z"/>
-</svg>
-  تواصل عبر واتساب
+    </div>
+ 
+    <a class="whatsapp-btn"
+       data-goatcounter-click="WhatsApp-Click"
+       data-goatcounter-title="زر واتساب"
+       href="https://wa.me/218944467520"
+       target="_blank"
+       rel="noopener">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 .8C7.6.8.8 7.6.8 16c0 2.7.7 5.3 2 7.6L.8 31.2l7.8-2c2.2 1.2 4.8 1.9 7.4 1.9 8.4 0 15.2-6.8 15.2-15.2S24.4.8 16 .8zm0 27.8c-2.3 0-4.5-.6-6.4-1.8l-.5-.3-4.6 1.2 1.2-4.5-.3-.5c-1.3-2-2-4.3-2-6.7C3.4 9 9 3.4 16 3.4S28.6 9 28.6 16 23 28.6 16 28.6zm6.9-9.5c-.4-.2-2.2-1.1-2.6-1.2-.3-.1-.6-.2-.8.2-.2.4-.9 1.2-1.1 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.7.2-.2.2-.4.4-.6.1-.2 0-.5 0-.7-.1-.2-.8-1.9-1.1-2.6-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.7 5.9 5.2.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.6.2-1.8-.1-.1-.3-.2-.6-.3z"/>
+      </svg>
+      تواصل عبر واتساب
     </a>
-    <br>
-
-      <!-- صف الدوائر الاجتماعية -->
+  <!-- ===== الدوائر الاجتماعية ===== -->
     <div class="social-row">
       <a class="social-circle insta-circle" href="https://www.instagram.com/aziza.boutique01" target="_blank" rel="noopener" aria-label="إنستغرام">
         <svg viewBox="0 0 24 24">
           <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 1.8a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2zm5.1-2.7a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z"/>
         </svg>
       </a>
-
-      <a class="social-circle tiktok-circle" href="https://www.tiktok.com/@aziza.store1?_r=1&_t=ZS-9AKXVrEJ8Oy" target="_blank" rel="noopener" aria-label="تيك توك">
+ 
+      <a class="social-circle tiktok-circle" href="https://www.tiktok.com/@aziza.store1?_r=1&amp;_t=ZS-9AKXVrEJ8Oy" target="_blank" rel="noopener" aria-label="تيك توك">
         <svg viewBox="0 0 24 24">
           <path d="M19.6 6.3c-1.3-.9-2.2-2.3-2.4-3.9h-3.1v13.5c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .6 0 .9.1V9.9c-.3 0-.6-.1-.9-.1-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6V9.2c1.2 1 2.7 1.6 4.3 1.6V7.7c-.7 0-1.4-.2-1.9-.5z"/>
         </svg>
       </a>
-      <a class="social-circle snapchat-circle" 
-   href="https://snapchat.com/t/UYMV2sWB" 
-   target="_blank" 
-   rel="noopener" 
-   aria-label="سناب شات">
-   <img src="snapchat.jpg" alt="Snapchat">
-</a>
+ 
+      <a class="social-circle snapchat-circle" href="https://snapchat.com/t/UYMV2sWB" target="_blank" rel="noopener" aria-label="سناب شات">
+        <img src="snapchat.jpg" alt="Snapchat">
+      </a>
+ 
       <a class="social-circle facebook-circle" href="https://www.facebook.com/share/1M7TuNEcYZ/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="فيسبوك">
         <svg viewBox="0 0 24 24">
           <path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12z"/>
         </svg>
       </a>
-    </div>   <!-- نهاية social-row -->
-  </div>     <!-- نهاية card -->
+    </div>
+  </div>
+ 
   <!-- ===== Lightbox ===== -->
   <div class="lightbox" id="lightbox">
     <button class="lightbox-close" id="lightbox-close" aria-label="إغلاق">✕</button>
     <img src="" alt="" id="lightbox-img">
   </div>
-<div id="loader">
-
-  <div class="loader-content">
-
-    <h1 class="loader-title">
-      AZIZA Boutique
-    </h1>
-
-    <p class="loader-subtitle">
-      Elegance & Style
-    </p>
-
-    <div class="loading-dots">
-      <span></span>
-      <span></span>
-      <span></span>
+ 
+  <!-- ===== شاشة التحميل ===== -->
+  <div id="loader">
+    <div class="loader-content">
+      <h1 class="loader-title">AZIZA Boutique</h1>
+      <p class="loader-subtitle">Elegance &amp; Style</p>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p class="loading-text">Preparing Your Experience</p>
     </div>
-
-    <p class="loading-text">
-      Preparing Your Experience
-    </p>
-
   </div>
-
-</div>
-
+ 
   <script>
     (function () {
       const lightbox = document.getElementById('lightbox');
       const lightboxImg = document.getElementById('lightbox-img');
       const closeBtn = document.getElementById('lightbox-close');
-      const galleryImgs = document.querySelectorAll('.gallery img');
-
-      galleryImgs.forEach(img => {
+ 
+      document.querySelectorAll('.gallery img').forEach(img => {
         img.addEventListener('click', () => {
           lightboxImg.src = img.src;
           lightboxImg.alt = img.alt;
@@ -581,43 +408,29 @@ p{
           document.body.style.overflow = 'hidden';
         });
       });
-
+ 
       function closeLightbox() {
         lightbox.classList.remove('active');
         document.body.style.overflow = '';
         lightboxImg.src = '';
       }
-
+ 
       closeBtn.addEventListener('click', closeLightbox);
-      lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeLightbox();
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeLightbox();
+      lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+ 
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('loader');
+        setTimeout(() => {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 600);
+        }, 1800);
       });
     })();
   </script>
  
-<script data-goatcounter="https://azizaboutique.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js">
-      </script>
-      <script>
-window.addEventListener('load', () => {
-
-  const loader = document.getElementById('loader');
-
-  setTimeout(() => {
-
-    loader.style.opacity = '0';
-
-    setTimeout(() => {
-      loader.remove();
-    }, 600);
-
-  }, 1800);
-
-});
-</script>
+  <script data-goatcounter="https://azizaboutique.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
-
+ 
