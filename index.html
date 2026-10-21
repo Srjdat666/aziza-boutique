@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f3460">
 <link rel="apple-touch-icon" href="logo.jpg">
@@ -94,7 +94,7 @@
       font-weight: bold;
       padding: 14px 36px;
       border-radius: 50px;
-      margin-bottom: 18px;
+      margin-bottom: 10px auto;
       transition: all 0.3s ease;
       box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
     }
@@ -171,18 +171,21 @@ p{
       transform: scale(1.05);
     }
 
-    /* ===== صف الدوائر الاجتماعية ===== */
+  /* ===== صف الدوائر الاجتماعية ===== */
     .social-row {
       display: flex;
-      justify-content: center;
+      justify-content: center; 
       align-items: center;
-      gap: 16px;
+      gap: 15px; /* المسافة بين الدوائر وبعضها */
+      margin-top: 35px; /* 👈 هذه المسافة الجديدة ستنزل الدوائر بعيداً عن زر الواتساب */
       margin-bottom: 28px;
+      padding: 0 10px; 
+      flex-wrap: nowrap; /* 👈 هذا الكود يجبر جميع الدوائر على البقاء في سطر واحد وعدم النزول لسطر جديد */
     }
 
     .social-circle {
-      width: 52px;
-      height: 52px;
+      width: 45px;  /* 👈 تم تصغير العرض من 52 إلى 45 لتناسب السطر الواحد */
+      height: 45px; /* 👈 تم تصغير الطول من 52 إلى 45 */
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
@@ -190,6 +193,7 @@ p{
       text-decoration: none;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      flex-shrink: 0; /* يمنع الأزرار من الانضغاط */
     }
 
     .social-circle:hover {
@@ -214,6 +218,16 @@ p{
     .facebook-circle {
       background: #1877F2;
     }
+  .snapchat-circle {
+  background-color: #FFFC00; /* لون خلفية سناب شات الأصفر */
+}
+
+.snapchat-circle img {
+  width: 28px; /* تم تكبير العرض */
+  height: 28px; /* تم تكبير الطول */
+  object-fit: contain; /* لضمان عدم تشوه الصورة */
+}
+
     /* ===== Lightbox ===== */
     .gallery img {
       cursor: pointer;
@@ -298,7 +312,152 @@ p{
       50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
+#loader{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
 
+.spinner{
+  width:50px;
+  height:50px;
+  border:4px solid #eee;
+  border-top:4px solid #d4af37;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  100%{
+    transform:rotate(360deg);
+  }
+}
+
+#loader{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.loader-content{
+  text-align:center;
+}
+
+.loader-title{
+  font-family:'Cinzel Decorative', serif;
+  font-size:3rem;
+  color:#ffffff;
+  letter-spacing:4px;
+  text-shadow:0 0 20px rgba(255,255,255,.25);
+  animation:fadeGlow 2s ease-in-out infinite;
+}
+
+.loader-subtitle{
+  font-family:'Playfair Display', serif;
+  color:#d4af37;
+  font-size:1.1rem;
+  letter-spacing:6px;
+  margin-top:12px;
+  text-transform:uppercase;
+}
+
+@keyframes fadeGlow{
+  0%,100%{
+    opacity:.7;
+    transform:scale(1);
+  }
+
+  50%{
+    opacity:1;
+    transform:scale(1.05);
+    text-shadow:
+      0 0 15px rgba(212,175,55,.4),
+      0 0 35px rgba(212,175,55,.3);
+  }
+}
+.loading-text{
+  margin-top:15px;
+  color:#888;
+  font-family:'Playfair Display', serif;
+  letter-spacing:3px;
+}
+#loader{
+  transition: opacity .6s ease;
+}
+#loader::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:
+    linear-gradient(
+      rgba(0,0,0,.55),
+      rgba(0,0,0,.55)
+    ),
+    url("Loading.jpg");
+
+  background: size cover;
+  background-position:center;
+
+  filter:blur(1.5px);
+  transform:scale(1.03);
+}
+.loader-content{
+  position:relative;
+  z-index:2;
+}
+.loading-text{
+  color:#ffffff;
+  letter-spacing:4px;
+  margin-top:15px;
+  font-size:.9rem;
+  font-family:'Playfair Display', serif;
+}
+.loading-dots{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-top:22px;
+}
+
+.loading-dots span{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#d4af37;
+  animation:dots 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2){
+  animation-delay:.2s;
+}
+
+.loading-dots span:nth-child(3){
+  animation-delay:.4s;
+}
+
+@keyframes dots{
+  0%,80%,100%{
+    transform:translateY(0);
+    opacity:.3;
+  }
+
+  40%{
+    transform:translateY(-10px);
+    opacity:1;
+  }
+}
   </style>
 </head>
 <body>
@@ -317,7 +476,8 @@ p{
 </p>
 <div class="contact">
 <p>📍- سـرت - شارع 5 - العمارة رقم "89" </p>
-<p> للتواصل <a href="tel:+218919652924">0919652924</a> </p>
+<p> للتواصل </p>
+  <p><a href="tel:+218919652924">0919652924</a> </p>
  <p><a href="tel:+218944467520">0944467520</a></p>
   <p>📩 راسلونا على الخاص للطلبات!</p>
  </div>
@@ -346,6 +506,8 @@ p{
 </svg>
   تواصل عبر واتساب
     </a>
+    <br>
+
       <!-- صف الدوائر الاجتماعية -->
     <div class="social-row">
       <a class="social-circle insta-circle" href="https://www.instagram.com/aziza.boutique01" target="_blank" rel="noopener" aria-label="إنستغرام">
@@ -359,7 +521,13 @@ p{
           <path d="M19.6 6.3c-1.3-.9-2.2-2.3-2.4-3.9h-3.1v13.5c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .6 0 .9.1V9.9c-.3 0-.6-.1-.9-.1-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6V9.2c1.2 1 2.7 1.6 4.3 1.6V7.7c-.7 0-1.4-.2-1.9-.5z"/>
         </svg>
       </a>
-
+      <a class="social-circle snapchat-circle" 
+   href="https://snapchat.com/t/UYMV2sWB" 
+   target="_blank" 
+   rel="noopener" 
+   aria-label="سناب شات">
+   <img src="snapchat.jpg" alt="Snapchat">
+</a>
       <a class="social-circle facebook-circle" href="https://www.facebook.com/share/1M7TuNEcYZ/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="فيسبوك">
         <svg viewBox="0 0 24 24">
           <path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12z"/>
@@ -372,6 +540,31 @@ p{
     <button class="lightbox-close" id="lightbox-close" aria-label="إغلاق">✕</button>
     <img src="" alt="" id="lightbox-img">
   </div>
+<div id="loader">
+
+  <div class="loader-content">
+
+    <h1 class="loader-title">
+      AZIZA Boutique
+    </h1>
+
+    <p class="loader-subtitle">
+      Elegance & Style
+    </p>
+
+    <div class="loading-dots">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <p class="loading-text">
+      Preparing Your Experience
+    </p>
+
+  </div>
+
+</div>
 
   <script>
     (function () {
@@ -408,6 +601,23 @@ p{
 <script data-goatcounter="https://azizaboutique.goatcounter.com/count"
         async src="//gc.zgo.at/count.js">
       </script>
+      <script>
+window.addEventListener('load', () => {
+
+  const loader = document.getElementById('loader');
+
+  setTimeout(() => {
+
+    loader.style.opacity = '0';
+
+    setTimeout(() => {
+      loader.remove();
+    }, 600);
+
+  }, 1800);
+
+});
+</script>
 </body>
 </html>
 
