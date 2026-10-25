@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm install && npm run build:admin && npm run build:storefront",
+  "outputDirectory": "apps/storefront/dist",
+  "installCommand": "npm install",
+  "framework": null,
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/(.*)", "destination": "/admin/index.html" }
+  ]
+}

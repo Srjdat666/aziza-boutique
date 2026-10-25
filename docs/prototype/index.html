@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZIZA — نموذج أولي تفاعلي</title>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--gesso:#F7EEE8;--petal:#EBD6CD;--rose:#D49A91;--wine:#6E1F33;--ink:#2B151B;--muted:#6A4F55;
+      --ruqaa:"Aref Ruqaa","IBM Plex Sans Arabic",serif;--text:"IBM Plex Sans Arabic",system-ui,sans-serif;--mark:"Cinzel Decorative",serif}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--text);background:var(--gesso);color:var(--ink);max-width:430px;margin:0 auto;min-height:100vh}
+    .proto-bar{background:var(--wine);color:#fff;padding:.5rem 1rem;font-size:.85rem;display:flex;justify-content:space-between;align-items:center}
+    .proto-bar a{color:var(--petal)}
+    .screen{display:none;padding:1.25rem 1rem 5rem}
+    .screen.active{display:block}
+    .wordmark{font-family:var(--mark);letter-spacing:.14em;color:var(--wine);font-size:1.2rem;text-align:center}
+    .tagline{font-family:var(--ruqaa);font-size:1.75rem;text-align:center;margin:.5rem 0 1.5rem}
+    .arch{width:100%;aspect-ratio:4/5;background:var(--petal);border-radius:999px 999px 0 0;margin:0 auto 1rem;max-width:320px;display:block}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+    .card{background:var(--petal);border:0;border-radius:4px;aspect-ratio:3/4;cursor:pointer;text-align:right;padding:0;overflow:hidden;position:relative}
+    .card img{width:100%;height:100%;object-fit:cover;background:#ddd}
+    .badge{position:absolute;top:.5rem;right:.5rem;background:var(--wine);color:#fff;font-size:.7rem;padding:.2rem .5rem;border-radius:999px}
+    .btn{display:block;width:100%;padding:.9rem;background:var(--wine);color:#fff;border:0;border-radius:999px;font-family:inherit;font-weight:600;font-size:1rem;cursor:pointer;margin-top:1rem;text-align:center;text-decoration:none}
+    .btn-outline{background:transparent;color:var(--wine);border:1.5px solid var(--wine)}
+    .nav-dock{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:#fff;border-top:1px solid var(--petal);display:flex;justify-content:space-around;padding:.6rem}
+    .nav-dock button{background:none;border:0;font-family:inherit;font-size:.75rem;color:var(--muted);cursor:pointer;padding:.25rem}
+    .nav-dock button.active{color:var(--wine);font-weight:600}
+    h2{font-family:var(--ruqaa);color:var(--wine);margin:1rem 0 .5rem}
+    .price{color:var(--wine);font-weight:600;font-size:1.25rem}
+    .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0}
+    .chip{padding:.35rem .85rem;border:1.5px solid var(--petal);border-radius:999px;background:#fff;cursor:pointer;font-size:.9rem}
+    .chip.selected{border-color:var(--wine);background:var(--wine);color:#fff}
+    .admin-form label{display:block;margin-top:.75rem;font-size:.9rem;color:var(--muted)}
+    .admin-form input,.admin-form select{width:100%;padding:.65rem;margin-top:.25rem;border:1px solid var(--petal);border-radius:8px;font-family:inherit}
+    .cart-line{display:flex;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid var(--petal)}
+  </style>
+</head>
+<body>
+  <div class="proto-bar">
+    <span>نموذج أولي — مرحلة 0</span>
+    <a href="../erd.md">ERD</a>
+  </div>
+
+  <section id="home" class="screen active">
+    <div class="arch" role="img" aria-label="صورة البوتيك"></div>
+    <p class="wordmark" lang="en" dir="ltr">AZIZA Boutique</p>
+    <p class="tagline">حيث تعبّر الأناقة عنكِ</p>
+    <h2>وصل حديثاً</h2>
+    <div class="grid">
+      <button type="button" class="card" data-go="product"><span class="badge">جديد</span></button>
+      <button type="button" class="card" data-go="product"></button>
+      <button type="button" class="card" data-go="product"><span class="badge">خصم</span></button>
+    </div>
+    <button type="button" class="btn btn-outline" data-go="shop">كل المنتجات</button>
+  </section>
+
+  <section id="shop" class="screen">
+    <h2>المنتجات</h2>
+    <input type="search" placeholder="بحث..." style="width:100%;padding:.65rem;border:1px solid var(--petal);border-radius:8px;margin-bottom:1rem">
+    <div class="chips">
+      <span class="chip selected">الكل</span>
+      <span class="chip">فساتين</span>
+      <span class="chip">بدلات</span>
+      <span class="chip">تيشرتات</span>
+    </div>
+    <div class="grid">
+      <button type="button" class="card" data-go="product"></button>
+      <button type="button" class="card" data-go="product"></button>
+      <button type="button" class="card" data-go="product"></button>
+      <button type="button" class="card" data-go="product"></button>
+    </div>
+  </section>
+
+  <section id="product" class="screen">
+    <div class="arch" style="max-width:100%;border-radius:4px;aspect-ratio:3/4"></div>
+    <h2>فستان أسود — عشاء</h2>
+    <p class="price">185 د.ل</p>
+    <p style="color:var(--muted);margin-top:.5rem;font-size:.95rem">قماش ناعم، مناسب للمناسبات.</p>
+    <p style="margin-top:1rem;font-weight:600">المقاس</p>
+    <div class="chips" data-group="size">
+      <button type="button" class="chip selected">M</button>
+      <button type="button" class="chip">L</button>
+      <button type="button" class="chip">XL</button>
+    </div>
+    <p style="margin-top:.75rem;font-weight:600">اللون</p>
+    <div class="chips" data-group="color">
+      <button type="button" class="chip selected">أسود</button>
+      <button type="button" class="chip">عنابي</button>
+    </div>
+    <button type="button" class="btn" data-go="whatsapp">اطلبي عبر واتساب</button>
+    <button type="button" class="btn btn-outline" data-add-cart>أضيفي للسلة</button>
+  </section>
+
+  <section id="cart" class="screen">
+    <h2>السلة</h2>
+    <div class="cart-line"><span>فستان أسود — M</span><span>185 د.ل</span></div>
+    <div class="cart-line"><span>بدلة خيال — S</span><span>220 د.ل</span></div>
+    <p style="margin-top:1rem;font-weight:600">المجموع: 405 د.ل</p>
+    <button type="button" class="btn" data-go="checkout">إتمام الطلب</button>
+  </section>
+
+  <section id="checkout" class="screen">
+    <h2>إتمام الطلب</h2>
+    <form class="admin-form" onsubmit="return false">
+      <label>الاسم<input type="text" value="مثال: فاطمة"></label>
+      <label>الهاتف<input type="tel" dir="ltr" value="0912345678"></label>
+      <label>المدينة<input type="text" value="طرابلس"></label>
+      <label>العنوان<input type="text"></label>
+      <label>التوصيل<select><option>استلام من المحل — سرت</option><option selected>شركة مارة</option></select></label>
+      <label>الدفع<select><option selected>دفع عند الاستلام</option><option>تحويل مصرفي</option></select></label>
+    </form>
+    <button type="button" class="btn" data-go="confirm">تأكيد + واتساب</button>
+  </section>
+
+  <section id="confirm" class="screen">
+    <h2>شكراً لكِ</h2>
+    <p>رقم الطلب: <strong dir="ltr">AZ-2026-00042</strong></p>
+    <p style="color:var(--muted);margin-top:.5rem">تتبعي الطلب من الرابط المرسل على واتساب.</p>
+    <a class="btn" href="#">فتح واتساب (محاكاة)</a>
+    <button type="button" class="btn btn-outline" data-go="home">العودة للرئيسية</button>
+  </section>
+
+  <section id="admin" class="screen">
+    <h2>لوحة — منتج جديد</h2>
+    <form class="admin-form">
+      <label>اسم المنتج<input type="text" placeholder="فستان ..."></label>
+      <label>التصنيف<select><option>فساتين</option><option>بدلات</option></select></label>
+      <label>السعر (د.ل)<input type="number" value="150"></label>
+      <label>المقاس / اللون / الكمية<input type="text" placeholder="M, أسود, 2"></label>
+      <label>صور<input type="file" accept="image/*" multiple></label>
+      <label><input type="checkbox"> وصل حديثاً</label>
+    </form>
+    <button type="button" class="btn">حفظ ونشر</button>
+  </section>
+
+  <nav class="nav-dock" aria-label="تنقل النموذج">
+    <button type="button" data-nav="home" class="active">الرئيسية</button>
+    <button type="button" data-nav="shop">متجر</button>
+    <button type="button" data-nav="cart">سلة</button>
+    <button type="button" data-nav="admin">إدارة</button>
+  </nav>
+
+  <script>
+    function show(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.nav-dock button').forEach(b => {
+        b.classList.toggle('active', b.dataset.nav === id);
+      });
+      window.scrollTo(0, 0);
+    }
+    document.querySelectorAll('[data-go]').forEach(el => {
+      el.addEventListener('click', () => show(el.dataset.go));
+    });
+    document.querySelectorAll('[data-nav]').forEach(el => {
+      el.addEventListener('click', () => show(el.dataset.nav));
+    });
+    document.querySelectorAll('.chips[data-group]').forEach(group => {
+      group.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+        });
+      });
+    });
+    document.querySelector('[data-add-cart]')?.addEventListener('click', () => show('cart'));
+    document.querySelector('[data-go="whatsapp"]')?.addEventListener('click', () => {
+      alert('MVP: wa.me برسالة المنتج والمقاس والسعر');
+    });
+  </script>
+</body>
+</html>

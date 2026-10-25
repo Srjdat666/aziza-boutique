@@ -1,0 +1,18 @@
+{
+  "name": "aziza-boutique",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @aziza/storefront",
+    "dev:admin": "npm run dev -w @aziza/admin",
+    "build": "npm run build -w @aziza/admin && npm run build -w @aziza/storefront",
+    "build:storefront": "npm run build -w @aziza/storefront",
+    "build:admin": "npm run build -w @aziza/admin"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

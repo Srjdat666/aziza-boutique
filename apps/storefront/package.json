@@ -1,0 +1,19 @@
+{
+  "name": "@aziza/storefront",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@aziza/shared": "*",
+    "@supabase/supabase-js": "^2.49.1",
+    "astro": "^5.7.10"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^3.3.0",
+    "typescript": "^5.8.2"
+  }
+}
