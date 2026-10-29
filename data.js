@@ -1,11 +1,5 @@
 window.AZIZA_DATA = {
   version: 1,
-  settings: {},
-  categories: [],
-  products: []
-}
-window.AZIZA_DATA = {
-  version: 1,
 
   settings: {
     storeName: "AZIZA Boutique",

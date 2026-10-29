@@ -145,6 +145,40 @@
       transition:transform .5s ease;
     }
     .shot:hover img{ transform:scale(1.04); }
+    
+    /* ===== المنتجات ===== */
+    .products-section{ margin-top:2.5rem; }
+    .latest-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:.9rem;
+    }
+    .product-card{
+      background:#fff;
+      border:1px solid var(--petal);
+      border-radius:4px;
+      overflow:hidden;
+      display:flex; flex-direction:column;
+      transition:transform .3s ease, box-shadow .3s ease;
+    }
+    .product-card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(110,31,51,.12); }
+    .product-img{ display:block; background:var(--petal); overflow:hidden; }
+    .product-img img{
+      width:100%; aspect-ratio:3/4; object-fit:cover;
+      transition:transform .5s ease;
+    }
+    .product-card:hover .product-img img{ transform:scale(1.04); }
+    .product-info{ padding:.85rem .9rem 1rem; display:flex; flex-direction:column; gap:.2rem; flex:1; }
+    .product-title{ font-size:1rem; font-weight:600; line-height:1.6; color:var(--ink); }
+    .product-price{ color:var(--wine); font-weight:600; font-size:1rem; }
+    .product-btn{
+      margin-top:auto; padding:.55rem .5rem;
+      text-align:center; text-decoration:none;
+      border:1.5px solid var(--wine); border-radius:999px;
+      color:var(--wine); font-weight:600; font-size:.95rem;
+      transition:background .2s,color .2s;
+    }
+    .product-btn:hover{ background:var(--wine); color:#fff; }
 
     /* ===== التواصل ===== */
     .contact{ margin-top:3rem; padding-top:1.75rem; border-top:1px solid var(--petal); }
@@ -324,7 +358,10 @@
           <button type="button" class="shot" aria-label="تكبير الصورة: تركيبات عزيزة"><img src="paz4.jpg" alt="تركيبات عزيزة" loading="lazy" decoding="async"></button>
         </div>
       </section>
-
+       <section class="products-section" aria-labelledby="products-title">
+        <h2 id="products-title">وصل حديثاً</h2>
+        <div id="latest-products" class="latest-grid"></div>
+      </section> 
       <!-- ===== التواصل ===== -->
       <section class="contact" aria-label="التواصل والعنوان">
         <p class="address">سرت، شارع 5، العمارة رقم 89</p>
@@ -475,9 +512,28 @@
   <script data-goatcounter="https://azizaboutique.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
     <script src="data.js"></script>
-    <script src="store.js"></script>
+  <script src="store.js"></script>
+  <script>
+    (function () {
+      const grid = document.getElementById("latest-products");
+      if (!grid || !window.AZ) return;
 
+      const products = AZ.getProducts();
+      const currency = AZ.getSettings().currency || "د.ل";
 
-
-        </body>
+      grid.innerHTML = products.map(p => `
+        <article class="product-card">
+          <a class="product-img" href="product.html?id=${p.id}">
+            <img src="${p.images[0]}" alt="${p.name}" loading="lazy" decoding="async">
+          </a>
+          <div class="product-info">
+            <h3 class="product-title">${p.name}</h3>
+            <p class="product-price">${p.price} ${currency}</p>
+            <a class="product-btn" href="product.html?id=${p.id}">عرض المنتج</a>
+          </div>
+        </article>
+      `).join("");
+    })();
+  </script>
+</body>
 </html>
