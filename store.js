@@ -17,7 +17,7 @@
     shipping: 0,
     notice: '',
     instagram: '', tiktok: '', snapchat: '', facebook: '',
-    adminPin: '1234'
+    adminPin: 'Azizasrj2025'
   };
 
   const PLACEHOLDER = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
