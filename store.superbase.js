@@ -64,3 +64,4 @@ async function testSupabase() {
 }
 
 testSupabase();
+console.log("Supabase file loaded ✅");
