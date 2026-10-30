@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AZIZA Boutique | أزياء نسائية - سرت</title>
-  <meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تواصلي معنا عبر واتساب.">
+  <meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تسوّقي أونلاين أو تواصلي معنا عبر واتساب.">
   <meta property="og:title" content="AZIZA Boutique">
   <meta property="og:description" content="أحدث صيحات الموضة النسائية - سرت">
   <meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/paz1.jpg">
@@ -13,414 +13,67 @@
   <link rel="icon" type="image/jpeg" href="logo.jpg">
   <link rel="apple-touch-icon" href="logo.jpg">
   <link rel="manifest" href="manifest.json">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
-
-  <style>
-    /* =========================================================
-       AZIZA Boutique
-       الفكرة: أناقة ناعمة بألوان دافئة. القوس هو العنصر المميز الوحيد
-       (كمدخل البوتيك أو إطار مرآة)، والخط الرقعي لجملة الترحيب،
-       وفرع نباتي واحد صغير. كل ما عدا ذلك هادئ.
-       ========================================================= */
-    :root{
-      --gesso:#F7EEE8;     /* أبيض مائل للوردي */
-      --petal:#EBD6CD;     /* خطوط وفواصل */
-      --rose:#D49A91;      /* لمسة وردية */
-      --wine:#6E1F33;      /* اللون الرئيسي */
-      --wine-deep:#561627;
-      --ink:#2B151B;
-      --muted:#6A4F55;
-      --leaf:#5C6B4D;      /* للفرع النباتي فقط */
-
-      --ruqaa:"Aref Ruqaa","IBM Plex Sans Arabic",serif;
-      --text:"IBM Plex Sans Arabic",system-ui,sans-serif;
-      --mark:"Cinzel Decorative","IBM Plex Sans Arabic",serif;
-    }
-
-    *,*::before,*::after{ box-sizing:border-box; }
-    *{ margin:0; padding:0; }
-
-    body{
-      min-height:100vh;
-      background:var(--gesso);
-      color:var(--ink);
-      font-family:var(--text);
-      font-size:1.0625rem;
-      line-height:1.9;
-      -webkit-font-smoothing:antialiased;
-    }
-    img{ display:block; max-width:100%; }
-    a{ color:inherit; }
-    :focus-visible{ outline:3px solid var(--wine); outline-offset:3px; }
-
-    /* ===== التخطيط: عمود واحد على الجوال، عمودان على الشاشات الكبيرة ===== */
-    .layout{
-      max-width:1080px;
-      margin:0 auto;
-      padding:2rem 1.25rem 3rem;
-      display:grid;
-      gap:2.5rem;
-    }
-
-    /* ===== الواجهة ===== */
-    .hero{ text-align:center; }
-    .arch{
-      width:100%;
-      max-width:420px;
-      margin:0 auto;
-      aspect-ratio:4/5;
-      object-fit:cover;
-      border-radius:999px 999px 0 0;     /* قوس المدخل */
-      background:var(--petal);
-    }
-    .wordmark{
-      margin-top:1.75rem;
-      font-family:var(--mark);
-      font-weight:700;
-      font-size:1.5rem;
-      line-height:1.4;
-      letter-spacing:.14em;
-      color:var(--wine);
-    }
-    .tagline{
-      margin-top:.35rem;
-      font-family:var(--ruqaa);
-      font-weight:700;
-      font-size:clamp(2.1rem,8vw,3rem);
-      line-height:1.8;
-      color:var(--ink);
-    }
-
-    /* ===== المحتوى ===== */
-    .content{ max-width:460px; margin:0 auto; width:100%; }
-    .arrival{
-      display:flex; align-items:center; gap:.7rem;
-      padding-bottom:1.25rem;
-      border-bottom:1px solid var(--petal);
-      font-weight:600;
-      color:var(--wine);
-    }
-    .arrival::before{
-      content:""; flex:none;
-      width:.55rem; height:.55rem; border-radius:50%;
-      background:var(--rose);
-    }
-    .intro{ margin-top:1.5rem; color:var(--muted); }
-    .intro strong{ color:var(--ink); font-weight:600; }
-
-    .sprig{
-      display:block; margin:2.25rem 0 0;
-      color:var(--leaf);
-    }
-
-    /* ===== المعرض ===== */
-    .gallery-section{ margin-top:2rem; }
-    h2{
-      font-family:var(--ruqaa);
-      font-weight:700;
-      font-size:1.9rem;
-      line-height:1.7;
-      color:var(--wine);
-      margin-bottom:.75rem;
-    }
-    .gallery{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:.75rem;
-      align-items:start;
-    }
-    .shot{
-      display:block; padding:0; border:0; cursor:zoom-in;
-      background:var(--petal);
-      overflow:hidden;
-      border-radius:4px;
-      aspect-ratio:3/4;
-    }
-    .shot:nth-child(even){ margin-top:1.75rem; }   /* تدرّج بسيط يكسر الصف الجامد */
-    .shot img{
-      width:100%; height:100%; object-fit:cover;
-      transition:transform .5s ease;
-    }
-    .shot:hover img{ transform:scale(1.04); }
-    
-    /* ===== المنتجات ===== */
-    .products-section{ margin-top:2.5rem; }
-    .latest-grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:.9rem;
-    }
-    .product-card{
-      background:#fff;
-      border:1px solid var(--petal);
-      border-radius:4px;
-      overflow:hidden;
-      display:flex; flex-direction:column;
-      transition:transform .3s ease, box-shadow .3s ease;
-    }
-    .product-card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(110,31,51,.12); }
-    .product-img{ display:block; background:var(--petal); overflow:hidden; }
-    .product-img img{
-      width:100%; aspect-ratio:3/4; object-fit:cover;
-      transition:transform .5s ease;
-    }
-    .product-card:hover .product-img img{ transform:scale(1.04); }
-    .product-info{ padding:.85rem .9rem 1rem; display:flex; flex-direction:column; gap:.2rem; flex:1; }
-    .product-title{ font-size:1rem; font-weight:600; line-height:1.6; color:var(--ink); }
-    .product-price{ color:var(--wine); font-weight:600; font-size:1rem; }
-    .product-btn{
-      margin-top:auto; padding:.55rem .5rem;
-      text-align:center; text-decoration:none;
-      border:1.5px solid var(--wine); border-radius:999px;
-      color:var(--wine); font-weight:600; font-size:.95rem;
-      transition:background .2s,color .2s;
-    }
-    .product-btn:hover{ background:var(--wine); color:#fff; }
-
-    /* ===== التواصل ===== */
-    .contact{ margin-top:3rem; padding-top:1.75rem; border-top:1px solid var(--petal); }
-    .address{ color:var(--muted); margin-bottom:1.25rem; }
-    .phones{ display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-    .phone{
-      display:inline-block;
-      padding:.5rem 1.1rem;
-      border:1.5px solid var(--wine);
-      border-radius:999px;
-      color:var(--wine);
-      font-weight:600;
-      text-decoration:none;
-      transition:background .2s,color .2s;
-    }
-    .phone:hover{ background:var(--wine); color:#fff; }
-
-    .whatsapp-btn{
-      display:flex; align-items:center; justify-content:center; gap:.7rem;
-      width:100%;
-      padding:.95rem 1.5rem;
-      background:var(--wine); color:#fff;
-      border-radius:999px;
-      font-size:1.1rem; font-weight:600;
-      text-decoration:none;
-      transition:background .2s;
-    }
-    .whatsapp-btn:hover{ background:var(--wine-deep); }
-    .whatsapp-btn svg{ width:24px; height:24px; fill:#fff; flex:none; }
-    .order-note{ margin-top:.9rem; text-align:center; color:var(--muted); font-size:.95rem; }
-
-    /* ===== حسابات التواصل ===== */
-    .social-row{
-      display:flex; justify-content:center; align-items:center; gap:.9rem;
-      margin-top:2.25rem;
-    }
-    .social-circle{
-      width:46px; height:46px; border-radius:50%;
-      display:inline-flex; align-items:center; justify-content:center;
-      overflow:hidden;
-      transition:transform .25s ease;
-    }
-    .social-circle:hover{ transform:translateY(-3px); }
-    .social-circle svg{ width:23px; height:23px; fill:#fff; }
-    .insta-circle{ background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
-    .tiktok-circle{ background:#000; }
-    .facebook-circle{ background:#1877F2; }
-    .snapchat-circle{ background:#FFFC00; }
-    .snapchat-circle img{ width:28px; height:28px; object-fit:contain; }
-
-    /* ===== الشاشات الكبيرة ===== */
-    @media(min-width:900px){
-      .layout{
-        grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-        gap:5rem;
-        padding:3.5rem 2rem 4rem;
-        align-items:start;
-      }
-      .hero{ position:sticky; top:3.5rem; }
-      .content{ margin:0; max-width:none; padding-top:1rem; }
-    }
-
-    /* ===== عارض الصور ===== */
-    .lightbox{
-      position:fixed; inset:0; z-index:999;
-      display:flex; align-items:center; justify-content:center;
-      padding:1.25rem;
-      background:rgba(30,12,18,.92);
-      animation:lbFade .25s ease;
-    }
-    .lightbox[hidden]{ display:none; }
-    @keyframes lbFade{ from{opacity:0;} to{opacity:1;} }
-    .lightbox img{
-      max-width:92vw; max-height:84vh; width:auto; height:auto;
-      border-radius:4px;
-      box-shadow:0 20px 60px rgba(0,0,0,.6);
-    }
-    .lb-btn{
-      position:absolute; width:46px; height:46px; border-radius:50%;
-      display:grid; place-items:center;
-      background:rgba(255,255,255,.16); color:#fff;
-      border:0; cursor:pointer;
-      font-size:1.7rem; line-height:1;
-      transition:background .2s;
-    }
-    .lb-btn:hover{ background:rgba(255,255,255,.3); }
-    .lb-btn:focus-visible{ outline-color:#fff; }
-    .lb-close{ top:1rem; inset-inline-end:1rem; font-size:1.3rem; }
-    .lb-prev{ inset-inline-start:.75rem; top:50%; transform:translateY(-50%); }
-    .lb-next{ inset-inline-end:.75rem; top:50%; transform:translateY(-50%); }
-
-    /* ===== شاشة التحميل ===== */
-    #loader{
-      position:fixed; inset:0; z-index:9999;
-      display:flex; justify-content:center; align-items:center;
-      background:var(--wine);
-      transition:opacity .6s ease;
-    }
-    #loader::before{
-      content:""; position:absolute; inset:0;
-      background:
-        linear-gradient(rgba(86,22,39,.72),rgba(86,22,39,.72)),
-        url("Loading.jpg");
-      background-size:cover; background-position:center;
-    }
-    .loader-content{ position:relative; z-index:2; text-align:center; padding:0 1.5rem; }
-    .loader-title{
-      font-family:var(--mark);
-      font-size:clamp(1.9rem,8vw,3rem);
-      font-weight:700; line-height:1.4;
-      letter-spacing:.14em;
-      color:var(--gesso);
-    }
-    .loader-subtitle{
-      margin-top:.4rem;
-      font-family:var(--ruqaa);
-      font-size:1.5rem;
-      color:var(--petal);
-    }
-    .loading-dots{ display:flex; justify-content:center; gap:.7rem; margin-top:1.5rem; }
-    .loading-dots span{
-      width:9px; height:9px; border-radius:50%;
-      background:var(--rose);
-      animation:dots 1.4s infinite ease-in-out;
-    }
-    .loading-dots span:nth-child(2){ animation-delay:.2s; }
-    .loading-dots span:nth-child(3){ animation-delay:.4s; }
-    @keyframes dots{
-      0%,80%,100%{ transform:translateY(0); opacity:.35; }
-      40%{ transform:translateY(-8px); opacity:1; }
-    }
-
-    @media(prefers-reduced-motion:reduce){
-      *,*::before,*::after{ animation:none !important; transition:none !important; }
-    }
-  </style>
-  <noscript><style>#loader{display:none}</style></noscript>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="home">
+  <div id="site-header"></div>
 
-  <div class="layout">
-
-    <!-- ===== الواجهة ===== -->
-    <header class="hero">
-      <img class="arch" src="shop.png" alt="صورة من بوتيك AZIZA" fetchpriority="high" decoding="async">
-      <h1 class="wordmark" lang="en" dir="ltr">AZIZA Boutique</h1>
-      <p class="tagline">حيث تعبّر الأناقة عنكِ</p>
-    </header>
-
-    <main class="content">
-      <p class="arrival">وصل حديثاً: تشكيلة جديدة</p>
-
-      <p class="intro">
-        مرحبًا بكم في <strong>AZIZA Boutique</strong>.
-        نوفر أحدث صيحات الموضة النسائية بجودة عالية
-        وتصاميم مميزة تناسب جميع الأذواق.
-      </p>
-
-      <!-- فرع نباتي -->
-      <svg class="sprig" viewBox="0 0 120 26" width="120" height="26" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M3 13 C40 9 80 17 117 13"/>
-        <path d="M26 11.5 C22 4 15 3 12 4 C14 9 19 12 26 11.5Z"/>
-        <path d="M54 12.5 C50 5 43 4 40 5 C42 10 47 13 54 12.5Z"/>
-        <path d="M82 14.5 C78 7 71 6 68 7 C70 12 75 15 82 14.5Z"/>
-        <path d="M40 12 C44 19 51 21 54 20 C52 15 47 12 40 12Z"/>
-        <path d="M68 14 C72 21 79 23 82 22 C80 17 75 14 68 14Z"/>
-        <path d="M96 14 C100 21 107 22 110 21 C108 16 103 14 96 14Z"/>
-      </svg>
-
-      <!-- ===== المعرض ===== -->
-      <section class="gallery-section" aria-labelledby="gallery-title">
-        <h2 id="gallery-title">من داخل البوتيك</h2>
-        <div class="gallery">
-          <button type="button" class="shot" aria-label="تكبير الصورة: فستان أسود"><img src="paz1.jpg" alt="فستان أسود" loading="lazy" decoding="async"></button>
-          <button type="button" class="shot" aria-label="تكبير الصورة: بدلة خيال"><img src="paz2.jpg" alt="بدلة خيال" loading="lazy" decoding="async"></button>
-          <button type="button" class="shot" aria-label="تكبير الصورة: تيشرتات"><img src="paz3.jpg" alt="تيشرتات" loading="lazy" decoding="async"></button>
-          <button type="button" class="shot" aria-label="تكبير الصورة: تركيبات عزيزة"><img src="paz4.jpg" alt="تركيبات عزيزة" loading="lazy" decoding="async"></button>
+  <main>
+    <section class="hero wrap">
+      <div class="hero-grid">
+        <div><img class="arch" src="shop.png" alt="صورة من بوتيك AZIZA" fetchpriority="high" decoding="async"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">بوتيك نسائي · سرت</p>
+          <p class="wordmark" lang="en" dir="ltr">AZIZA Boutique</p>
+          <h1 class="tagline">حيث تعبّر الأناقة عنكِ</h1>
+          <p class="intro">تشكيلة مختارة بعناية من أحدث صيحات الموضة النسائية: فساتين، أطقم، عبايات وإكسسوارات — بجودة عالية وأسعار مناسبة.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="shop.html">تسوّقي الآن</a>
+            <a class="btn btn-outline" href="https://wa.me/218944467520" target="_blank" rel="noopener">تواصلي عبر واتساب</a>
+          </div>
         </div>
-      </section>
-       <section class="products-section" aria-labelledby="products-title">
-        <h2 id="products-title">وصل حديثاً</h2>
-        <div id="latest-products" class="latest-grid"></div>
-      </section> 
-      <!-- ===== التواصل ===== -->
-      <section class="contact" aria-label="التواصل والعنوان">
-        <p class="address">سرت، شارع 5، العمارة رقم 89</p>
+      </div>
+    </section>
 
-        <div class="phones">
-          <a class="phone" href="tel:+218919652924" dir="ltr">0919652924</a>
-          <a class="phone" href="tel:+218944467520" dir="ltr">0944467520</a>
-        </div>
+    <section class="wrap section" id="categories">
+      <div class="section-head">
+        <div><h2 class="section-title">تصنيفات البوتيك</h2><p class="section-sub">اختاري التصنيف الذي يناسبك</p></div>
+        <a class="link-more" href="shop.html">كل المنتجات ←</a>
+      </div>
+      <div class="grid-cats" id="cats-grid"></div>
+    </section>
 
-        <a class="whatsapp-btn"
-           data-goatcounter-click="WhatsApp-Click"
-           data-goatcounter-title="زر واتساب"
-           href="https://wa.me/218944467520"
-           target="_blank"
-           rel="noopener">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M16 .8C7.6.8.8 7.6.8 16c0 2.7.7 5.3 2 7.6L.8 31.2l7.8-2c2.2 1.2 4.8 1.9 7.4 1.9 8.4 0 15.2-6.8 15.2-15.2S24.4.8 16 .8zm0 27.8c-2.3 0-4.5-.6-6.4-1.8l-.5-.3-4.6 1.2 1.2-4.5-.3-.5c-1.3-2-2-4.3-2-6.7C3.4 9 9 3.4 16 3.4S28.6 9 28.6 16 23 28.6 16 28.6zm6.9-9.5c-.4-.2-2.2-1.1-2.6-1.2-.3-.1-.6-.2-.8.2-.2.4-.9 1.2-1.1 1.4-.2.2-.4.3-.8.1-.4-.2-1.6-.6-3-1.9-1.1-1-1.9-2.2-2.1-2.6-.2-.4 0-.6.2-.8.2-.2.4-.4.6-.7.2-.2.2-.4.4-.6.1-.2 0-.5 0-.7-.1-.2-.8-1.9-1.1-2.6-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.7 5.9 5.2.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.6.2-1.8-.1-.1-.3-.2-.6-.3z"/>
-          </svg>
-          تواصلي معنا عبر واتساب
-        </a>
-        <p class="order-note">للطلبات راسلينا على الخاص.</p>
+    <section class="wrap section" id="new">
+      <div class="section-head">
+        <div><h2 class="section-title">وصل حديثاً</h2><p class="section-sub">أحدث القطع في البوتيك</p></div>
+        <a class="link-more" href="shop.html?sort=new">المزيد ←</a>
+      </div>
+      <div class="grid-products" id="new-grid"></div>
+    </section>
 
-        <!-- ===== حسابات التواصل ===== -->
-        <div class="social-row">
-          <a class="social-circle insta-circle" href="https://www.instagram.com/aziza.boutique01" target="_blank" rel="noopener" aria-label="إنستغرام">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 1.8a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2zm5.1-2.7a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2z"/>
-            </svg>
-          </a>
+    <section class="wrap section" id="about">
+      <div class="section-head"><h2 class="section-title">عن البوتيك</h2></div>
+      <p class="section-sub" style="max-width:60ch">في <strong>AZIZA Boutique</strong> نؤمن أن الأناقة تفصيل صغير يصنع فرقاً كبيراً. نختار لكِ قطعاً تناسب جميع الأذواق، ونحرص على جودة القماش ودقة التفصيل. للاستفسار أو الطلب، تواصلي معنا مباشرة عبر واتساب.</p>
+    </section>
 
-          <a class="social-circle tiktok-circle" href="https://www.tiktok.com/@aziza.store1?_r=1&amp;_t=ZS-9AKXVrEJ8Oy" target="_blank" rel="noopener" aria-label="تيك توك">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M19.6 6.3c-1.3-.9-2.2-2.3-2.4-3.9h-3.1v13.5c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .6 0 .9.1V9.9c-.3 0-.6-.1-.9-.1-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6V9.2c1.2 1 2.7 1.6 4.3 1.6V7.7c-.7 0-1.4-.2-1.9-.5z"/>
-            </svg>
-          </a>
+    <section class="wrap section" id="contact">
+      <div class="section-head"><h2 class="section-title">تواصلي معنا</h2></div>
+      <div class="contact-card">
+        <p class="address" id="contact-address"></p>
+        <div class="phones" id="contact-phones"></div>
+        <a class="btn btn-wa btn-block" id="contact-wa" href="#" target="_blank" rel="noopener">تواصلي معنا عبر واتساب</a>
+        <p class="hint" id="contact-note" style="text-align:center;margin-top:.7rem"></p>
+        <div class="social-row" id="social-row"></div>
+      </div>
+    </section>
+  </main>
 
-          <a class="social-circle snapchat-circle" href="https://snapchat.com/t/UYMV2sWB" target="_blank" rel="noopener" aria-label="سناب شات">
-            <img src="snapchat.jpg" alt="" width="28" height="28">
-          </a>
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
 
-          <a class="social-circle facebook-circle" href="https://www.facebook.com/share/1M7TuNEcYZ/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="فيسبوك">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12z"/>
-            </svg>
-          </a>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- ===== عارض الصور ===== -->
-  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="عرض الصورة" hidden>
-    <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="إغلاق">✕</button>
-    <button type="button" class="lb-btn lb-prev" id="lb-prev" aria-label="الصورة السابقة">›</button>
-    <button type="button" class="lb-btn lb-next" id="lb-next" aria-label="الصورة التالية">‹</button>
-    <img src="" alt="" id="lightbox-img">
-  </div>
-
-  <!-- ===== شاشة التحميل ===== -->
   <div id="loader" aria-hidden="true">
     <div class="loader-content">
       <p class="loader-title" lang="en" dir="ltr">AZIZA Boutique</p>
@@ -429,111 +82,49 @@
     </div>
   </div>
 
-  <script>
-    (function () {
-      /* ===== عارض الصور ===== */
-      const shots    = Array.from(document.querySelectorAll('.shot'));
-      const lightbox = document.getElementById('lightbox');
-      const lbImg    = document.getElementById('lightbox-img');
-      const btnClose = document.getElementById('lb-close');
-      const btnPrev  = document.getElementById('lb-prev');
-      const btnNext  = document.getElementById('lb-next');
-      let index = 0, lastFocus = null;
-
-      function render() {
-        const img = shots[index].querySelector('img');
-        lbImg.src = img.currentSrc || img.src;
-        lbImg.alt = img.alt;
-      }
-      function openLb(n) {
-        index = n;
-        lastFocus = document.activeElement;
-        render();
-        lightbox.hidden = false;
-        document.body.style.overflow = 'hidden';
-        btnClose.focus();
-      }
-      function closeLb() {
-        lightbox.hidden = true;
-        document.body.style.overflow = '';
-        lbImg.src = '';
-        if (lastFocus) lastFocus.focus();
-      }
-      function go(step) {
-        index = (index + step + shots.length) % shots.length;
-        render();
-      }
-
-      shots.forEach((s, n) => s.addEventListener('click', () => openLb(n)));
-      btnClose.addEventListener('click', closeLb);
-      btnNext.addEventListener('click', () => go(1));
-      btnPrev.addEventListener('click', () => go(-1));
-      lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLb(); });
-
-      document.addEventListener('keydown', e => {
-        if (lightbox.hidden) return;
-        if (e.key === 'Escape') closeLb();
-        // الصفحة من اليمين لليسار: السهم الأيسر = التالي
-        if (e.key === 'ArrowLeft')  go(1);
-        if (e.key === 'ArrowRight') go(-1);
-        if (e.key === 'Tab') {
-          const f = [btnClose, btnPrev, btnNext];
-          const i = f.indexOf(document.activeElement);
-          e.preventDefault();
-          f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
-        }
-      });
-
-      // السحب على الجوال: سحب لليمين = التالي (اتجاه RTL)
-      let x0 = null;
-      lightbox.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
-      lightbox.addEventListener('touchend', e => {
-        if (x0 === null) return;
-        const dx = e.changedTouches[0].clientX - x0;
-        if (Math.abs(dx) > 50) go(dx > 0 ? 1 : -1);
-        x0 = null;
-      });
-
-      /* ===== شاشة التحميل ===== */
-      const loader = document.getElementById('loader');
-      let hidden = false;
-      function hideLoader() {
-        if (hidden || !loader) return;
-        hidden = true;
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 600);
-      }
-      // تختفي بعد اكتمال التحميل بلحظة، ولا تعلق أكثر من 4 ثوانٍ مهما كان الإنترنت بطيئاً
-      window.addEventListener('load', () => setTimeout(hideLoader, 900));
-      setTimeout(hideLoader, 4000);
-    })();
-  </script>
-
-  <script data-goatcounter="https://azizaboutique.goatcounter.com/count"
-          async src="//gc.zgo.at/count.js"></script>
-    <script src="data.js"></script>
+  <script src="data.js"></script>
   <script src="store.js"></script>
   <script>
-    (function () {
-      const grid = document.getElementById("latest-products");
-      if (!grid || !window.AZ) return;
+    document.addEventListener('DOMContentLoaded', function () {
+      var s = AZ.getSettings();
 
-      const products = AZ.getProducts();
-      const currency = AZ.getSettings().currency || "د.ل";
+      // تصنيفات رئيسية فقط
+      var cats = AZ.getCategories().filter(function (c) { return !c.parent; });
+      document.getElementById('cats-grid').innerHTML = cats.map(AZ.categoryCard).join('');
 
-      grid.innerHTML = products.map(p => `
-        <article class="product-card">
-          <a class="product-img" href="product.html?id=${p.id}">
-            <img src="${p.images[0]}" alt="${p.name}" loading="lazy" decoding="async">
-          </a>
-          <div class="product-info">
-            <h3 class="product-title">${p.name}</h3>
-            <p class="product-price">${p.price} ${currency}</p>
-            <a class="product-btn" href="product.html?id=${p.id}">عرض المنتج</a>
-          </div>
-        </article>
-      `).join("");
-    })();
+      // أحدث المنتجات
+      var newest = AZ.getProducts({ sort: 'new' }).slice(0, 8);
+      document.getElementById('new-grid').innerHTML = newest.length
+        ? newest.map(AZ.productCard).join('')
+        : '<p class="empty">لا توجد منتجات بعد.</p>';
+
+      // التواصل
+      document.getElementById('contact-address').textContent = s.address;
+      document.getElementById('contact-phones').innerHTML = (s.phones || [])
+        .map(function (p) { return '<a class="phone" href="tel:' + AZ.esc(p) + '" dir="ltr">' + AZ.esc(p) + '</a>'; }).join('');
+      document.getElementById('contact-wa').href = AZ.waLink('مرحباً، أرغب في الاستفسار عن منتجاتكم.');
+      document.getElementById('contact-note').textContent = s.notice || '';
+
+      var socials = [
+        ['insta-circle', s.instagram, 'إنستغرام', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 4.9a4.9 4.9 0 100 9.8 4.9 4.9 0 000-9.8zm0 1.8a3.1 3.1 0 110 6.2 3.1 3.1 0 010-6.2zm5.1-2.7a1.1 1.1 0 100 2.2 1.1 1.1 0 000-2.2z"/></svg>'],
+        ['tiktok-circle', s.tiktok, 'تيك توك', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.6 6.3c-1.3-.9-2.2-2.3-2.4-3.9h-3.1v13.5c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .6 0 .9.1V9.9c-.3 0-.6-.1-.9-.1-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6V9.2c1.2 1 2.7 1.6 4.3 1.6V7.7c-.7 0-1.4-.2-1.9-.5z"/></svg>'],
+        ['facebook-circle', s.facebook, 'فيسبوك', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12z"/></svg>']
+      ].filter(function (x) { return x[1]; });
+
+      document.getElementById('social-row').innerHTML = socials.map(function (x) {
+        return '<a class="social-circle ' + x[0] + '" href="' + AZ.esc(x[1]) + '" target="_blank" rel="noopener" aria-label="' + x[2] + '">' + x[3] + '</a>';
+      }).join('');
+
+      // شاشة التحميل
+      var loader = document.getElementById('loader'), hidden = false;
+      function hide() {
+        if (hidden || !loader) return;
+        hidden = true; loader.style.opacity = '0';
+        setTimeout(function () { loader.remove(); }, 550);
+      }
+      window.addEventListener('load', function () { setTimeout(hide, 700); });
+      setTimeout(hide, 2500);
+    });
   </script>
 </body>
 </html>

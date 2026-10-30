@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم | AZIZA Boutique</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="admin">
+  <div id="site-header"></div>
+
+  <main class="wrap section">
+    <!-- بوابة الدخول -->
+    <div class="admin-gate" id="gate">
+      <h1>لوحة التحكم</h1>
+      <p class="section-sub" style="margin-bottom:1rem">أدخلي رمز الدخول للمتابعة</p>
+      <form id="gate-form">
+        <div class="field">
+          <label for="pin">رمز الدخول</label>
+          <input class="input" id="pin" type="password" inputmode="numeric" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">دخول</button>
+      </form>
+      <p class="hint" style="margin-top:1rem">الرمز الافتراضي: 1234 — يمكنك تغييره من الإعدادات.</p>
+    </div>
+
+    <!-- التطبيق -->
+    <div id="app" hidden>
+      <div class="section-head">
+        <div><h1 class="section-title">لوحة التحكم</h1><p class="section-sub">إدارة المنتجات والتصنيفات والطلبات</p></div>
+        <button class="btn btn-ghost btn-sm" id="logout" type="button">خروج</button>
+      </div>
+
+      <div class="admin-tabs" role="tablist">
+        <button class="tab-btn" role="tab" aria-selected="true" data-tab="overview">نظرة عامة</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="products">المنتجات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="categories">التصنيفات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="orders">الطلبات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="settings">الإعدادات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="backup">نسخ احتياطي</button>
+      </div>
+
+      <section class="panel" id="panel-overview" role="tabpanel"></section>
+      <section class="panel" id="panel-products" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-categories" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-orders" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-settings" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-backup" role="tabpanel" hidden></section>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <!-- نافذة المنتج -->
+  <div class="modal" id="product-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+      <div class="section-head" style="margin-bottom:1rem">
+        <h2 class="section-title" id="pm-title" style="font-size:1.25rem">منتج</h2>
+        <button class="btn btn-ghost btn-sm" type="button" id="pm-close">✕</button>
+      </div>
+      <form id="product-form">
+        <input type="hidden" name="id">
+        <div class="field"><label for="f-name">اسم المنتج</label><input class="input" id="f-name" name="name" required></div>
+        <div class="form-row">
+          <div class="field"><label for="f-cat">التصنيف</label><select class="select" id="f-cat" name="category"></select></div>
+          <div class="field"><label for="f-stock">المخزون</label><input class="input" id="f-stock" name="stock" type="number" min="0" value="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="f-price">السعر</label><input class="input" id="f-price" name="price" type="number" min="0" step="0.5" required></div>
+          <div class="field"><label for="f-old">السعر قبل التخفيض (اختياري)</label><input class="input" id="f-old" name="oldPrice" type="number" min="0" step="0.5" value="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="f-sizes">المقاسات (فاصلة بينها)</label><input class="input" id="f-sizes" name="sizes" placeholder="S, M, L, XL"></div>
+          <div class="field"><label for="f-colors">الألوان (فاصلة بينها)</label><input class="input" id="f-colors" name="colors" placeholder="أسود, بيج"></div>
+        </div>
+        <div class="field">
+          <label for="f-images">روابط الصور (رابط في كل سطر)</label>
+          <textarea class="textarea" id="f-images" name="images" rows="3" placeholder="paz1.jpg"></textarea>
+          <span class="hint">الأفضل رفع الصور إلى المستودع واستخدام اسم الملف، مثال: paz1.jpg</span>
+        </div>
+        <div class="field">
+          <label for="f-upload">أو ارفعي صورة من الجهاز</label>
+          <input class="input" id="f-upload" type="file" accept="image/*">
+          <span class="hint">تُخزَّن الصورة داخل المتصفح — استخدمي روابط للمنتجات الدائمة.</span>
+        </div>
+        <div class="field"><label for="f-desc">الوصف</label><textarea class="textarea" id="f-desc" name="desc" rows="3"></textarea></div>
+        <div class="form-row">
+          <label style="display:flex;gap:.5rem;align-items:center;font-size:.9rem"><input type="checkbox" name="featured"> منتج مميز</label>
+          <label style="display:flex;gap:.5rem;align-items:center;font-size:.9rem"><input type="checkbox" name="active" checked> معروض في المتجر</label>
+        </div>
+        <div style="display:flex;gap:.6rem;margin-top:1.2rem;flex-wrap:wrap">
+          <button class="btn btn-primary" type="submit">حفظ المنتج</button>
+          <button class="btn btn-ghost" type="button" id="pm-cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- نافذة التصنيف -->
+  <div class="modal" id="cat-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="cm-title" style="max-width:460px">
+      <div class="section-head" style="margin-bottom:1rem">
+        <h2 class="section-title" id="cm-title" style="font-size:1.25rem">تصنيف</h2>
+        <button class="btn btn-ghost btn-sm" type="button" id="cm-close">✕</button>
+      </div>
+      <form id="cat-form">
+        <input type="hidden" name="id">
+        <div class="field"><label for="c-name2">اسم التصنيف</label><input class="input" id="c-name2" name="name" required></div>
+        <div class="form-row">
+          <div class="field"><label for="c-parent">التصنيف الأب</label><select class="select" id="c-parent" name="parent"></select></div>
+          <div class="field"><label for="c-order">الترتيب</label><input class="input" id="c-order" name="order" type="number" min="0" value="0"></div>
+        </div>
+        <div class="field"><label for="c-image">رابط الصورة</label><input class="input" id="c-image" name="image" placeholder="paz1.jpg"></div>
+        <div style="display:flex;gap:.6rem;margin-top:1rem">
+          <button class="btn btn-primary" type="submit">حفظ</button>
+          <button class="btn btn-ghost" type="button" id="cm-cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/store.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var gate = document.getElementById('gate');
+      var app = document.getElementById('app');
+
+      /* ===== الدخول ===== */
+      function showApp() {
+        gate.hidden = true;
+        app.hidden = false;
+        renderAll();
+      }
+      if (AZ.isAdmin()) showApp();
+
+      document.getElementById('gate-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var pin = document.getElementById('pin').value;
+        if (AZ.login(pin)) { showApp(); AZ.toast('مرحباً بك ✓', 'ok'); }
+        else AZ.toast('رمز الدخول غير صحيح', 'err');
+      });
+
+      document.getElementById('logout').addEventListener('click', function () {
+        AZ.logout(); location.reload();
+      });
+
+      /* ===== التبويبات ===== */
+      document.querySelector('.admin-tabs').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-tab]');
+        if (!b) return;
+        document.querySelectorAll('.tab-btn').forEach(function (x) { x.setAttribute('aria-selected', 'false'); });
+        b.setAttribute('aria-selected', 'true');
+        document.querySelectorAll('.panel').forEach(function (p) { p.hidden = true; });
+        document.getElementById('panel-' + b.getAttribute('data-tab')).hidden = false;
+      });
+
+      function renderAll() { renderOverview(); renderProducts(); renderCategories(); renderOrders(); renderSettings(); renderBackup(); }
+
+      /* ===== نظرة عامة ===== */
+      function renderOverview() {
+        var products = AZ.getProducts({});
+        var orders = AZ.getOrders();
+        var newOrders = orders.filter(function (o) { return o.status === 'new'; }).length;
+        var revenue = orders.filter(function (o) { return o.status !== 'cancelled'; })
+          .reduce(function (a, o) { return a + (o.total || 0); }, 0);
+
+        var latest = orders.slice(0, 5).map(function (o) {
+          return '<tr><td dir="ltr">' + AZ.esc(o.id) + '</td><td>' + AZ.esc(o.customer.name) + '</td>' +
+            '<td>' + AZ.money(o.total) + '</td><td><span class="status ' + o.status + '">' + AZ.STATUS_LABELS[o.status] + '</span></td>' +
+            '<td>' + new Date(o.createdAt).toLocaleDateString('ar-LY') + '</td></tr>';
+        }).join('');
+
+        document.getElementById('panel-overview').innerHTML =
+          '<div class="stat-grid">' +
+            '<div class="stat"><b>' + products.length + '</b><span>منتج معروض</span></div>' +
+            '<div class="stat"><b>' + AZ.getCategories().length + '</b><span>تصنيف</span></div>' +
+            '<div class="stat"><b>' + newOrders + '</b><span>طلب جديد</span></div>' +
+            '<div class="stat"><b>' + AZ.money(revenue) + '</b><span>إجمالي الطلبات</span></div>' +
+          '</div>' +
+          '<h2 class="section-title" style="font-size:1.2rem;margin-bottom:.75rem">أحدث الطلبات</h2>' +
+          (orders.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>رقم الطلب</th><th>العميل</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody>' + latest + '</tbody></table></div>'
+            : '<p class="empty">لا توجد طلبات بعد.</p>');
+      }
+
+      /* ===== المنتجات ===== */
+      function renderProducts() {
+        var list = AZ.getProducts({});
+        var rows = list.map(function (p) {
+          var cat = AZ.getCategory(p.category);
+          return '<tr>' +
+            '<td><img class="thumb" src="' + AZ.esc((p.images && p.images[0]) || AZ.PLACEHOLDER) + '" alt=""></td>' +
+            '<td>' + AZ.esc(p.name) + '</td>' +
+            '<td>' + AZ.esc(cat ? cat.name : '—') + '</td>' +
+            '<td>' + AZ.money(p.price) + '</td>' +
+            '<td>' + (Number(p.stock) === 0 ? '<span class="status cancelled">نفد</span>' : p.stock) + '</td>' +
+            '<td>' + (p.active !== false ? '<span class="status done">معروض</span>' : '<span class="status">مخفي</span>') + '</td>' +
+            '<td><div class="row-actions">' +
+              '<button class="btn btn-sm btn-ghost" data-edit="' + AZ.esc(p.id) + '">تعديل</button>' +
+              '<button class="btn btn-sm btn-danger" data-del="' + AZ.esc(p.id) + '">حذف</button>' +
+            '</div></td></tr>';
+        }).join('');
+
+        document.getElementById('panel-products').innerHTML =
+          '<div class="panel-toolbar"><h2 class="section-title" style="font-size:1.2rem">المنتجات (' + list.length + ')</h2>' +
+            '<button class="btn btn-primary btn-sm" id="new-product" type="button">+ منتج جديد</button></div>' +
+          (list.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>صورة</th><th>الاسم</th><th>التصنيف</th><th>السعر</th><th>المخزون</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+            : '<p class="empty">لا توجد منتجات — ابدأي بإضافة منتج جديد.</p>');
+
+        document.getElementById('new-product').addEventListener('click', function () { openProduct(); });
+        document.getElementById('panel-products').addEventListener('click', function (e) {
+          var ed = e.target.closest('[data-edit]');
+          if (ed) { openProduct(ed.getAttribute('data-edit')); return; }
+          var del = e.target.closest('[data-del]');
+          if (del && confirm('حذف هذا المنتج نهائياً؟')) {
+            AZ.deleteProduct(del.getAttribute('data-del'));
+            renderProducts(); renderOverview(); AZ.toast('تم الحذف');
+          }
+        });
+      }
+
+      var modal = document.getElementById('product-modal');
+      var form = document.getElementById('product-form');
+
+      function fillCategories(select, selected, withAll) {
+        var cats = AZ.getCategories().slice().sort(function (a, b) {
+          return (a.parent ? 1 : 0) - (b.parent ? 1 : 0);
+        });
+        var html = withAll ? '<option value="">— بدون تصنيف —</option>' : '';
+        AZ.getCategories().filter(function (c) { return !c.parent; }).forEach(function (c) {
+          html += '<option value="' + AZ.esc(c.id) + '">' + AZ.esc(c.name) + '</option>';
+          AZ.childrenOf(c.id).forEach(function (s) {
+            html += '<option value="' + AZ.esc(s.id) + '">— ' + AZ.esc(s.name) + '</option>';
+          });
+        });
+        select.innerHTML = html;
+        if (selected) select.value = selected;
+      }
+
+      function openProduct(id) {
+        var p = id ? AZ.getProduct(id) : null;
+        form.reset();
+        form.id.value = p ? p.id : '';
+        form.name.value = p ? p.name : '';
+        form.price.value = p ? p.price : '';
+        form.oldPrice.value = p ? (p.oldPrice || 0) : 0;
+        form.stock.value = p ? p.stock : 0;
+        form.sizes.value = p ? (p.sizes || []).join(', ') : '';
+        form.colors.value = p ? (p.colors || []).join(', ') : '';
+        form.images.value = p ? (p.images || []).join('\n') : '';
+        form.desc.value = p ? (p.desc || '') : '';
+        form.featured.checked = p ? !!p.featured : false;
+        form.active.checked = p ? p.active !== false : true;
+        fillCategories(form.category, p ? p.category : '', true);
+        document.getElementById('pm-title').textContent = p ? 'تعديل منتج' : 'منتج جديد';
+        modal.hidden = false;
+        form.name.focus();
+      }
+
+      function closeProduct() { modal.hidden = true; }
+      document.getElementById('pm-close').addEventListener('click', closeProduct);
+      document.getElementById('pm-cancel').addEventListener('click', closeProduct);
+      modal.addEventListener('click', function (e) { if (e.target === modal) closeProduct(); });
+
+      document.getElementById('f-upload').addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 500 * 1024) { AZ.toast('الصورة كبيرة — استخدمي رابطاً بدلاً منها', 'err'); return; }
+        var reader = new FileReader();
+        reader.onload = function () {
+          var ta = form.images;
+          ta.value = ta.value ? reader.result + '\n' + ta.value : reader.result;
+          AZ.toast('أُضيفت الصورة — اضغطي حفظ', 'ok');
+        };
+        reader.readAsDataURL(file);
+      });
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!form.name.value.trim()) { AZ.toast('اسم المنتج مطلوب', 'err'); return; }
+        AZ.saveProduct({
+          id: form.id.value || undefined,
+          name: form.name.value,
+          category: form.category.value,
+          price: form.price.value,
+          oldPrice: form.oldPrice.value,
+          stock: form.stock.value,
+          sizes: form.sizes.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+          colors: form.colors.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean),
+          images: form.images.value.split('\n').map(function (s) { return s.trim(); }).filter(Boolean),
+          desc: form.desc.value,
+          featured: form.featured.checked,
+          active: form.active.checked
+        });
+        closeProduct(); renderProducts(); renderOverview(); AZ.toast('تم الحفظ ✓', 'ok');
+      });
+
+      /* ===== التصنيفات ===== */
+      function renderCategories() {
+        var cats = AZ.getCategories();
+        var rows = cats.map(function (c) {
+          var parent = c.parent ? AZ.getCategory(c.parent) : null;
+          var count = AZ.getProducts({ cat: c.id }).length;
+          return '<tr>' +
+            '<td>' + AZ.esc(c.name) + '</td>' +
+            '<td>' + AZ.esc(parent ? parent.name : '—') + '</td>' +
+            '<td>' + count + '</td>' +
+            '<td>' + (c.order || 0) + '</td>' +
+            '<td><div class="row-actions">' +
+              '<button class="btn btn-sm btn-ghost" data-cedit="' + AZ.esc(c.id) + '">تعديل</button>' +
+              '<button class="btn btn-sm btn-danger" data-cdel="' + AZ.esc(c.id) + '">حذف</button>' +
+            '</div></td></tr>';
+        }).join('');
+
+        document.getElementById('panel-categories').innerHTML =
+          '<div class="panel-toolbar"><h2 class="section-title" style="font-size:1.2rem">التصنيفات (' + cats.length + ')</h2>' +
+            '<button class="btn btn-primary btn-sm" id="new-cat" type="button">+ تصنيف جديد</button></div>' +
+          '<div class="table-wrap"><table class="table"><thead><tr><th>الاسم</th><th>التصنيف الأب</th><th>عدد المنتجات</th><th>الترتيب</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+
+        document.getElementById('new-cat').addEventListener('click', function () { openCat(); });
+        document.getElementById('panel-categories').addEventListener('click', function (e) {
+          var ed = e.target.closest('[data-cedit]');
+          if (ed) { openCat(ed.getAttribute('data-cedit')); return; }
+          var del = e.target.closest('[data-cdel]');
+          if (del) {
+            if (!confirm('حذف هذا التصنيف؟')) return;
+            if (!AZ.deleteCategory(del.getAttribute('data-cdel'))) {
+              AZ.toast('لا يمكن الحذف: يوجد منتجات أو تصنيفات فرعية مرتبطة', 'err');
+              return;
+            }
+            renderCategories(); renderProducts(); renderOverview(); AZ.toast('تم الحذف');
+          }
+        });
+      }
+
+      var catModal = document.getElementById('cat-modal');
+      var catForm = document.getElementById('cat-form');
+
+      function openCat(id) {
+        var c = id ? AZ.getCategory(id) : null;
+        catForm.reset();
+        catForm.id.value = c ? c.id : '';
+        catForm.name.value = c ? c.name : '';
+        catForm.order.value = c ? (c.order || 0) : 0;
+        catForm.image.value = c ? (c.image || '') : '';
+        var opts = '<option value="">— تصنيف رئيسي —</option>';
+        AZ.getCategories().filter(function (x) { return !x.parent && (!c || x.id !== c.id); }).forEach(function (x) {
+          opts += '<option value="' + AZ.esc(x.id) + '">' + AZ.esc(x.name) + '</option>';
+        });
+        catForm.parent.innerHTML = opts;
+        if (c && c.parent) catForm.parent.value = c.parent;
+        document.getElementById('cm-title').textContent = c ? 'تعديل تصنيف' : 'تصنيف جديد';
+        catModal.hidden = false;
+        catForm.name.focus();
+      }
+      function closeCat() { catModal.hidden = true; }
+      document.getElementById('cm-close').addEventListener('click', closeCat);
+      document.getElementById('cm-cancel').addEventListener('click', closeCat);
+      catModal.addEventListener('click', function (e) { if (e.target === catModal) closeCat(); });
+
+      catForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!catForm.name.value.trim()) { AZ.toast('اسم التصنيف مطلوب', 'err'); return; }
+        AZ.saveCategory({
+          id: catForm.id.value || undefined,
+          name: catForm.name.value,
+          parent: catForm.parent.value || null,
+          order: catForm.order.value,
+          image: catForm.image.value
+        });
+        closeCat(); renderCategories(); renderOverview(); AZ.toast('تم الحفظ ✓', 'ok');
+      });
+
+      /* ===== الطلبات ===== */
+      function renderOrders() {
+        var orders = AZ.getOrders();
+        var rows = orders.map(function (o) {
+          var opts = Object.keys(AZ.STATUS_LABELS).map(function (k) {
+            return '<option value="' + k + '"' + (o.status === k ? ' selected' : '') + '>' + AZ.STATUS_LABELS[k] + '</option>';
+          }).join('');
+          return '<tr>' +
+            '<td dir="ltr" style="font-size:.82rem">' + AZ.esc(o.id) + '</td>' +
+            '<td>' + AZ.esc(o.customer.name) + '<br><span class="hint" dir="ltr">' + AZ.esc(o.customer.phone) + '</span></td>' +
+            '<td>' + o.items.length + '</td>' +
+            '<td>' + AZ.money(o.total) + '</td>' +
+            '<td><select class="select" style="padding:.3rem .5rem;font-size:.82rem" data-ostatus="' + AZ.esc(o.id) + '">' + opts + '</select></td>' +
+            '<td style="font-size:.8rem">' + new Date(o.createdAt).toLocaleDateString('ar-LY') + '</td>' +
+            '<td><div class="row-actions">' +
+              '<a class="btn btn-sm btn-ghost" href="' + AZ.esc(AZ.waLink('مرحباً ' + o.customer.name + '، بخصوص طلبك رقم ' + o.id)) + '" target="_blank" rel="noopener">واتساب</a>' +
+              '<button class="btn btn-sm btn-danger" data-odel="' + AZ.esc(o.id) + '">حذف</button>' +
+            '</div></td></tr>';
+        }).join('');
+
+        document.getElementById('panel-orders').innerHTML =
+          '<div class="panel-toolbar"><h2 class="section-title" style="font-size:1.2rem">الطلبات (' + orders.length + ')</h2></div>' +
+          (orders.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>رقم الطلب</th><th>العميل</th><th>القطع</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+            : '<p class="empty">لا توجد طلبات بعد — ستظهر هنا الطلبات القادمة من صفحة العربة.</p>');
+
+        document.getElementById('panel-orders').addEventListener('change', function (e) {
+          var sel = e.target.closest('[data-ostatus]');
+          if (!sel) return;
+          AZ.updateOrder(sel.getAttribute('data-ostatus'), { status: sel.value });
+          AZ.toast('تم تحديث حالة الطلب ✓', 'ok');
+          renderOverview();
+        });
+        document.getElementById('panel-orders').addEventListener('click', function (e) {
+          var del = e.target.closest('[data-odel]');
+          if (del && confirm('حذف هذا الطلب؟')) {
+            AZ.deleteOrder(del.getAttribute('data-odel'));
+            renderOrders(); renderOverview(); AZ.toast('تم الحذف');
+          }
+        });
+      }
+
+      /* ===== الإعدادات ===== */
+      function renderSettings() {
+        var s = AZ.getSettings();
+        document.getElementById('panel-settings').innerHTML =
+          '<form id="settings-form" style="max-width:640px">' +
+            '<div class="form-row">' +
+              '<div class="field"><label for="s-name">اسم المتجر</label><input class="input" id="s-name" name="storeName" value="' + AZ.esc(s.storeName) + '"></div>' +
+              '<div class="field"><label for="s-currency">العملة</label><input class="input" id="s-currency" name="currency" value="' + AZ.esc(s.currency) + '"></div>' +
+            '</div>' +
+            '<div class="field"><label for="s-tag">الشعار النصي</label><input class="input" id="s-tag" name="tagline" value="' + AZ.esc(s.tagline) + '"></div>' +
+            '<div class="form-row">' +
+              '<div class="field"><label for="s-wa">رقم واتساب (بصيغة دولية)</label><input class="input" id="s-wa" name="whatsapp" dir="ltr" value="' + AZ.esc(s.whatsapp) + '"></div>' +
+              '<div class="field"><label for="s-ship">رسوم التوصيل</label><input class="input" id="s-ship" name="shipping" type="number" min="0" step="0.5" value="' + (s.shipping || 0) + '"></div>' +
+            '</div>' +
+            '<div class="field"><label for="s-phones">أرقام الهاتف (فاصلة بينها)</label><input class="input" id="s-phones" name="phones" dir="ltr" value="' + AZ.esc((s.phones || []).join(', ')) + '"></div>' +
+            '<div class="field"><label for="s-address">العنوان</label><input class="input" id="s-address" name="address" value="' + AZ.esc(s.address) + '"></div>' +
+            '<div class="field"><label for="s-notice">ملاحظة تظهر أسفل زر واتساب</label><input class="input" id="s-notice" name="notice" value="' + AZ.esc(s.notice || '') + '"></div>' +
+            '<div class="form-row">' +
+              '<div class="field"><label for="s-insta">إنستغرام</label><input class="input" id="s-insta" name="instagram" dir="ltr" value="' + AZ.esc(s.instagram || '') + '"></div>' +
+              '<div class="field"><label for="s-tiktok">تيك توك</label><input class="input" id="s-tiktok" name="tiktok" dir="ltr" value="' + AZ.esc(s.tiktok || '') + '"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+              '<div class="field"><label for="s-snap">سناب شات</label><input class="input" id="s-snap" name="snapchat" dir="ltr" value="' + AZ.esc(s.snapchat || '') + '"></div>' +
+              '<div class="field"><label for="s-fb">فيسبوك</label><input class="input" id="s-fb" name="facebook" dir="ltr" value="' + AZ.esc(s.facebook || '') + '"></div>' +
+            '</div>' +
+            '<div class="field"><label for="s-pin">رمز دخول لوحة التحكم</label><input class="input" id="s-pin" name="adminPin" dir="ltr" value="' + AZ.esc(s.adminPin) + '"></div>' +
+            '<button class="btn btn-primary" type="submit">حفظ الإعدادات</button>' +
+          '</form>';
+
+        document.getElementById('settings-form').addEventListener('submit', function (e) {
+          e.preventDefault();
+          var f = e.target;
+          AZ.saveSettings({
+            storeName: f.storeName.value,
+            tagline: f.tagline.value,
+            whatsapp: f.whatsapp.value.replace(/\D/g, ''),
+            phones: f.phones.value.split(',').map(function (x) { return x.trim(); }).filter(Boolean),
+            address: f.address.value,
+            currency: f.currency.value,
+            shipping: Number(f.shipping.value) || 0,
+            notice: f.notice.value,
+            instagram: f.instagram.value,
+            tiktok: f.tiktok.value,
+            snapchat: f.snapchat.value,
+            facebook: f.facebook.value,
+            adminPin: f.adminPin.value || '1234'
+          });
+          AZ.toast('تم حفظ الإعدادات ✓', 'ok');
+          renderOverview();
+        });
+      }
+
+      /* ===== النسخ الاحتياطي ===== */
+      function download(name, text, type) {
+        var blob = new Blob([text], { type: type || 'application/json' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      }
+
+      function renderBackup() {
+        var orders = AZ.getOrders();
+        document.getElementById('panel-backup').innerHTML =
+          '<div style="max-width:640px">' +
+            '<h2 class="section-title" style="font-size:1.2rem;margin-bottom:.5rem">تصدير المحتوى</h2>' +
+            '<p class="hint" style="margin-bottom:.8rem">نزّلي ملف <code>data.js</code> واستبدلي به الملف الموجود في المستودع، ثم ارفعيه إلى GitHub — بهذه الطريقة تظهر المنتجات لكل الزوار.</p>' +
+            '<div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.5rem">' +
+              '<button class="btn btn-primary btn-sm" id="export-seed" type="button">تصدير data.js</button>' +
+              '<button class="btn btn-ghost btn-sm" id="export-orders" type="button">تصدير الطلبات (JSON)</button>' +
+            '</div>' +
+            '<h2 class="section-title" style="font-size:1.2rem;margin-bottom:.5rem">استيراد</h2>' +
+            '<p class="hint" style="margin-bottom:.6rem">اختاري ملف <code>data.js</code> أو ملف JSON بنفس البنية.</p>' +
+            '<input class="input" id="import-file" type="file" accept=".js,.json" style="margin-bottom:1.5rem">' +
+            '<h2 class="section-title" style="font-size:1.2rem;margin-bottom:.5rem">إعادة تعيين</h2>' +
+            '<p class="hint" style="margin-bottom:.6rem">حذف كل البيانات المحلية (المنتجات، التعديلات، الطلبات) والعودة لملف data.js الأصلي.</p>' +
+            '<button class="btn btn-danger btn-sm" id="reset-all" type="button">إعادة تعيين كاملة</button>' +
+          '</div>';
+
+        document.getElementById('export-seed').addEventListener('click', function () {
+          var txt = 'window.AZIZA_DATA = ' + JSON.stringify(AZ.exportSeed(), null, 2) + ';\n';
+          download('data.js', txt, 'text/javascript');
+        });
+        document.getElementById('export-orders').addEventListener('click', function () {
+          download('aziza-orders.json', JSON.stringify(orders, null, 2));
+        });
+        document.getElementById('import-file').addEventListener('change', function (e) {
+          var file = e.target.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            try {
+              var txt = String(reader.result).replace(/^\s*window\.AZIZA_DATA\s*=\s*/, '').replace(/;\s*$/, '');
+              var obj = JSON.parse(txt);
+              AZ.importSeed(obj);
+              renderAll();
+              AZ.toast('تم الاستيراد ✓', 'ok');
+            } catch (err) {
+              AZ.toast('الملف غير صالح', 'err');
+            }
+          };
+          reader.readAsText(file);
+        });
+        document.getElementById('reset-all').addEventListener('click', function () {
+          if (!confirm('سيتم حذف جميع البيانات المحلية. متابعة؟')) return;
+          AZ.resetAll(); renderAll(); AZ.toast('تمت إعادة التعيين');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

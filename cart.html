@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عربة التسوق | AZIZA Boutique</title>
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="cart">
+  <div id="site-header"></div>
+
+  <main class="wrap section">
+    <div class="section-head"><h1 class="section-title">عربة التسوق</h1></div>
+    <div id="cart-root"></div>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <script src="data.js"></script>
+  <script src="store.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var root = document.getElementById('cart-root');
+
+      function render() {
+        var rows = AZ.cartDetailed();
+        var s = AZ.getSettings();
+
+        if (!rows.length) {
+          root.innerHTML = '<div class="empty"><b>العربة فارغة</b>لم تُضيفي أي منتج بعد.' +
+            '<div style="margin-top:1.2rem"><a class="btn btn-primary" href="shop.html">تسوّقي الآن</a></div></div>';
+          return;
+        }
+
+        var subtotal = rows.reduce(function (a, r) { return a + r.lineTotal; }, 0);
+        var shipping = Number(s.shipping) || 0;
+        var total = subtotal + shipping;
+
+        var linesHTML = rows.map(function (r) {
+          return '<div class="cart-line">' +
+            '<a href="product.html?id=' + encodeURIComponent(r.id) + '"><img src="' + AZ.esc(r.image) + '" alt="' + AZ.esc(r.name) + '"></a>' +
+            '<div>' +
+              '<h3><a href="product.html?id=' + encodeURIComponent(r.id) + '">' + AZ.esc(r.name) + '</a></h3>' +
+              '<p class="meta">' + (r.size ? 'المقاس: ' + AZ.esc(r.size) + ' · ' : '') + (r.color ? AZ.esc(r.color) + ' · ' : '') + AZ.money(r.price) + '</p>' +
+              '<div class="qty" style="margin-top:.45rem">' +
+                '<button type="button" data-key="' + AZ.esc(r.key) + '" data-step="-1" aria-label="تقليل">−</button>' +
+                '<input type="number" min="1" value="' + r.qty + '" data-qty="' + AZ.esc(r.key) + '" aria-label="الكمية">' +
+                '<button type="button" data-key="' + AZ.esc(r.key) + '" data-step="1" aria-label="زيادة">+</button>' +
+              '</div>' +
+              '<button class="remove-btn" type="button" data-remove="' + AZ.esc(r.key) + '">إزالة</button>' +
+            '</div>' +
+            '<div class="price">' + AZ.money(r.lineTotal) + '</div>' +
+          '</div>';
+        }).join('');
+
+        root.innerHTML = '<div class="cart-grid">' +
+          '<div>' + linesHTML + '</div>' +
+          '<div class="cart-side">' +
+            '<h2 class="section-title" style="font-size:1.25rem;margin-bottom:.75rem">ملخص الطلب</h2>' +
+            '<div class="sum-row"><span>المجموع الفرعي</span><span>' + AZ.money(subtotal) + '</span></div>' +
+            '<div class="sum-row"><span>التوصيل</span><span>' + (shipping ? AZ.money(shipping) : 'مجاني') + '</span></div>' +
+            '<div class="sum-row total"><span>الإجمالي</span><span>' + AZ.money(total) + '</span></div>' +
+            '<form id="checkout-form" style="margin-top:1.2rem" novalidate>' +
+              '<div class="field"><label for="c-name">الاسم الكامل</label><input class="input" id="c-name" name="name" required autocomplete="name"></div>' +
+              '<div class="field"><label for="c-phone">رقم الهاتف</label><input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx"></div>' +
+              '<div class="form-row">' +
+                '<div class="field"><label for="c-city">المدينة</label><input class="input" id="c-city" name="city" value="سرت" autocomplete="address-level2"></div>' +
+                '<div class="field"><label for="c-address">العنوان</label><input class="input" id="c-address" name="address" autocomplete="street-address"></div>' +
+              '</div>' +
+              '<div class="field"><label for="c-note">ملاحظات (اختياري)</label><textarea class="textarea" id="c-note" name="note" rows="2"></textarea></div>' +
+              '<button class="btn btn-wa btn-block" type="submit">تأكيد الطلب عبر واتساب</button>' +
+              '<p class="hint" style="text-align:center;margin-top:.6rem">سيتم إرسال تفاصيل الطلب إلى البوتيك على واتساب لتأكيده.</p>' +
+            '</form>' +
+          '</div>' +
+        '</div>';
+
+        // أزرار الكمية والإزالة
+        root.addEventListener('click', function (e) {
+          var step = e.target.closest('[data-step]');
+          if (step) {
+            var key = step.getAttribute('data-key');
+            var row = AZ.cartDetailed().find(function (r) { return r.key === key; });
+            if (row) AZ.setQty(key, row.qty + Number(step.getAttribute('data-step')));
+            render();
+            return;
+          }
+          var rm = e.target.closest('[data-remove]');
+          if (rm) { AZ.removeFromCart(rm.getAttribute('data-remove')); render(); AZ.toast('تمت الإزالة'); }
+        });
+
+        root.addEventListener('change', function (e) {
+          var inp = e.target.closest('[data-qty]');
+          if (!inp) return;
+          AZ.setQty(inp.getAttribute('data-qty'), Math.max(1, Number(inp.value) || 1));
+          render();
+        });
+
+        // إتمام الطلب
+        document.getElementById('checkout-form').addEventListener('submit', function (e) {
+          e.preventDefault();
+          var f = e.target;
+          var name = f.name.value.trim();
+          var phone = f.phone.value.trim();
+
+          if (name.length < 3) { AZ.toast('أدخلي الاسم الكامل', 'err'); f.name.focus(); return; }
+          if (phone.replace(/\D/g, '').length < 9) { AZ.toast('أدخلي رقم هاتف صحيح', 'err'); f.phone.focus(); return; }
+
+          var items = AZ.cartDetailed();
+          if (!items.length) { render(); return; }
+
+          var order = AZ.createOrder(
+            { name: name, phone: phone, city: f.city.value.trim(), address: f.address.value.trim(), note: f.note.value.trim() },
+            items, subtotal, shipping
+          );
+
+          var link = AZ.waLink(AZ.orderMessage(order));
+          window.open(link, '_blank', 'noopener');
+          AZ.clearCart();
+
+          root.innerHTML = '<div class="success-box">' +
+            '<p class="big">تم إنشاء طلبك ✓</p>' +
+            '<p>رقم الطلب: <strong dir="ltr">' + AZ.esc(order.id) + '</strong></p>' +
+            '<p class="hint" style="margin-top:.5rem">إن لم تُفتح نافذة واتساب تلقائياً، اضغطي الزر أدناه لإرسال الطلب.</p>' +
+            '<div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:1.2rem">' +
+              '<a class="btn btn-wa" href="' + link + '" target="_blank" rel="noopener">إرسال الطلب على واتساب</a>' +
+              '<a class="btn btn-outline" href="shop.html">متابعة التسوق</a>' +
+            '</div></div>';
+        });
+      }
+
+      render();
+    });
+  </script>
+</body>
+</html>

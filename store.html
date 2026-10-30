@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المتجر | AZIZA Boutique</title>
+  <meta name="description" content="تسوّقي جميع منتجات AZIZA Boutique: فساتين، أطقم، عبايات وإكسسوارات.">
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="shop">
+  <div id="site-header"></div>
+
+  <main class="wrap section">
+    <div class="section-head">
+      <div><h1 class="section-title">المتجر</h1><p class="section-sub">كل ما وصل إلى البوتيك</p></div>
+    </div>
+
+    <div class="shop-bar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2a8 8 0 105.3 14l4.4 4.4 1.4-1.4-4.4-4.4A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg>
+        <input class="input" id="search" type="search" placeholder="ابحثي عن منتج…" aria-label="بحث في المتجر">
+      </div>
+      <select class="select" id="sort" aria-label="ترتيب المنتجات" style="max-width:200px">
+        <option value="new">الأحدث</option>
+        <option value="price-asc">السعر: من الأقل</option>
+        <option value="price-desc">السعر: من الأعلى</option>
+        <option value="name">الاسم (أ-ي)</option>
+      </select>
+    </div>
+
+    <div class="chips" id="chips" role="group" aria-label="تصفية حسب التصنيف"></div>
+
+    <p class="count-line" id="count-line"></p>
+    <div class="grid-products" id="grid"></div>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <script src="assets/data.js"></script>
+  <script src="assets/store.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var params = new URLSearchParams(location.search);
+      var state = {
+        cat: params.get('cat') || '',
+        q: params.get('q') || '',
+        sort: params.get('sort') || 'new'
+      };
+
+      var searchEl = document.getElementById('search');
+      var sortEl = document.getElementById('sort');
+      var chipsEl = document.getElementById('chips');
+      var gridEl = document.getElementById('grid');
+      var countEl = document.getElementById('count-line');
+
+      searchEl.value = state.q;
+      sortEl.value = state.sort;
+
+      // شرائح التصنيفات (رئيسية + فرعية)
+      function renderChips() {
+        var mains = AZ.getCategories().filter(function (c) { return !c.parent; });
+        var html = '<button class="chip" type="button" data-cat="" aria-pressed="' + (state.cat === '' ? 'true' : 'false') + '">الكل</button>';
+        mains.forEach(function (c) {
+          html += '<button class="chip" type="button" data-cat="' + AZ.esc(c.id) + '" aria-pressed="' + (state.cat === c.id ? 'true' : 'false') + '">' + AZ.esc(c.name) + '</button>';
+          AZ.childrenOf(c.id).forEach(function (sub) {
+            html += '<button class="chip sub" type="button" data-cat="' + AZ.esc(sub.id) + '" aria-pressed="' + (state.cat === sub.id ? 'true' : 'false') + '">' + AZ.esc(sub.name) + '</button>';
+          });
+        });
+        chipsEl.innerHTML = html;
+      }
+
+      function syncURL() {
+        var p = new URLSearchParams();
+        if (state.cat) p.set('cat', state.cat);
+        if (state.q) p.set('q', state.q);
+        if (state.sort !== 'new') p.set('sort', state.sort);
+        var qs = p.toString();
+        history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+      }
+
+      function render() {
+        var list = AZ.getProducts(state);
+        countEl.textContent = list.length ? ('عدد المنتجات: ' + list.length) : '';
+        gridEl.innerHTML = list.length
+          ? list.map(AZ.productCard).join('')
+          : '<div class="empty" style="grid-column:1/-1"><b>لا توجد نتائج</b>جرّبي كلمة بحث أخرى أو تصنيفاً مختلفاً.</div>';
+      }
+
+      chipsEl.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-cat]');
+        if (!b) return;
+        state.cat = b.getAttribute('data-cat');
+        renderChips(); render(); syncURL();
+      });
+
+      var t;
+      searchEl.addEventListener('input', function () {
+        clearTimeout(t);
+        t = setTimeout(function () {
+          state.q = searchEl.value.trim();
+          render(); syncURL();
+        }, 220);
+      });
+
+      sortEl.addEventListener('change', function () {
+        state.sort = sortEl.value;
+        render(); syncURL();
+      });
+
+      renderChips(); render();
+    });
+  </script>
+</body>
+</html>
