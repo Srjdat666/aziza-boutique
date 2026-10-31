@@ -43,12 +43,11 @@
   <div id="site-footer"></div>
   <div id="toasts"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="store-supabase.js"></script>
-  <script src="data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
   <script src="store.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    AZ.ready.then(function () {
       var params = new URLSearchParams(location.search);
       var state = {
         cat: params.get('cat') || '',
@@ -88,6 +87,7 @@
       }
 
       function render() {
+        if (AZ.errorBox(gridEl)) { countEl.textContent = ''; return; }
         var list = AZ.getProducts(state);
         countEl.textContent = list.length ? ('عدد المنتجات: ' + list.length) : '';
         gridEl.innerHTML = list.length

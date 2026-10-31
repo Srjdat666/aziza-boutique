@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZIZA Boutique | أزياء نسائية - سرت</title>
+  <meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تسوّقي أونلاين أو تواصلي معنا عبر واتساب.">
+  <meta property="og:title" content="AZIZA Boutique">
+  <meta property="og:description" content="أحدث صيحات الموضة النسائية - سرت">
+  <meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/paz1.jpg">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <main>
+    <section class="hero wrap">
+      <div class="hero-grid">
+        <div><img class="arch" src="shop.png" alt="صورة من بوتيك AZIZA" fetchpriority="high" decoding="async"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">بوتيك نسائي · سرت</p>
+          <p class="wordmark" lang="en" dir="ltr">AZIZA Boutique</p>
+          <h1 class="tagline">حيث تعبّر الأناقة عنكِ</h1>
+          <p class="intro">تشكيلة مختارة بعناية من أحدث صيحات الموضة النسائية: فساتين، أطقم، عبايات وإكسسوارات — بجودة عالية وأسعار مناسبة.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="shop.html">تسوّقي الآن</a>
+            <a class="btn btn-outline" href="https://wa.me/218944467520" target="_blank" rel="noopener">تواصلي عبر واتساب</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap section" id="categories">
+      <div class="section-head">
+        <div><h2 class="section-title">تصنيفات البوتيك</h2><p class="section-sub">اختاري التصنيف الذي يناسبك</p></div>
+        <a class="link-more" href="shop.html">كل المنتجات ←</a>
+      </div>
+      <div class="grid-cats" id="cats-grid"></div>
+    </section>
+
+    <section class="wrap section" id="new">
+      <div class="section-head">
+        <div><h2 class="section-title">وصل حديثاً</h2><p class="section-sub">أحدث القطع في البوتيك</p></div>
+        <a class="link-more" href="shop.html?sort=new">المزيد ←</a>
+      </div>
+      <div class="grid-products" id="new-grid"></div>
+    </section>
+
+    <section class="wrap section" id="about">
+      <div class="section-head"><h2 class="section-title">عن البوتيك</h2></div>
+      <p class="section-sub" style="max-width:60ch">في <strong>AZIZA Boutique</strong> نؤمن أن الأناقة تفصيل صغير يصنع فرقاً كبيراً. نختار لكِ قطعاً تناسب جميع الأذواق، ونحرص على جودة القماش ودقة التفصيل. للاستفسار أو الطلب، تواصلي معنا مباشرة عبر واتساب.</p>
+    </section>
+
+    <section class="wrap section" id="contact">
+      <div class="section-head"><h2 class="section-title">تواصلي معنا</h2></div>
+      <div class="contact-card">
+        <p class="address" id="contact-address"></p>
+        <div class="phones" id="contact-phones"></div>
+        <a class="btn btn-wa btn-block" id="contact-wa" href="#" target="_blank" rel="noopener">تواصلي معنا عبر واتساب</a>
+        <p class="hint" id="contact-note" style="text-align:center;margin-top:.7rem"></p>
+        <div class="social-row" id="social-row"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <div id="loader" aria-hidden="true">
+    <div class="loader-content">
+      <p class="loader-title" lang="en" dir="ltr">AZIZA Boutique</p>
+      <p class="loader-subtitle">حيث تعبّر الأناقة عنكِ</p>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="store-supabase.js"></script>
+  <script src="data.js"></script>
+  <script src="store.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var s = AZ.getSettings();
+
+      // تصنيفات رئيسية فقط
+      var cats = AZ.getCategories().filter(function (c) { return !c.parent; });
+      document.getElementById('cats-grid').innerHTML = cats.map(AZ.categoryCard).join('');
+
+      // أحدث المنتجات
+      var newest = AZ.getProducts({ sort: 'new' }).slice(0, 8);
+      document.getElementById('new-grid').innerHTML = newest.length
+        ? newest.map(AZ.productCard).join('')
+        : '<p class="empty">لا توجد منتجات بعد.</p>';
+
+      // التواصل
+      document.getElementById('contact-address').textContent = s.address;
+      document.getElementById('contact-phones').innerHTML = (s.phones || [])
+        .map(function (p) { return '<a class="phone" href="tel:' + AZ.esc(p) + '" dir="ltr">' + AZ.esc(p) + '</a>'; }).join('');
+      document.getElementById('contact-wa').href = AZ.waLink('مرحباً، أرغب في الاستفسار عن منتجاتكم.');
+      document.getElementById('contact-note').textContent = s.notice || '';
+
+      var socials = [
+        ['insta-circle', s.instagram, 'إنستغرام', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 4.9a4.9 4.9 0 100 9.8 4.9 4.9 0 000-9.8zm0 1.8a3.1 3.1 0 110 6.2 3.1 3.1 0 010-6.2zm5.1-2.7a1.1 1.1 0 100 2.2 1.1 1.1 0 000-2.2z"/></svg>'],
+        ['tiktok-circle', s.tiktok, 'تيك توك', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.6 6.3c-1.3-.9-2.2-2.3-2.4-3.9h-3.1v13.5c0 1.6-1.3 2.9-2.9 2.9s-2.9-1.3-2.9-2.9 1.3-2.9 2.9-2.9c.3 0 .6 0 .9.1V9.9c-.3 0-.6-.1-.9-.1-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6V9.2c1.2 1 2.7 1.6 4.3 1.6V7.7c-.7 0-1.4-.2-1.9-.5z"/></svg>'],
+        ['facebook-circle', s.facebook, 'فيسبوك', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12c0-5.5-4.5-10-10-10S2 6.5 2 12c0 5 3.7 9.1 8.4 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7C18.3 21.1 22 17 22 12z"/></svg>']
+      ].filter(function (x) { return x[1]; });
+
+      document.getElementById('social-row').innerHTML = socials.map(function (x) {
+        return '<a class="social-circle ' + x[0] + '" href="' + AZ.esc(x[1]) + '" target="_blank" rel="noopener" aria-label="' + x[2] + '">' + x[3] + '</a>';
+      }).join('');
+
+      // شاشة التحميل
+      var loader = document.getElementById('loader'), hidden = false;
+      function hide() {
+        if (hidden || !loader) return;
+        hidden = true; loader.style.opacity = '0';
+        setTimeout(function () { loader.remove(); }, 550);
+      }
+      window.addEventListener('load', function () { setTimeout(hide, 700); });
+      setTimeout(hide, 2500);
+    });
+  </script>
+</body>
+</html>

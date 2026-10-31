@@ -35,17 +35,17 @@
     <img src="" alt="" id="lightbox-img">
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="store-supabase.js"></script>
-  <script src="data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
   <script src="store.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    AZ.ready.then(function () {
       var id = new URLSearchParams(location.search).get('id');
       var p = id ? AZ.getProduct(id) : null;
       var root = document.getElementById('product-root');
       var crumbs = document.getElementById('crumbs');
 
+      if (AZ.errorBox(root)) return;
       if (!p) {
         root.innerHTML = '<div class="empty"><b>المنتج غير موجود</b>قد يكون تم حذفه أو الرابط غير صحيح.<br><a class="btn btn-outline" style="margin-top:1rem" href="shop.html">عودة إلى المتجر</a></div>';
         return;
@@ -58,7 +58,7 @@
         ' / <span>' + AZ.esc(p.name) + '</span>';
 
       var images = (p.images && p.images.length) ? p.images : [AZ.PLACEHOLDER];
-      var out = Number(p.stock) === 0;
+      var out = Number(p.stock) <= 0;
       var sale = Number(p.oldPrice) > Number(p.price);
 
       var html = '<div class="pd-grid">' +
@@ -122,8 +122,10 @@
 
       // إضافة إلى العربة
       document.getElementById('add-btn').addEventListener('click', function () {
-        AZ.addToCart({ id: p.id, size: selected.size, color: selected.color, qty: Number(qtyEl.value) || 1 });
-        AZ.toast('أُضيف إلى العربة ✓', 'ok');
+        var r = AZ.addToCart({ id: p.id, size: selected.size, color: selected.color, qty: Number(qtyEl.value) || 1 });
+        if (!r.ok) AZ.toast('نفدت الكمية حالياً', 'err');
+        else if (r.capped) AZ.toast('وصلتِ لأقصى كمية متوفرة', 'err');
+        else AZ.toast('أُضيف إلى العربة ✓', 'ok');
       });
 
       // طلب مباشر عبر واتساب

@@ -81,24 +81,28 @@
       <div class="loading-dots"><span></span><span></span><span></span></div>
     </div>
   </div>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="store-supabase.js"></script>
-  <script src="data.js"></script>
+  <script src="config.js"></script>
   <script src="store.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    AZ.ready.then(function () {
       var s = AZ.getSettings();
 
       // تصنيفات رئيسية فقط
       var cats = AZ.getCategories().filter(function (c) { return !c.parent; });
-      document.getElementById('cats-grid').innerHTML = cats.map(AZ.categoryCard).join('');
+      var catsEl = document.getElementById('cats-grid');
+      catsEl.innerHTML = cats.map(AZ.categoryCard).join('');
 
       // أحدث المنتجات
       var newest = AZ.getProducts({ sort: 'new' }).slice(0, 8);
-      document.getElementById('new-grid').innerHTML = newest.length
-        ? newest.map(AZ.productCard).join('')
-        : '<p class="empty">لا توجد منتجات بعد.</p>';
+      var newEl = document.getElementById('new-grid');
+      if (!AZ.errorBox(newEl)) {
+        newEl.innerHTML = newest.length
+          ? newest.map(AZ.productCard).join('')
+          : '<p class="empty">لا توجد منتجات بعد.</p>';
+      }
 
       // التواصل
       document.getElementById('contact-address').textContent = s.address;
@@ -124,7 +128,8 @@
         hidden = true; loader.style.opacity = '0';
         setTimeout(function () { loader.remove(); }, 550);
       }
-      window.addEventListener('load', function () { setTimeout(hide, 700); });
+      if (document.readyState === 'complete') setTimeout(hide, 300);
+      else window.addEventListener('load', function () { setTimeout(hide, 700); });
       setTimeout(hide, 2500);
     });
   </script>

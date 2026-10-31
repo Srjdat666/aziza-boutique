@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفاصيل المنتج | AZIZA Boutique</title>
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="shop">
+  <div id="site-header"></div>
+
+  <main class="wrap">
+    <nav class="crumbs" id="crumbs" aria-label="مسار التنقل"></nav>
+    <div id="product-root"></div>
+
+    <section class="section" id="related-section" hidden>
+      <div class="section-head"><h2 class="section-title">قد يعجبك أيضاً</h2></div>
+      <div class="grid-products" id="related-grid"></div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="عرض الصورة" hidden>
+    <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="إغلاق">✕</button>
+    <button type="button" class="lb-btn lb-prev" id="lb-prev" aria-label="السابقة">›</button>
+    <button type="button" class="lb-btn lb-next" id="lb-next" aria-label="التالية">‹</button>
+    <img src="" alt="" id="lightbox-img">
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="store-supabase.js"></script>
+  <script src="data.js"></script>
+  <script src="store.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var id = new URLSearchParams(location.search).get('id');
+      var p = id ? AZ.getProduct(id) : null;
+      var root = document.getElementById('product-root');
+      var crumbs = document.getElementById('crumbs');
+
+      if (!p) {
+        root.innerHTML = '<div class="empty"><b>المنتج غير موجود</b>قد يكون تم حذفه أو الرابط غير صحيح.<br><a class="btn btn-outline" style="margin-top:1rem" href="shop.html">عودة إلى المتجر</a></div>';
+        return;
+      }
+
+      document.title = p.name + ' | AZIZA Boutique';
+      var cat = AZ.getCategory(p.category);
+      crumbs.innerHTML = '<a href="index.html">الرئيسية</a> / <a href="shop.html">المتجر</a>' +
+        (cat ? ' / <a href="shop.html?cat=' + encodeURIComponent(cat.id) + '">' + AZ.esc(cat.name) + '</a>' : '') +
+        ' / <span>' + AZ.esc(p.name) + '</span>';
+
+      var images = (p.images && p.images.length) ? p.images : [AZ.PLACEHOLDER];
+      var out = Number(p.stock) === 0;
+      var sale = Number(p.oldPrice) > Number(p.price);
+
+      var html = '<div class="pd-grid">' +
+        '<div class="pd-gallery">' +
+          '<div class="pd-main" id="pd-main"><img id="main-img" src="' + AZ.esc(images[0]) + '" alt="' + AZ.esc(p.name) + '"></div>' +
+          (images.length > 1 ? '<div class="pd-thumbs" id="thumbs">' + images.map(function (src, i) {
+            return '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '" aria-label="صورة ' + (i + 1) + '"><img src="' + AZ.esc(src) + '" alt=""></button>';
+          }).join('') + '</div>' : '') +
+        '</div>' +
+        '<div class="pd-info">' +
+          '<h1 class="pd-title">' + AZ.esc(p.name) + '</h1>' +
+          '<div class="pd-price">' + AZ.money(p.price) + (sale ? '<span class="old">' + AZ.money(p.oldPrice) + '</span>' : '') + '</div>' +
+          '<p class="pd-stock ' + (out ? 'out' : '') + '">' + (out ? 'نفدت الكمية حالياً' : 'متوفر — ' + p.stock + ' قطعة') + '</p>' +
+          (p.sizes && p.sizes.length ? '<div class="field" style="margin-top:1.1rem"><label>المقاس</label><div class="opt-group" id="sizes-group">' +
+            p.sizes.map(function (s, i) { return '<button type="button" class="opt" data-size="' + AZ.esc(s) + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + AZ.esc(s) + '</button>'; }).join('') + '</div></div>' : '') +
+          (p.colors && p.colors.length ? '<div class="field"><label>اللون</label><div class="opt-group" id="colors-group">' +
+            p.colors.map(function (c, i) { return '<button type="button" class="opt" data-color="' + AZ.esc(c) + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + AZ.esc(c) + '</button>'; }).join('') + '</div></div>' : '') +
+          '<div class="field"><label>الكمية</label><div class="qty"><button type="button" id="q-minus" aria-label="تقليل">−</button><input id="qty" type="number" value="1" min="1" max="' + Math.max(1, p.stock) + '" aria-label="الكمية"><button type="button" id="q-plus" aria-label="زيادة">+</button></div></div>' +
+          '<div class="pd-buy">' +
+            '<button class="btn btn-primary" id="add-btn" type="button"' + (out ? ' disabled' : '') + '>أضيفي إلى العربة</button>' +
+            '<a class="btn btn-wa" id="wa-btn" href="#" target="_blank" rel="noopener">اطلبي عبر واتساب</a>' +
+          '</div>' +
+          (p.desc ? '<div class="pd-desc">' + AZ.esc(p.desc) + '</div>' : '') +
+        '</div>' +
+      '</div>';
+
+      root.innerHTML = html;
+
+      // اختيار المقاس واللون
+      var selected = { size: (p.sizes && p.sizes[0]) || '', color: (p.colors && p.colors[0]) || '' };
+      root.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-size],[data-color]');
+        if (!b) return;
+        if (b.hasAttribute('data-size')) {
+          selected.size = b.getAttribute('data-size');
+          b.parentNode.querySelectorAll('.opt').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        } else {
+          selected.color = b.getAttribute('data-color');
+          b.parentNode.querySelectorAll('.opt').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        }
+        b.setAttribute('aria-pressed', 'true');
+      });
+
+      // الصور المصغّرة
+      var thumbs = document.getElementById('thumbs');
+      if (thumbs) {
+        thumbs.addEventListener('click', function (e) {
+          var b = e.target.closest('[data-i]');
+          if (!b) return;
+          var i = Number(b.getAttribute('data-i'));
+          document.getElementById('main-img').src = images[i];
+          thumbs.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+          b.setAttribute('aria-pressed', 'true');
+        });
+      }
+
+      // الكمية
+      var qtyEl = document.getElementById('qty');
+      document.getElementById('q-minus').addEventListener('click', function () { qtyEl.value = Math.max(1, Number(qtyEl.value) - 1); });
+      document.getElementById('q-plus').addEventListener('click', function () { qtyEl.value = Math.min(Math.max(1, p.stock), Number(qtyEl.value) + 1); });
+
+      // إضافة إلى العربة
+      document.getElementById('add-btn').addEventListener('click', function () {
+        AZ.addToCart({ id: p.id, size: selected.size, color: selected.color, qty: Number(qtyEl.value) || 1 });
+        AZ.toast('أُضيف إلى العربة ✓', 'ok');
+      });
+
+      // طلب مباشر عبر واتساب
+      var waBtn = document.getElementById('wa-btn');
+      function refreshWA() {
+        var msg = 'مرحباً، أرغب في طلب:\n' + p.name +
+          (selected.size ? '\nالمقاس: ' + selected.size : '') +
+          (selected.color ? '\nاللون: ' + selected.color : '') +
+          '\nالكمية: ' + (Number(qtyEl.value) || 1) +
+          '\nالسعر: ' + AZ.money(p.price * (Number(qtyEl.value) || 1));
+        waBtn.href = AZ.waLink(msg);
+      }
+      refreshWA();
+      root.addEventListener('click', refreshWA);
+      qtyEl.addEventListener('change', refreshWA);
+
+      // عارض الصور
+      var lb = document.getElementById('lightbox'), lbImg = document.getElementById('lightbox-img'), cur = 0;
+      function show(i) { cur = (i + images.length) % images.length; lbImg.src = images[cur]; lbImg.alt = p.name; }
+      document.getElementById('pd-main').addEventListener('click', function () {
+        show(Number(document.querySelector('#thumbs [aria-pressed="true"]') ? document.querySelector('#thumbs [aria-pressed="true"]').getAttribute('data-i') : 0));
+        lb.hidden = false; document.body.style.overflow = 'hidden'; document.getElementById('lb-close').focus();
+      });
+      function closeLb() { lb.hidden = true; document.body.style.overflow = ''; }
+      document.getElementById('lb-close').addEventListener('click', closeLb);
+      document.getElementById('lb-next').addEventListener('click', function () { show(cur + 1); });
+      document.getElementById('lb-prev').addEventListener('click', function () { show(cur - 1); });
+      lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+      document.addEventListener('keydown', function (e) {
+        if (lb.hidden) return;
+        if (e.key === 'Escape') closeLb();
+        if (e.key === 'ArrowLeft') show(cur + 1);
+        if (e.key === 'ArrowRight') show(cur - 1);
+      });
+
+      // منتجات مشابهة
+      var related = AZ.getRelated(p, 4);
+      if (related.length) {
+        document.getElementById('related-section').hidden = false;
+        document.getElementById('related-grid').innerHTML = related.map(AZ.productCard).join('');
+      }
+    });
+  </script>
+</body>
+</html>
