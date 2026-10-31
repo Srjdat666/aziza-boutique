@@ -4,7 +4,7 @@ const SUPABASE_URL =
   "https://uqzltkgtqwwjruzoflbb.supabase.co";
 
 const SUPABASE_KEY =
-  "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+  "sb_publishable_DX13H7wkcZge-6tQxFEgYw_V8e8YZ7r";
 
 const supabaseClient = supabase.createClient(
   SUPABASE_URL,
@@ -63,4 +63,4 @@ async function testSupabase() {
   );
 }
 
-testSupabase();
+testSupabase();console.log("store-supabase loaded ✅");

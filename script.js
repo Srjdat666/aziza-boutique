@@ -584,3 +584,9 @@ window.AZIZA_DATA = {
     PLACEHOLDER
   };
 })(window);
+
+const SUPABASE_URL =
+"https://uqzltkgtqwwjruzoflbb.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_DX13H7wkcZge-6tQxFEgYw_V8e8YZ7r";
