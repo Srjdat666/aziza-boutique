@@ -245,6 +245,24 @@ h2.section-title,h1.section-title{font-family:var(--ruqaa);font-weight:700;font-
 .status.cancelled{background:#FBD9DD;color:#8E1D2C}
 .panel-toolbar{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
 
+
+
+.color-btn{
+  padding:8px 14px;
+  border:1px solid #ddd;
+  border-radius:20px;
+  cursor:pointer;
+  background:#fff;
+  margin:4px;
+}
+
+.color-btn.active{
+  background:#6E1F33;
+  color:#fff;
+  border-color:#6E1F33;
+}
+
+
 /* ============ Loader ============ */
 #loader{position:fixed;inset:0;z-index:9999;display:flex;justify-content:center;align-items:center;background:var(--wine);transition:opacity .55s ease}
 #loader::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(86,22,39,.78),rgba(86,22,39,.78)),url("Loading.jpg") center/cover no-repeat}
