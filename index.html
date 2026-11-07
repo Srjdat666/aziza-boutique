@@ -4,17 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AZIZA Boutique | أزياء نسائية - سرت</title>
-  <meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تسوّقي أونلاين أو تواصلي معنا عبر واتساب.">
-  <meta property="og:title" content="AZIZA Boutique">
-  <meta property="og:description" content="أحدث صيحات الموضة النسائية - سرت">
-  <meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/paz1.jpg">
+  <meta name="description" content="أحدث صيحات الموضة النسائية بجودة عالية. تسوّقي أونلاين أو تواصلي معنا عبر واتساب من AZIZA Boutique في سرت، ليبيا.">
+  <meta property="og:title" content="AZIZA Boutique — أزياء نسائية">
+  <meta property="og:description" content="أحدث صيحات الموضة النسائية في سرت. توصيل لكل ليبيا.">
+  <meta property="og:image" content="https://srjdat666.github.io/aziza-boutique/share-default.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://srjdat666.github.io/aziza-boutique/">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="AZIZA Boutique">
+  <meta property="og:locale" content="ar_LY">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AZIZA Boutique — أزياء نسائية">
+  <meta name="twitter:description" content="أحدث صيحات الموضة النسائية في سرت. توصيل لكل ليبيا.">
+  <meta name="twitter:image" content="https://srjdat666.github.io/aziza-boutique/share-default.jpg">
   <meta name="theme-color" content="#6E1F33">
+  <link rel="canonical" href="https://srjdat666.github.io/aziza-boutique/">
   <link rel="icon" type="image/jpeg" href="logo.jpg">
   <link rel="apple-touch-icon" href="logo.jpg">
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://uqzltkgtqwwjruzoflbb.supabase.co" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -24,7 +35,7 @@
   <main>
     <section class="hero wrap">
       <div class="hero-grid">
-        <div><img class="arch" src="shop.png" alt="صورة من بوتيك AZIZA" fetchpriority="high" decoding="async"></div>
+        <div><img class="arch" src="shop.png" alt="صورة من بوتيك AZIZA" fetchpriority="high" decoding="async" width="420" height="525"></div>
         <div class="hero-copy">
           <p class="eyebrow">بوتيك نسائي · سرت</p>
           <p class="wordmark" lang="en" dir="ltr">AZIZA Boutique</p>
@@ -82,7 +93,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="config.js"></script>
   <script src="store.js"></script>
   <script>
@@ -91,7 +102,7 @@
     function hide() {
       if (hidden || !loader) return;
       hidden = true; loader.style.opacity = '0';
-      setTimeout(function () { loader.remove(); }, 550);
+      setTimeout(function () { if (loader) loader.remove(); }, 550);
     }
     if (document.readyState === 'complete') setTimeout(hide, 300);
     else window.addEventListener('load', function () { setTimeout(hide, 700); });
@@ -100,6 +111,57 @@
 
     AZ.ready.then(function () {
       var s = AZ.getSettings();
+      var SEO_BASE = location.origin + location.pathname.replace(/index\.html$/, '');
+      var SITE_NAME = s.storeName || 'AZIZA Boutique';
+
+      // ===== SEO ديناميكي =====
+      (function applySEO() {
+        // Organization / Store
+        var org = {
+          "@context": "https://schema.org",
+          "@type": "Store",
+          "name": SITE_NAME,
+          "description": s.tagline || 'بوتيك أزياء نسائية في سرت، ليبيا.',
+          "url": SEO_BASE,
+          "image": SEO_BASE + 'share-default.jpg',
+          "telephone": '+' + String(s.whatsapp || '').replace(/\D/g, ''),
+          "priceRange": "$$",
+          "currenciesAccepted": "LYD",
+          "paymentAccepted": "Cash, Bank Transfer",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": s.address || '',
+            "addressLocality": "سرت",
+            "addressCountry": "LY"
+          },
+          "sameAs": [s.instagram, s.tiktok, s.facebook, s.snapchat].filter(Boolean)
+        };
+        var s1 = document.createElement('script');
+        s1.type = 'application/ld+json';
+        s1.textContent = JSON.stringify(org);
+        document.head.appendChild(s1);
+
+        // WebSite + SearchAction
+        var site = {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": SITE_NAME,
+          "url": SEO_BASE,
+          "inLanguage": "ar",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": SEO_BASE + 'shop.html?q={search_term_string}'
+            },
+            "query-input": "required name=search_term_string"
+          }
+        };
+        var s2 = document.createElement('script');
+        s2.type = 'application/ld+json';
+        s2.textContent = JSON.stringify(site);
+        document.head.appendChild(s2);
+      })();
 
       // تصنيفات رئيسية فقط
       var cats = AZ.getCategories().filter(function (c) { return !c.parent; });
@@ -131,8 +193,6 @@
       document.getElementById('social-row').innerHTML = socials.map(function (x) {
         return '<a class="social-circle ' + x[0] + '" href="' + AZ.esc(x[1]) + '" target="_blank" rel="noopener" aria-label="' + x[2] + '">' + x[3] + '</a>';
       }).join('');
-
-
     });
   </script>
 </body>

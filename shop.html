@@ -10,6 +10,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://uqzltkgtqwwjruzoflbb.supabase.co" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -18,7 +19,7 @@
 
   <main class="wrap section">
     <div class="section-head">
-      <div><h1 class="section-title">المتجر</h1><p class="section-sub">كل ما وصل إلى البوتيك</p></div>
+      <div><h1 class="section-title" id="shop-title">المتجر</h1><p class="section-sub" id="shop-sub">كل ما وصل إلى البوتيك</p></div>
     </div>
 
     <div class="shop-bar">
@@ -43,7 +44,7 @@
   <div id="site-footer"></div>
   <div id="toasts"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="config.js"></script>
   <script src="store.js"></script>
   <script>
@@ -60,11 +61,132 @@
       var chipsEl = document.getElementById('chips');
       var gridEl = document.getElementById('grid');
       var countEl = document.getElementById('count-line');
+      var titleEl = document.getElementById('shop-title');
+      var subEl = document.getElementById('shop-sub');
 
       searchEl.value = state.q;
       sortEl.value = state.sort;
 
-      // شرائح التصنيفات (رئيسية + فرعية)
+      // ===== SEO helpers =====
+      var SEO_BASE = location.origin + location.pathname.replace(/shop\.html$/, '');
+      var SITE_NAME = 'AZIZA Boutique';
+
+      function setMeta(selector, attr, value) {
+        var el = document.querySelector(selector);
+        if (!el) {
+          el = document.createElement('meta');
+          var m = selector.match(/(property|name)="([^"]+)"/);
+          if (m) el.setAttribute(m[1], m[2]);
+          document.head.appendChild(el);
+        }
+        el.setAttribute(attr, value);
+      }
+
+      // إزالة JSON-LD القديمة (عند إعادة الرسم)
+      function clearLD() {
+        document.querySelectorAll('script[data-ld="shop"]').forEach(function (s) { s.remove(); });
+      }
+
+      function addLD(obj) {
+        var s = document.createElement('script');
+        s.type = 'application/ld+json';
+        s.setAttribute('data-ld', 'shop');
+        s.textContent = JSON.stringify(obj);
+        document.head.appendChild(s);
+      }
+
+      function updateSEO(list) {
+        // عنوان ووصف الصفحة
+        var cat = state.cat ? AZ.getCategory(state.cat) : null;
+        var pageTitle = cat ? (cat.name + ' | ' + SITE_NAME) : ('المتجر | ' + SITE_NAME);
+        document.title = pageTitle;
+
+        var desc = cat
+          ? ('تسوّقي ' + cat.name + ' من AZIZA Boutique — ' + list.length + ' منتج متوفر بأفضل الأسعار.')
+          : 'تسوّقي جميع منتجات AZIZA Boutique: فساتين، أطقم، عبايات وإكسسوارات. توصيل لكل ليبيا.';
+
+        setMeta('meta[name="description"]', 'content', desc);
+        setMeta('meta[property="og:title"]', 'content', pageTitle);
+        setMeta('meta[property="og:description"]', 'content', desc);
+        setMeta('meta[property="og:type"]', 'content', 'website');
+        setMeta('meta[property="og:site_name"]', 'content', SITE_NAME);
+        setMeta('meta[property="og:locale"]', 'content', 'ar_LY');
+        setMeta('meta[name="twitter:card"]', 'content', 'summary_large_image');
+        setMeta('meta[name="twitter:title"]', 'content', pageTitle);
+        setMeta('meta[name="twitter:description"]', 'content', desc);
+
+        // صورة افتراضية إن لم توجد صور
+        var firstImg = (list[0] && list[0].images && list[0].images[0] && list[0].images[0].indexOf('http') === 0)
+          ? list[0].images[0]
+          : SEO_BASE + 'share-default.jpg';
+        setMeta('meta[property="og:image"]', 'content', firstImg);
+        setMeta('meta[name="twitter:image"]', 'content', firstImg);
+
+        // canonical (يحافظ على الفلاتر المهمة فقط)
+        var canonicalUrl = SEO_BASE + 'shop.html';
+        var canonParams = [];
+        if (state.cat) canonParams.push('cat=' + encodeURIComponent(state.cat));
+        if (state.sort && state.sort !== 'new') canonParams.push('sort=' + encodeURIComponent(state.sort));
+        if (canonParams.length) canonicalUrl += '?' + canonParams.join('&');
+
+        var canonical = document.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+          canonical = document.createElement('link');
+          canonical.rel = 'canonical';
+          document.head.appendChild(canonical);
+        }
+        canonical.href = canonicalUrl;
+
+        setMeta('meta[property="og:url"]', 'content', canonicalUrl);
+
+        // ===== JSON-LD =====
+        clearLD();
+
+        // CollectionPage + ItemList
+        var itemList = {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": pageTitle,
+          "description": desc,
+          "url": canonicalUrl,
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": SITE_NAME,
+            "url": SEO_BASE
+          }
+        };
+        if (list.length) {
+          itemList.mainEntity = {
+            "@type": "ItemList",
+            "numberOfItems": list.length,
+            "itemListElement": list.slice(0, 30).map(function (p, i) {
+              return {
+                "@type": "ListItem",
+                "position": i + 1,
+                "url": SEO_BASE + 'product.html?id=' + encodeURIComponent(p.id),
+                "name": p.name
+              };
+            })
+          };
+        }
+        addLD(itemList);
+
+        // Breadcrumb
+        var bcItems = [
+          { "@type": "ListItem", "position": 1, "name": "الرئيسية", "item": SEO_BASE + 'index.html' },
+          { "@type": "ListItem", "position": 2, "name": "المتجر", "item": SEO_BASE + 'shop.html' }
+        ];
+        if (cat) {
+          bcItems.push({ "@type": "ListItem", "position": 3, "name": cat.name, "item": SEO_BASE + 'shop.html?cat=' + encodeURIComponent(cat.id) });
+        }
+        addLD({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": bcItems
+        });
+      }
+
+      // ===== رسم الشرائح =====
       function renderChips() {
         var mains = AZ.getCategories().filter(function (c) { return !c.parent; });
         var html = '<button class="chip" type="button" data-cat="" aria-pressed="' + (state.cat === '' ? 'true' : 'false') + '">الكل</button>';
@@ -86,13 +208,22 @@
         history.replaceState(null, '', qs ? '?' + qs : location.pathname);
       }
 
+      // ===== رسم المنتجات =====
       function render() {
         if (AZ.errorBox(gridEl)) { countEl.textContent = ''; return; }
         var list = AZ.getProducts(state);
+
+        // عنوان الصفحة الفرعي حسب التصنيف
+        var cat = state.cat ? AZ.getCategory(state.cat) : null;
+        titleEl.textContent = cat ? cat.name : 'المتجر';
+        subEl.textContent = cat ? ('كل منتجات ' + cat.name) : 'كل ما وصل إلى البوتيك';
+
         countEl.textContent = list.length ? ('عدد المنتجات: ' + list.length) : '';
         gridEl.innerHTML = list.length
           ? list.map(AZ.productCard).join('')
           : '<div class="empty" style="grid-column:1/-1"><b>لا توجد نتائج</b>جرّبي كلمة بحث أخرى أو تصنيفاً مختلفاً.</div>';
+
+        updateSEO(list);
       }
 
       chipsEl.addEventListener('click', function (e) {
