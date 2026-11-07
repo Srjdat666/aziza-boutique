@@ -82,11 +82,22 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="store-supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script src="config.js"></script>
   <script src="store.js"></script>
   <script>
+    // شاشة التحميل
+    var loader = document.getElementById('loader'), hidden = false;
+    function hide() {
+      if (hidden || !loader) return;
+      hidden = true; loader.style.opacity = '0';
+      setTimeout(function () { loader.remove(); }, 550);
+    }
+    if (document.readyState === 'complete') setTimeout(hide, 300);
+    else window.addEventListener('load', function () { setTimeout(hide, 700); });
+    setTimeout(hide, 2500);
+    AZ.ready.then(function () { setTimeout(hide, 300); }, hide);
+
     AZ.ready.then(function () {
       var s = AZ.getSettings();
 
@@ -121,16 +132,7 @@
         return '<a class="social-circle ' + x[0] + '" href="' + AZ.esc(x[1]) + '" target="_blank" rel="noopener" aria-label="' + x[2] + '">' + x[3] + '</a>';
       }).join('');
 
-      // شاشة التحميل
-      var loader = document.getElementById('loader'), hidden = false;
-      function hide() {
-        if (hidden || !loader) return;
-        hidden = true; loader.style.opacity = '0';
-        setTimeout(function () { loader.remove(); }, 550);
-      }
-      if (document.readyState === 'complete') setTimeout(hide, 300);
-      else window.addEventListener('load', function () { setTimeout(hide, 700); });
-      setTimeout(hide, 2500);
+
     });
   </script>
 </body>

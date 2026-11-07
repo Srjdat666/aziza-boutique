@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم | AZIZA Boutique</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="admin">
+  <div id="site-header"></div>
+
+  <main class="wrap section">
+    <!-- تسجيل الدخول -->
+    <div class="admin-gate" id="gate" hidden>
+      <h1>لوحة التحكم</h1>
+      <p class="section-sub" style="margin-bottom:1rem">سجّلي الدخول للمتابعة</p>
+      <form id="gate-form">
+        <div class="field"><label for="g-email">البريد الإلكتروني</label><input class="input" id="g-email" type="email" dir="ltr" autocomplete="username" required></div>
+        <div class="field"><label for="g-pass">كلمة المرور</label><input class="input" id="g-pass" type="password" dir="ltr" autocomplete="current-password" required></div>
+        <button class="btn btn-primary btn-block" type="submit" id="g-btn">دخول</button>
+      </form>
+      <p class="hint" id="g-err" style="margin-top:1rem;color:var(--err)"></p>
+    </div>
+
+    <div id="boot" class="notice-box">جارٍ التحميل…</div>
+
+    <!-- التطبيق -->
+    <div id="app" hidden>
+      <div class="section-head">
+        <div><h1 class="section-title">لوحة التحكم</h1><p class="section-sub">إدارة المنتجات والتصنيفات والطلبات</p></div>
+        <button class="btn btn-ghost btn-sm" id="logout" type="button">خروج</button>
+      </div>
+
+      <div class="admin-tabs" role="tablist">
+        <button class="tab-btn" role="tab" aria-selected="true" data-tab="overview">نظرة عامة</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="products">المنتجات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="categories">التصنيفات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="orders">الطلبات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="settings">الإعدادات</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="import">استيراد</button>
+      </div>
+
+      <section class="panel" id="panel-overview" role="tabpanel"></section>
+      <section class="panel" id="panel-products" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-categories" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-orders" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-settings" role="tabpanel" hidden></section>
+      <section class="panel" id="panel-import" role="tabpanel" hidden></section>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <!-- نافذة المنتج -->
+  <div class="modal" id="product-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pm-title">
+      <div class="section-head" style="margin-bottom:1rem">
+        <h2 class="section-title" id="pm-title" style="font-size:1.25rem">منتج</h2>
+        <button class="btn btn-ghost btn-sm" type="button" id="pm-close">✕</button>
+      </div>
+      <form id="product-form">
+        <input type="hidden" name="id">
+        <div class="field"><label for="f-name">اسم المنتج</label><input class="input" id="f-name" name="name" required></div>
+        <div class="form-row">
+          <div class="field"><label for="f-cat">التصنيف</label><select class="select" id="f-cat" name="category"></select></div>
+          <div class="field"><label for="f-stock">المخزون</label><input class="input" id="f-stock" name="stock" type="number" min="0" value="1"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="f-price">السعر</label><input class="input" id="f-price" name="price" type="number" min="0" step="0.5" required></div>
+          <div class="field"><label for="f-old">السعر قبل التخفيض (اختياري)</label><input class="input" id="f-old" name="oldPrice" type="number" min="0" step="0.5" value="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label for="f-sizes">المقاسات (فاصلة بينها)</label><input class="input" id="f-sizes" name="sizes" placeholder="S, M, L, XL"></div>
+          <div class="field"><label for="f-colors">الألوان (فاصلة بينها)</label><input class="input" id="f-colors" name="colors" placeholder="أسود, بيج"></div>
+        </div>
+        <div class="field">
+          <label>الصور</label>
+          <div class="img-edit" id="img-edit"></div>
+          <input class="input" id="f-upload" type="file" accept="image/*" multiple>
+          <span class="hint" id="up-hint">اختاري صورة أو أكثر — تُرفع وتُصغَّر تلقائياً. أول صورة هي الصورة الرئيسية.</span>
+        </div>
+        <div class="field"><label for="f-desc">الوصف</label><textarea class="textarea" id="f-desc" name="desc" rows="3"></textarea></div>
+        <div class="form-row">
+          <label style="display:flex;gap:.5rem;align-items:center;font-size:.9rem"><input type="checkbox" name="featured"> منتج مميز</label>
+          <label style="display:flex;gap:.5rem;align-items:center;font-size:.9rem"><input type="checkbox" name="active" checked> معروض في المتجر</label>
+        </div>
+        <div style="display:flex;gap:.6rem;margin-top:1.2rem;flex-wrap:wrap">
+          <button class="btn btn-primary" type="submit" id="pm-save">حفظ المنتج</button>
+          <button class="btn btn-ghost" type="button" id="pm-cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- نافذة التصنيف -->
+  <div class="modal" id="cat-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="cm-title" style="max-width:460px">
+      <div class="section-head" style="margin-bottom:1rem">
+        <h2 class="section-title" id="cm-title" style="font-size:1.25rem">تصنيف</h2>
+        <button class="btn btn-ghost btn-sm" type="button" id="cm-close">✕</button>
+      </div>
+      <form id="cat-form">
+        <input type="hidden" name="id">
+        <div class="field"><label for="c-name2">اسم التصنيف</label><input class="input" id="c-name2" name="name" required></div>
+        <div class="form-row">
+          <div class="field"><label for="c-parent">التصنيف الأب</label><select class="select" id="c-parent" name="parent"></select></div>
+          <div class="field"><label for="c-order">الترتيب</label><input class="input" id="c-order" name="order" type="number" min="0" value="0"></div>
+        </div>
+        <div class="field">
+          <label>صورة التصنيف</label>
+          <div class="img-edit" id="cat-img-edit"></div>
+          <input class="input" id="c-upload" type="file" accept="image/*">
+        </div>
+        <div style="display:flex;gap:.6rem;margin-top:1rem">
+          <button class="btn btn-primary" type="submit" id="cm-save">حفظ</button>
+          <button class="btn btn-ghost" type="button" id="cm-cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="store.js"></script>
+  <script src="seed-data.js"></script>
+  <script>
+  AZ.ready.then(function () {
+    var A = AZ.admin, esc = AZ.esc, $ = function (id) { return document.getElementById(id); };
+    var gate = $('gate'), app = $('app'), boot = $('boot');
+    var orders = [];
+
+    function msg(e) { return (e && e.message) ? e.message : 'حدث خطأ غير متوقع'; }
+    function busy(btn, on) { if (btn) btn.classList.toggle('is-busy', !!on); }
+
+    /* ===== الدخول ===== */
+    if (!AZ.hasClient()) {
+      boot.className = 'notice-box err';
+      boot.textContent = 'لم يتم ضبط الاتصال بـ Supabase. افتحي ملف config.js وضعي المفتاح (Publishable key).';
+      return;
+    }
+    function showGate() { boot.hidden = true; app.hidden = true; gate.hidden = false; }
+    function showApp() {
+      boot.hidden = true; gate.hidden = true; app.hidden = false;
+      loadOrders().then(renderAll);
+    }
+    A.getSession().then(function (s) { s ? showApp() : showGate(); }).catch(showGate);
+
+    $('gate-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var btn = $('g-btn'); busy(btn, true); $('g-err').textContent = '';
+      A.signIn($('g-email').value.trim(), $('g-pass').value).then(function () {
+        $('g-pass').value = ''; showApp();
+      }).catch(function () {
+        $('g-err').textContent = 'البريد أو كلمة المرور غير صحيحة.';
+      }).then(function () { busy(btn, false); });
+    });
+    $('logout').addEventListener('click', function () { A.signOut().then(showGate); });
+
+    /* ===== التبويبات ===== */
+    document.querySelector('.admin-tabs').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-tab]'); if (!b) return;
+      document.querySelectorAll('.tab-btn').forEach(function (x) { x.setAttribute('aria-selected', x === b ? 'true' : 'false'); });
+      document.querySelectorAll('.panel').forEach(function (p) { p.hidden = p.id !== 'panel-' + b.getAttribute('data-tab'); });
+    });
+
+    function loadOrders() {
+      return A.getOrders().then(function (o) { orders = o; }).catch(function (e) { orders = []; AZ.toast(msg(e), 'err'); });
+    }
+    function renderAll() { renderOverview(); renderProducts(); renderCategories(); renderOrders(); renderSettings(); renderImport(); }
+
+    var thumb = function (src) { return '<img src="' + esc(src || AZ.PLACEHOLDER) + '" alt="" style="width:44px;height:56px;object-fit:cover;border-radius:6px">'; };
+    function catName(id) { var c = AZ.getCategory(id); return c ? c.name : '—'; }
+
+    /* ===== نظرة عامة ===== */
+    function renderOverview() {
+      var prods = AZ.getProducts({ all: true });
+      var low = prods.filter(function (p) { return p.stock <= 2; });
+      var news = orders.filter(function (o) { return o.status === 'new'; });
+      $('panel-overview').innerHTML =
+        '<div class="stat-grid">' +
+          '<div class="stat"><b>' + prods.length + '</b><span>منتج</span></div>' +
+          '<div class="stat"><b>' + AZ.getCategories(false).length + '</b><span>تصنيف</span></div>' +
+          '<div class="stat"><b>' + news.length + '</b><span>طلب جديد</span></div>' +
+          '<div class="stat"><b>' + orders.length + '</b><span>إجمالي الطلبات</span></div>' +
+        '</div>' +
+        (low.length ? '<h3 class="section-title" style="font-size:1.1rem;margin-bottom:.6rem">مخزون منخفض أو نافد</h3><div class="table-wrap"><table class="table"><tbody>' +
+          low.map(function (p) { return '<tr><td>' + esc(p.name) + '</td><td>' + p.stock + ' قطعة</td></tr>'; }).join('') + '</tbody></table></div>'
+          : '<p class="section-sub">لا توجد منتجات بمخزون منخفض.</p>');
+    }
+
+    /* ===== محرر الصور (مشترك) ===== */
+    function imgEditor(container, getList, setList) {
+      function draw() {
+        var list = getList();
+        container.innerHTML = list.map(function (src, i) {
+          return '<div class="it' + (i === 0 ? ' main' : '') + '"><img src="' + esc(src) + '" alt="">' +
+            '<button type="button" data-rm="' + i + '" aria-label="حذف">✕</button>' +
+            (i === 0 ? '<span class="tag">رئيسية</span>' : '<button type="button" class="mk" data-main="' + i + '" aria-label="اجعليها رئيسية">★</button>') + '</div>';
+        }).join('');
+      }
+      container.addEventListener('click', function (e) {
+        var rm = e.target.closest('[data-rm]'), mk = e.target.closest('[data-main]');
+        var list = getList().slice();
+        if (rm) { list.splice(Number(rm.getAttribute('data-rm')), 1); setList(list); draw(); }
+        if (mk) { var it = list.splice(Number(mk.getAttribute('data-main')), 1)[0]; list.unshift(it); setList(list); draw(); }
+      });
+      return draw;
+    }
+    function uploadFiles(files, hintEl, onUrl) {
+      var arr = Array.prototype.slice.call(files), done = 0, failed = 0;
+      if (!arr.length) return Promise.resolve();
+      hintEl.textContent = 'جارٍ رفع الصور…';
+      return arr.reduce(function (p, f) {
+        return p.then(function () {
+          return A.uploadImage(f).then(onUrl).catch(function (e) { failed++; console.warn(e); })
+            .then(function () { done++; hintEl.textContent = 'تم رفع ' + (done - failed) + ' من ' + arr.length; });
+        });
+      }, Promise.resolve()).then(function () {
+        if (failed) AZ.toast('تعذر رفع ' + failed + ' صورة', 'err');
+        hintEl.textContent = 'اختاري صورة أو أكثر — تُرفع وتُصغَّر تلقائياً. أول صورة هي الصورة الرئيسية.';
+      });
+    }
+
+    /* ===== المنتجات ===== */
+    var pForm = $('product-form'), pImages = [];
+    var drawPImgs = imgEditor($('img-edit'), function () { return pImages; }, function (l) { pImages = l; });
+
+    function renderProducts() {
+      var prods = AZ.getProducts({ all: true });
+      $('panel-products').innerHTML =
+        '<div class="panel-toolbar"><span class="section-sub">' + prods.length + ' منتج</span><button class="btn btn-primary btn-sm" id="add-product" type="button">+ منتج جديد</button></div>' +
+        (prods.length ? '<div class="table-wrap"><table class="table"><thead><tr><th></th><th>الاسم</th><th>التصنيف</th><th>السعر</th><th>المخزون</th><th>الحالة</th><th></th></tr></thead><tbody>' +
+        prods.map(function (p) {
+          return '<tr><td>' + thumb(p.images[0]) + '</td><td>' + esc(p.name) + '</td><td>' + esc(catName(p.category)) + '</td><td>' + AZ.money(p.price) + '</td><td>' + p.stock + '</td>' +
+            '<td><span class="status ' + (p.active ? 'done' : 'cancelled') + '">' + (p.active ? 'معروض' : 'مخفي') + '</span></td>' +
+            '<td><div class="row-actions"><button class="btn btn-outline btn-sm" data-edit="' + esc(p.id) + '">تعديل</button><button class="btn btn-ghost btn-sm" data-del="' + esc(p.id) + '">حذف</button></div></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<div class="empty"><b>لا توجد منتجات</b>أضيفي منتجاً أو استوردي منتجاتك القديمة من تبويب «استيراد».</div>');
+    }
+    function catOptions(selected, excludeId, withNone) {
+      var html = withNone ? '<option value="">— بلا —</option>' : '<option value="">بدون تصنيف</option>';
+      AZ.getCategories(false).forEach(function (c) {
+        if (c.id === excludeId) return;
+        if (withNone && c.parent) return;
+        html += '<option value="' + esc(c.id) + '"' + (c.id === selected ? ' selected' : '') + '>' + (c.parent ? '— ' : '') + esc(c.name) + '</option>';
+      });
+      return html;
+    }
+    function openProduct(p) {
+      p = p || { id: '', name: '', category: '', price: '', oldPrice: 0, stock: 1, sizes: [], colors: [], images: [], desc: '', featured: false, active: true };
+      $('pm-title').textContent = p.id ? 'تعديل منتج' : 'منتج جديد';
+      pForm.id.value = p.id; pForm.name.value = p.name; pForm.price.value = p.price; pForm.oldPrice.value = p.oldPrice || 0;
+      pForm.stock.value = p.stock; pForm.sizes.value = (p.sizes || []).join(', '); pForm.colors.value = (p.colors || []).join(', ');
+      pForm.desc.value = p.desc; pForm.featured.checked = !!p.featured; pForm.active.checked = p.active !== false;
+      $('f-cat').innerHTML = catOptions(p.category, null, false);
+      pImages = (p.images || []).slice(); drawPImgs();
+      $('product-modal').hidden = false; pForm.name.focus();
+    }
+    function closeProduct() { $('product-modal').hidden = true; }
+    $('pm-close').onclick = $('pm-cancel').onclick = closeProduct;
+    $('f-upload').addEventListener('change', function (e) {
+      var inp = e.target;
+      uploadFiles(inp.files, $('up-hint'), function (url) { pImages.push(url); drawPImgs(); }).then(function () { inp.value = ''; });
+    });
+    pForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = pForm, list = function (v) { return v.split(/[,،]/).map(function (x) { return x.trim(); }).filter(Boolean); };
+      var btn = $('pm-save'); busy(btn, true);
+      A.saveProduct({
+        id: f.id.value, name: f.name.value.trim(), category: f.category.value,
+        price: f.price.value, oldPrice: f.oldPrice.value, stock: f.stock.value,
+        sizes: list(f.sizes.value), colors: list(f.colors.value), images: pImages,
+        desc: f.desc.value.trim(), featured: f.featured.checked, active: f.active.checked
+      }).then(function () { closeProduct(); renderAll(); AZ.toast('تم حفظ المنتج ✓', 'ok'); })
+        .catch(function (err) { AZ.toast(msg(err), 'err'); }).then(function () { busy(btn, false); });
+    });
+    $('panel-products').addEventListener('click', function (e) {
+      if (e.target.closest('#add-product')) return openProduct();
+      var ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+      if (ed) openProduct(AZ.getProduct(ed.getAttribute('data-edit')));
+      if (del) {
+        var p = AZ.getProduct(del.getAttribute('data-del'));
+        if (p && confirm('حذف «' + p.name + '» نهائياً؟')) {
+          A.deleteProduct(p.id).then(function () { renderAll(); AZ.toast('تم الحذف'); }).catch(function (err) { AZ.toast(msg(err), 'err'); });
+        }
+      }
+    });
+
+    /* ===== التصنيفات ===== */
+    var cForm = $('cat-form'), cImg = '';
+    var drawCImg = imgEditor($('cat-img-edit'), function () { return cImg ? [cImg] : []; }, function (l) { cImg = l[0] || ''; });
+    function renderCategories() {
+      var cats = AZ.getCategories(false);
+      var rows = [];
+      cats.filter(function (c) { return !c.parent; }).forEach(function (c) { rows.push(c); AZ.childrenOf(c.id).forEach(function (s) { rows.push(s); }); });
+      $('panel-categories').innerHTML =
+        '<div class="panel-toolbar"><span class="section-sub">' + cats.length + ' تصنيف</span><button class="btn btn-primary btn-sm" id="add-cat" type="button">+ تصنيف جديد</button></div>' +
+        (rows.length ? '<div class="table-wrap"><table class="table"><thead><tr><th></th><th>الاسم</th><th>الترتيب</th><th>المنتجات</th><th></th></tr></thead><tbody>' +
+        rows.map(function (c) {
+          var n = AZ.getProducts({ all: true }).filter(function (p) { return p.category === c.id; }).length;
+          return '<tr><td>' + thumb(c.image) + '</td><td>' + (c.parent ? '— ' : '') + esc(c.name) + '</td><td>' + c.order + '</td><td>' + n + '</td>' +
+            '<td><div class="row-actions"><button class="btn btn-outline btn-sm" data-cedit="' + esc(c.id) + '">تعديل</button><button class="btn btn-ghost btn-sm" data-cdel="' + esc(c.id) + '">حذف</button></div></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<div class="empty"><b>لا توجد تصنيفات</b></div>');
+    }
+    function openCat(c) {
+      c = c || { id: '', name: '', parent: '', order: 0, image: '' };
+      $('cm-title').textContent = c.id ? 'تعديل تصنيف' : 'تصنيف جديد';
+      cForm.id.value = c.id; cForm.name.value = c.name; cForm.order.value = c.order;
+      $('c-parent').innerHTML = catOptions(c.parent, c.id, true);
+      cImg = c.image || ''; drawCImg();
+      $('cat-modal').hidden = false; cForm.name.focus();
+    }
+    function closeCat() { $('cat-modal').hidden = true; }
+    $('cm-close').onclick = $('cm-cancel').onclick = closeCat;
+    $('c-upload').addEventListener('change', function (e) {
+      var inp = e.target;
+      uploadFiles(inp.files, { set textContent(v) {} }, function (url) { cImg = url; drawCImg(); }).then(function () { inp.value = ''; });
+    });
+    cForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var btn = $('cm-save'); busy(btn, true);
+      A.saveCategory({ id: cForm.id.value, name: cForm.name.value.trim(), parent: cForm.parent.value, order: cForm.order.value, image: cImg })
+        .then(function () { closeCat(); renderAll(); AZ.toast('تم الحفظ ✓', 'ok'); })
+        .catch(function (err) { AZ.toast(msg(err), 'err'); }).then(function () { busy(btn, false); });
+    });
+    $('panel-categories').addEventListener('click', function (e) {
+      if (e.target.closest('#add-cat')) return openCat();
+      var ed = e.target.closest('[data-cedit]'), del = e.target.closest('[data-cdel]');
+      if (ed) openCat(AZ.getCategory(ed.getAttribute('data-cedit')));
+      if (del) {
+        var c = AZ.getCategory(del.getAttribute('data-cdel'));
+        if (c && confirm('حذف التصنيف «' + c.name + '»؟')) {
+          A.deleteCategory(c.id).then(function (ok) {
+            if (ok === false) return AZ.toast('لا يمكن الحذف: يوجد منتجات أو تصنيفات فرعية داخله', 'err');
+            renderAll(); AZ.toast('تم الحذف');
+          }).catch(function (err) { AZ.toast(msg(err), 'err'); });
+        }
+      }
+    });
+
+    /* ===== الطلبات ===== */
+    function renderOrders() {
+      $('panel-orders').innerHTML =
+        '<div class="panel-toolbar"><span class="section-sub">' + orders.length + ' طلب</span><button class="btn btn-outline btn-sm" id="reload-orders" type="button">تحديث</button></div>' +
+        (orders.length ? '<div class="table-wrap"><table class="table"><thead><tr><th>الطلب</th><th>الزبونة</th><th>المجموع</th><th>الحالة</th><th></th></tr></thead><tbody>' +
+        orders.map(function (o) {
+          var c = o.customer || {};
+          var items = (o.items || []).map(function (i) { return esc(i.name) + ' ×' + i.qty + (i.size ? ' (' + esc(i.size) + ')' : ''); }).join('<br>');
+          var opts = Object.keys(AZ.STATUS_LABELS).map(function (k) { return '<option value="' + k + '"' + (o.status === k ? ' selected' : '') + '>' + AZ.STATUS_LABELS[k] + '</option>'; }).join('');
+          return '<tr><td><b dir="ltr">' + esc(o.id) + '</b><div class="order-items">' + items + '</div><div class="order-items">' + esc(new Date(o.createdAt).toLocaleString('ar-LY')) + '</div></td>' +
+            '<td>' + esc(c.name) + '<br><a href="tel:' + esc(c.phone) + '" dir="ltr">' + esc(c.phone) + '</a><div class="order-items">' + esc([c.city, c.address].filter(Boolean).join(' — ')) + (c.note ? '<br>' + esc(c.note) : '') + '</div></td>' +
+            '<td>' + AZ.money(o.total) + '</td>' +
+            '<td><select class="select" data-status="' + esc(o.id) + '" style="min-width:110px">' + opts + '</select></td>' +
+            '<td><button class="btn btn-ghost btn-sm" data-odel="' + esc(o.id) + '">حذف</button></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<div class="empty"><b>لا توجد طلبات بعد</b></div>');
+    }
+    $('panel-orders').addEventListener('click', function (e) {
+      if (e.target.closest('#reload-orders')) return loadOrders().then(function () { renderOrders(); renderOverview(); });
+      var d = e.target.closest('[data-odel]');
+      if (d && confirm('حذف هذا الطلب؟')) {
+        A.deleteOrder(d.getAttribute('data-odel')).then(loadOrders).then(function () { renderOrders(); renderOverview(); })
+          .catch(function (err) { AZ.toast(msg(err), 'err'); });
+      }
+    });
+    $('panel-orders').addEventListener('change', function (e) {
+      var s = e.target.closest('[data-status]'); if (!s) return;
+      A.updateOrder(s.getAttribute('data-status'), { status: s.value }).then(function () {
+        orders.forEach(function (o) { if (o.id === s.getAttribute('data-status')) o.status = s.value; });
+        renderOverview(); AZ.toast('تم تحديث الحالة', 'ok');
+      }).catch(function (err) { AZ.toast(msg(err), 'err'); });
+    });
+
+    /* ===== الإعدادات ===== */
+    function renderSettings() {
+      var s = AZ.getSettings();
+      var f = function (id, label, val, extra) { return '<div class="field"><label for="s-' + id + '">' + label + '</label><input class="input" id="s-' + id + '" value="' + esc(val) + '" ' + (extra || '') + '></div>'; };
+      $('panel-settings').innerHTML = '<form id="settings-form" style="max-width:640px">' +
+        f('storeName', 'اسم المتجر', s.storeName) + f('tagline', 'الشعار النصي', s.tagline) +
+        '<div class="form-row">' + f('whatsapp', 'رقم واتساب (بصيغة دولية بدون +)', s.whatsapp, 'dir="ltr"') + f('phones', 'أرقام الهاتف (فاصلة بينها)', (s.phones || []).join(', '), 'dir="ltr"') + '</div>' +
+        f('address', 'العنوان', s.address) +
+        '<div class="form-row">' + f('currency', 'العملة', s.currency) + f('shipping', 'رسوم التوصيل (0 = مجاني)', s.shipping, 'type="number" min="0" step="0.5"') + '</div>' +
+        f('notice', 'ملاحظة تظهر في صفحة التواصل', s.notice) +
+        f('instagram', 'رابط إنستغرام', s.instagram, 'dir="ltr"') + f('tiktok', 'رابط تيك توك', s.tiktok, 'dir="ltr"') +
+        f('snapchat', 'رابط سناب شات', s.snapchat, 'dir="ltr"') + f('facebook', 'رابط فيسبوك', s.facebook, 'dir="ltr"') +
+        '<button class="btn btn-primary" type="submit" id="s-save">حفظ الإعدادات</button></form>' +
+        '<hr style="margin:2rem 0;border:0;border-top:1px solid var(--line)">' +
+        '<form id="pw-form" style="max-width:420px"><h3 class="section-title" style="font-size:1.1rem;margin-bottom:.6rem">تغيير كلمة المرور</h3>' +
+        '<div class="field"><label for="pw-new">كلمة المرور الجديدة (8 أحرف على الأقل)</label><input class="input" id="pw-new" type="password" dir="ltr" minlength="8" autocomplete="new-password" required></div>' +
+        '<button class="btn btn-outline" type="submit">تغيير</button></form>';
+
+      $('settings-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var v = function (id) { return $('s-' + id).value.trim(); };
+        var data = {
+          storeName: v('storeName'), tagline: v('tagline'), whatsapp: v('whatsapp').replace(/\D/g, ''),
+          phones: v('phones').split(/[,،]/).map(function (x) { return x.trim(); }).filter(Boolean),
+          address: v('address'), currency: v('currency') || 'د.ل', shipping: Number(v('shipping')) || 0, notice: v('notice'),
+          instagram: v('instagram'), tiktok: v('tiktok'), snapchat: v('snapchat'), facebook: v('facebook')
+        };
+        var btn = $('s-save'); busy(btn, true);
+        A.saveSettings(data).then(function () { AZ.toast('تم حفظ الإعدادات ✓', 'ok'); })
+          .catch(function (err) { AZ.toast(msg(err), 'err'); }).then(function () { busy(btn, false); });
+      });
+      $('pw-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        A.changePassword($('pw-new').value).then(function () { $('pw-new').value = ''; AZ.toast('تم تغيير كلمة المرور ✓', 'ok'); })
+          .catch(function (err) { AZ.toast(msg(err), 'err'); });
+      });
+    }
+
+    /* ===== الاستيراد ===== */
+    function renderImport() {
+      var seed = window.AZIZA_SEED || { products: [], categories: [] };
+      $('panel-import').innerHTML = '<div class="notice-box" style="text-align:start;max-width:640px">' +
+        '<h3 class="section-title" style="font-size:1.1rem;margin-bottom:.5rem">استيراد المنتجات القديمة</h3>' +
+        '<p>ينقل ' + seed.categories.length + ' تصنيفاً و' + seed.products.length + ' منتجات من ملف <b dir="ltr">seed-data.js</b> إلى قاعدة البيانات. يمكن تكراره بأمان (يحدّث العناصر نفسها ولا يكرّرها).</p>' +
+        '<p class="hint" style="margin:.6rem 0 1rem">صور المنتجات القديمة (paz1.jpg …) يجب أن تبقى في المستودع بجانب الصفحات.</p>' +
+        '<button class="btn btn-primary" id="do-import" type="button">استيراد الآن</button></div>';
+      $('do-import').addEventListener('click', function (e) {
+        var b = e.currentTarget;
+        if (!confirm('استيراد البيانات القديمة إلى قاعدة البيانات؟')) return;
+        busy(b, true);
+        A.importSeed(seed).then(function () { renderAll(); AZ.toast('تم الاستيراد ✓', 'ok'); })
+          .catch(function (err) { AZ.toast(msg(err), 'err'); }).then(function () { busy(b, false); });
+      });
+    }
+  });
+  </script>
+</body>
+</html>

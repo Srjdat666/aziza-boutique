@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عربة التسوق | AZIZA Boutique</title>
+  <title>إتمام الطلب | AZIZA Boutique</title>
   <meta name="theme-color" content="#6E1F33">
   <link rel="icon" type="image/jpeg" href="logo.jpg">
   <link rel="manifest" href="manifest.json">
@@ -16,20 +16,51 @@
   <div id="site-header"></div>
 
   <main class="wrap section">
-    <div class="section-head"><h1 class="section-title">عربة التسوق</h1></div>
+    <div class="section-head">
+      <div><h1 class="section-title">إتمام الطلب</h1><p class="section-sub">راجعي طلبك ثم أكملي البيانات</p></div>
+    </div>
+
+    <!-- شريط التقدم -->
+    <div class="steps-bar" id="steps-bar">
+      <div class="step on" data-step="cart"><span>1</span><label>العربة</label></div>
+      <div class="step" data-step="info"><span>2</span><label>البيانات</label></div>
+      <div class="step" data-step="confirm"><span>3</span><label>التأكيد</label></div>
+    </div>
+
     <div id="cart-root"></div>
   </main>
 
   <div id="site-footer"></div>
   <div id="toasts"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="config.js"></script>
   <script src="store.js"></script>
   <script>
     AZ.ready.then(function () {
       var root = document.getElementById('cart-root');
+      var stepsBar = document.getElementById('steps-bar');
       var sending = false;
+
+      // استرجاع بيانات الزبونة المحفوظة (تجربة أفضل)
+      function loadInfo() {
+        try {
+          var j = JSON.parse(localStorage.getItem('aziza_customer') || '{}');
+          return j && typeof j === 'object' ? j : {};
+        } catch (e) { return {}; }
+      }
+      function saveInfo(info) {
+        try { localStorage.setItem('aziza_customer', JSON.stringify(info)); } catch (e) {}
+      }
+      var savedInfo = loadInfo();
+
+      function setStep(name) {
+        stepsBar.querySelectorAll('.step').forEach(function (s) {
+          var k = s.getAttribute('data-step');
+          s.classList.toggle('on', k === name);
+          s.classList.toggle('done', k === 'cart' && name !== 'cart');
+        });
+      }
 
       function render() {
         if (AZ.errorBox(root)) return;
@@ -37,6 +68,7 @@
         var s = AZ.getSettings();
 
         if (!rows.length) {
+          setStep('cart');
           root.innerHTML = '<div class="empty"><b>العربة فارغة</b>لم تُضيفي أي منتج بعد.' +
             '<div style="margin-top:1.2rem"><a class="btn btn-primary" href="shop.html">تسوّقي الآن</a></div></div>';
           return;
@@ -53,9 +85,9 @@
               '<h3><a href="product.html?id=' + encodeURIComponent(r.id) + '">' + AZ.esc(r.name) + '</a></h3>' +
               '<p class="meta">' + (r.size ? 'المقاس: ' + AZ.esc(r.size) + ' · ' : '') + (r.color ? AZ.esc(r.color) + ' · ' : '') + AZ.money(r.price) + '</p>' +
               '<div class="qty" style="margin-top:.45rem">' +
-                '<button type="button" data-key="' + AZ.esc(r.key) + '" data-step="-1" aria-label="تقليل">−</button>' +
+                '<button type="button" data-key="' + AZ.esc(r.key) + '" data-step-qty="-1" aria-label="تقليل">−</button>' +
                 '<input type="number" min="1" max="' + r.stock + '" value="' + r.qty + '" data-qty="' + AZ.esc(r.key) + '" aria-label="الكمية">' +
-                '<button type="button" data-key="' + AZ.esc(r.key) + '" data-step="1" aria-label="زيادة">+</button>' +
+                '<button type="button" data-key="' + AZ.esc(r.key) + '" data-step-qty="1" aria-label="زيادة">+</button>' +
               '</div>' +
               '<button class="remove-btn" type="button" data-remove="' + AZ.esc(r.key) + '">إزالة</button>' +
             '</div>' +
@@ -71,28 +103,34 @@
             '<div class="sum-row"><span>التوصيل</span><span>' + (shipping ? AZ.money(shipping) : 'مجاني') + '</span></div>' +
             '<div class="sum-row total"><span>الإجمالي</span><span>' + AZ.money(total) + '</span></div>' +
             '<form id="checkout-form" style="margin-top:1.2rem" novalidate>' +
-              '<div class="field"><label for="c-name">الاسم الكامل</label><input class="input" id="c-name" name="name" required autocomplete="name"></div>' +
-              '<div class="field"><label for="c-phone">رقم الهاتف</label><input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx"></div>' +
+              '<div class="field"><label for="c-name">الاسم الكامل <span class="req-star">*</span></label>' +
+                '<input class="input" id="c-name" name="name" required autocomplete="name" value="' + AZ.esc(savedInfo.name || '') + '">' +
+                '<span class="field-err" id="err-name" hidden>أدخلي الاسم الكامل (3 أحرف على الأقل)</span></div>' +
+              '<div class="field"><label for="c-phone">رقم الهاتف <span class="req-star">*</span></label>' +
+                '<input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx" value="' + AZ.esc(savedInfo.phone || '') + '">' +
+                '<span class="field-err" id="err-phone" hidden>رقم هاتف غير صحيح</span></div>' +
               '<div class="form-row">' +
-                '<div class="field"><label for="c-city">المدينة</label><input class="input" id="c-city" name="city" value="سرت" autocomplete="address-level2"></div>' +
-                '<div class="field"><label for="c-address">العنوان</label><input class="input" id="c-address" name="address" autocomplete="street-address"></div>' +
+                '<div class="field"><label for="c-city">المدينة</label><input class="input" id="c-city" name="city" value="' + AZ.esc(savedInfo.city || 'سرت') + '" autocomplete="address-level2"></div>' +
+                '<div class="field"><label for="c-address">العنوان</label><input class="input" id="c-address" name="address" autocomplete="street-address" value="' + AZ.esc(savedInfo.address || '') + '"></div>' +
               '</div>' +
               '<div class="field"><label for="c-note">ملاحظات (اختياري)</label><textarea class="textarea" id="c-note" name="note" rows="2"></textarea></div>' +
-              '<button class="btn btn-wa btn-block" type="submit" id="checkout-btn">تأكيد الطلب عبر واتساب</button>' +
-              '<p class="hint" style="text-align:center;margin-top:.6rem">سيتم إرسال تفاصيل الطلب إلى البوتيك على واتساب لتأكيده.</p>' +
+              '<label class="checkbox-line"><input type="checkbox" id="c-save" checked> <span>احفظي بياناتي للطلب القادم</span></label>' +
+              '<button class="btn btn-wa btn-block btn-lg" type="submit" id="checkout-btn">تأكيد الطلب عبر واتساب</button>' +
+              '<p class="hint" style="text-align:center;margin-top:.6rem">سيتم حفظ طلبك وتوجيهك إلى واتساب لتأكيده.</p>' +
             '</form>' +
           '</div>' +
         '</div>';
+        setStep('info');
       }
 
-      /* المستمعات تُربط مرة واحدة فقط (خارج render) حتى لا تتكرر */
+      // أحداث العربة
       root.addEventListener('click', function (e) {
-        var step = e.target.closest('[data-step]');
-        if (step) {
-          var key = step.getAttribute('data-key');
+        var stepBtn = e.target.closest('[data-step-qty]');
+        if (stepBtn) {
+          var key = stepBtn.getAttribute('data-key');
           var row = AZ.cartDetailed().filter(function (r) { return r.key === key; })[0];
           if (row) {
-            var next = row.qty + Number(step.getAttribute('data-step'));
+            var next = row.qty + Number(stepBtn.getAttribute('data-step-qty'));
             if (next > row.stock) AZ.toast('وصلتِ لأقصى كمية متوفرة', 'err');
             AZ.setQty(key, next);
           }
@@ -110,16 +148,35 @@
         render();
       });
 
+      // إرسال الطلب
       root.addEventListener('submit', function (e) {
         if (e.target.id !== 'checkout-form') return;
         e.preventDefault();
         if (sending) return;
+
         var f = e.target;
         var name = f.name.value.trim();
         var phone = f.phone.value.trim();
+        var phoneDigits = phone.replace(/\D/g, '');
 
-        if (name.length < 3) { AZ.toast('أدخلي الاسم الكامل', 'err'); f.name.focus(); return; }
-        if (phone.replace(/\D/g, '').length < 9) { AZ.toast('أدخلي رقم هاتف صحيح', 'err'); f.phone.focus(); return; }
+        // تحقق مع رسائل واضحة
+        var ok = true;
+        function setErr(id, show) {
+          var el = document.getElementById(id);
+          var fld = el.closest('.field');
+          el.hidden = !show;
+          if (fld) fld.classList.toggle('has-err', show);
+          if (show) ok = false;
+        }
+        setErr('err-name', name.length < 3);
+        setErr('err-phone', phoneDigits.length < 9);
+
+        if (!ok) {
+          AZ.toast('يرجى تصحيح البيانات المطلوبة', 'err');
+          var firstErr = document.querySelector('.has-err .input');
+          if (firstErr) firstErr.focus();
+          return;
+        }
 
         var items = AZ.cartDetailed();
         if (!items.length) { render(); return; }
@@ -132,23 +189,39 @@
         );
         var link = AZ.waLink(AZ.orderMessage(order));
 
-        // نفتح واتساب فوراً (قبل أي انتظار) حتى لا يحجبه المتصفح، ونحفظ الطلب في قاعدة البيانات بالتوازي
-        var win = window.open(link, '_blank', 'noopener');
+        // حفظ بيانات الزبونة
+        if (document.getElementById('c-save').checked) {
+          saveInfo({ name: name, phone: phone, city: f.city.value.trim(), address: f.address.value.trim() });
+        }
+
+        // تعطيل الزر + عرض شريط التقدم
         sending = true;
         var btn = document.getElementById('checkout-btn');
-        if (btn) btn.disabled = true;
+        btn.disabled = true;
+        btn.textContent = 'جارٍ الحفظ…';
+        setStep('confirm');
 
+        // حفظ الطلب في قاعدة البيانات
         AZ.saveOrder(order).then(function (saved) {
-          sending = false;
+          // حفظ نسخة محلية للصفحة النجاح (لاستخدامها في حالة عدم وجود السحابة)
+          try {
+            localStorage.setItem('aziza_last_order', JSON.stringify(order));
+          } catch (e) {}
+
           AZ.clearCart();
-          root.innerHTML = '<div class="success-box">' +
-            '<p class="big">تم إنشاء طلبك ✓</p>' +
-            '<p>رقم الطلب: <strong dir="ltr">' + AZ.esc(order.id) + '</strong></p>' +
-            '<p class="hint" style="margin-top:.5rem">' + (win ? 'إن لم تُفتح نافذة واتساب تلقائياً، اضغطي الزر أدناه لإرسال الطلب.' : 'اضغطي الزر أدناه لإرسال الطلب على واتساب.') + '</p>' +
-            '<div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:1.2rem">' +
-              '<a class="btn btn-wa" href="' + AZ.esc(link) + '" target="_blank" rel="noopener">إرسال الطلب على واتساب</a>' +
-              '<a class="btn btn-outline" href="shop.html">متابعة التسوق</a>' +
-            '</div></div>';
+
+          // فتح واتساب
+          var win = window.open(link, '_blank', 'noopener');
+
+          // توجيه إلى صفحة النجاح
+          var params = '?id=' + encodeURIComponent(order.id);
+          if (!saved) params += '&wa=1'; // علامة إذا فشل الحفظ
+          setTimeout(function () { location.href = 'order-success.html' + params; }, 400);
+        }).catch(function () {
+          sending = false;
+          btn.disabled = false;
+          btn.textContent = 'تأكيد الطلب عبر واتساب';
+          AZ.toast('تعذر إتمام الطلب، حاولي مرة أخرى', 'err');
         });
       });
 

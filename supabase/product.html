@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفاصيل المنتج | AZIZA Boutique</title>
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="shop">
+  <div id="site-header"></div>
+
+  <main class="wrap">
+    <nav class="crumbs" id="crumbs" aria-label="مسار التنقل"></nav>
+    <div id="product-root"></div>
+
+    <section class="section" id="related-section" hidden>
+      <div class="section-head"><h2 class="section-title">قد يعجبك أيضاً</h2></div>
+      <div class="grid-products" id="related-grid"></div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <!-- عارض الصور المتقدم -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="عرض الصورة" hidden>
+    <button type="button" class="lb-btn lb-close" id="lb-close" aria-label="إغلاق">✕</button>
+    <button type="button" class="lb-btn lb-prev" id="lb-prev" aria-label="السابقة">›</button>
+    <button type="button" class="lb-btn lb-next" id="lb-next" aria-label="التالية">‹</button>
+    <div class="lb-stage" id="lb-stage"><img src="" alt="" id="lightbox-img" draggable="false"></div>
+    <div class="lb-counter" id="lb-counter">1 / 1</div>
+    <div class="lb-dots" id="lb-dots" aria-hidden="true"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="store.js"></script>
+  <script>
+    AZ.ready.then(function () {
+      var id = new URLSearchParams(location.search).get('id');
+      var p = id ? AZ.getProduct(id) : null;
+      var root = document.getElementById('product-root');
+      var crumbs = document.getElementById('crumbs');
+
+      if (AZ.errorBox(root)) return;
+      if (!p) {
+        root.innerHTML = '<div class="empty"><b>المنتج غير موجود</b>قد يكون تم حذفه أو الرابط غير صحيح.<br><a class="btn btn-outline" style="margin-top:1rem" href="shop.html">عودة إلى المتجر</a></div>';
+        return;
+      }
+
+      document.title = p.name + ' | AZIZA Boutique';
+      var cat = AZ.getCategory(p.category);
+      crumbs.innerHTML = '<a href="index.html">الرئيسية</a> / <a href="shop.html">المتجر</a>' +
+        (cat ? ' / <a href="shop.html?cat=' + encodeURIComponent(cat.id) + '">' + AZ.esc(cat.name) + '</a>' : '') +
+        ' / <span>' + AZ.esc(p.name) + '</span>';
+
+      var images = (p.images && p.images.length) ? p.images : [AZ.PLACEHOLDER];
+      var out = Number(p.stock) <= 0;
+      var sale = Number(p.oldPrice) > Number(p.price);
+      var lowStock = Number(p.stock) > 0 && Number(p.stock) <= 3;
+      var sizes = Array.isArray(p.sizes) ? p.sizes : [];
+      var colors = Array.isArray(p.colors) ? p.colors : [];
+
+      // ========== بناء الصفحة ==========
+      root.innerHTML = '<div class="pd-grid">' +
+
+        // المعرض
+        '<div class="pd-gallery">' +
+          '<div class="pd-main" id="pd-main" role="button" tabindex="0" aria-label="تكبير الصورة">' +
+            '<img id="main-img" src="' + AZ.esc(images[0]) + '" alt="' + AZ.esc(p.name) + '" draggable="false">' +
+            '<span class="pd-zoom-hint">🔍 اضغطي للتكبير</span>' +
+            (sale ? '<span class="pd-badge-sale">- ' + Math.round((1 - p.price / p.oldPrice) * 100) + '%</span>' : '') +
+          '</div>' +
+          (images.length > 1 ? '<div class="pd-thumbs" id="thumbs" role="tablist" aria-label="صور المنتج">' +
+            images.map(function (src, i) {
+              return '<button type="button" role="tab" data-i="' + i + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '" aria-label="صورة ' + (i + 1) + '"><img src="' + AZ.esc(src) + '" alt=""></button>';
+            }).join('') + '</div>' : '') +
+        '</div>' +
+
+        // المعلومات
+        '<div class="pd-info">' +
+          (cat ? '<a class="pd-cat-link" href="shop.html?cat=' + encodeURIComponent(cat.id) + '">' + AZ.esc(cat.name) + '</a>' : '') +
+          '<h1 class="pd-title">' + AZ.esc(p.name) + '</h1>' +
+
+          '<div class="pd-price">' + AZ.money(p.price) +
+            (sale ? '<span class="old">' + AZ.money(p.oldPrice) + '</span><span class="pd-save">وفّري ' + AZ.money(p.oldPrice - p.price) + '</span>' : '') +
+          '</div>' +
+
+          '<p class="pd-stock ' + (out ? 'out' : (lowStock ? 'low' : '')) + '">' +
+            (out ? '✕ نفدت الكمية حالياً' : (lowStock ? '⚡ بقي ' + p.stock + ' قطع فقط — اطلبي الآن' : '✓ متوفر — ' + p.stock + ' قطعة')) +
+          '</p>' +
+
+          // المقاسات (إلزامي)
+          (sizes.length ? '<div class="field pd-field-req" id="fld-size">' +
+            '<label>المقاس <span class="req-star">*</span></label>' +
+            '<div class="opt-group" id="sizes-group" role="radiogroup" aria-label="اختر المقاس">' +
+              sizes.map(function (s) {
+                return '<button type="button" class="opt" role="radio" data-size="' + AZ.esc(s) + '" aria-checked="false">' + AZ.esc(s) + '</button>';
+              }).join('') +
+            '</div>' +
+            '<span class="field-err" id="err-size" hidden>يرجى اختيار المقاس</span>' +
+          '</div>' : '') +
+
+          // الألوان (إلزامي إن وجدت)
+          (colors.length ? '<div class="field pd-field-req" id="fld-color">' +
+            '<label>اللون <span class="req-star">*</span></label>' +
+            '<div class="opt-group" id="colors-group" role="radiogroup" aria-label="اختر اللون">' +
+              colors.map(function (c) {
+                return '<button type="button" class="opt" role="radio" data-color="' + AZ.esc(c) + '" aria-checked="false">' + AZ.esc(c) + '</button>';
+              }).join('') +
+            '</div>' +
+            '<span class="field-err" id="err-color" hidden>يرجى اختيار اللون</span>' +
+          '</div>' : '') +
+
+          // الكمية
+          '<div class="field"><label>الكمية</label>' +
+            '<div class="qty">' +
+              '<button type="button" id="q-minus" aria-label="تقليل">−</button>' +
+              '<input id="qty" type="number" value="1" min="1" max="' + Math.max(1, p.stock) + '" aria-label="الكمية" inputmode="numeric">' +
+              '<button type="button" id="q-plus" aria-label="زيادة">+</button>' +
+            '</div>' +
+          '</div>' +
+
+          // أزرار الشراء
+          '<div class="pd-buy">' +
+            '<button class="btn btn-primary btn-lg" id="add-btn" type="button"' + (out ? ' disabled' : '') + '>' +
+              (out ? 'نفدت الكمية' : 'أضيفي إلى العربة') +
+            '</button>' +
+            '<a class="btn btn-wa" id="wa-btn" href="#" target="_blank" rel="noopener">اطلبي عبر واتساب</a>' +
+          '</div>' +
+
+          // شارات الثقة
+          '<ul class="pd-trust">' +
+            '<li><span>✓</span> جودة عالية مضمونة</li>' +
+            '<li><span>✓</span> توصيل لكل ليبيا</li>' +
+            '<li><span>✓</span> دفع عند الاستلام</li>' +
+            '<li><span>✓</span> استبدال خلال 3 أيام</li>' +
+          '</ul>' +
+
+          (p.desc ? '<details class="pd-details" open><summary>الوصف</summary><div class="pd-desc">' + AZ.esc(p.desc) + '</div></details>' : '') +
+        '</div>' +
+      '</div>';
+
+      // ========== ربط العناصر ==========
+      var mainImg = document.getElementById('main-img');
+      var thumbs = document.getElementById('thumbs');
+      var qtyEl = document.getElementById('qty');
+      var waBtn = document.getElementById('wa-btn');
+      var addBtn = document.getElementById('add-btn');
+      var maxQty = Math.max(1, p.stock);
+      var selected = { size: '', color: '' };
+
+      function showImage(i) {
+        if (!images[i]) return;
+        mainImg.src = images[i];
+        if (thumbs) {
+          thumbs.querySelectorAll('button').forEach(function (b) {
+            b.setAttribute('aria-pressed', b.getAttribute('data-i') === String(i) ? 'true' : 'false');
+          });
+        }
+      }
+      function currentIndex() {
+        var on = thumbs && thumbs.querySelector('[aria-pressed="true"]');
+        return on ? Number(on.getAttribute('data-i')) : 0;
+      }
+
+      function refreshWA() {
+        var n = Number(qtyEl.value) || 1;
+        var msg = 'مرحباً، أرغب في طلب:\n' + p.name +
+          (selected.size ? '\nالمقاس: ' + selected.size : '') +
+          (selected.color ? '\nاللون: ' + selected.color : '') +
+          '\nالكمية: ' + n +
+          '\nالسعر: ' + AZ.money(p.price * n);
+        waBtn.href = AZ.waLink(msg);
+      }
+
+      // اختيار المقاس/اللون — بدون تحديد تلقائي
+      root.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-size],[data-color]');
+        if (!b) return;
+        b.parentNode.querySelectorAll('.opt').forEach(function (x) {
+          x.setAttribute('aria-checked', 'false');
+          x.classList.remove('chosen');
+        });
+        b.setAttribute('aria-checked', 'true');
+        b.classList.add('chosen');
+
+        if (b.hasAttribute('data-size')) {
+          selected.size = b.getAttribute('data-size');
+          var errS = document.getElementById('err-size');
+          if (errS) errS.hidden = true;
+          document.getElementById('fld-size').classList.remove('has-err');
+        } else {
+          selected.color = b.getAttribute('data-color');
+          var errC = document.getElementById('err-color');
+          if (errC) errC.hidden = true;
+          document.getElementById('fld-color').classList.remove('has-err');
+          var idx = colors.indexOf(selected.color);
+          if (idx > -1 && images[idx]) showImage(idx);
+        }
+        refreshWA();
+      });
+
+      // مصغرات
+      if (thumbs) {
+        thumbs.addEventListener('click', function (e) {
+          var b = e.target.closest('[data-i]');
+          if (b) showImage(Number(b.getAttribute('data-i')));
+        });
+      }
+
+      // الكمية
+      document.getElementById('q-minus').addEventListener('click', function () {
+        qtyEl.value = Math.max(1, Number(qtyEl.value) - 1); refreshWA();
+      });
+      document.getElementById('q-plus').addEventListener('click', function () {
+        if (Number(qtyEl.value) >= maxQty) return AZ.toast('وصلتِ لأقصى كمية متوفرة', 'err');
+        qtyEl.value = Math.min(maxQty, Number(qtyEl.value) + 1); refreshWA();
+      });
+      qtyEl.addEventListener('change', function () {
+        qtyEl.value = Math.min(maxQty, Math.max(1, Number(qtyEl.value) || 1)); refreshWA();
+      });
+
+      // ========== الإضافة للعربة (مع تحقق كامل) ==========
+      addBtn.addEventListener('click', function () {
+        // 1) تحقق من المقاس
+        if (sizes.length && !selected.size) {
+          document.getElementById('fld-size').classList.add('has-err');
+          var es = document.getElementById('err-size'); es.hidden = false;
+          document.getElementById('fld-size').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          AZ.toast('اختاري المقاس أولاً', 'err');
+          return;
+        }
+        // 2) تحقق من اللون
+        if (colors.length && !selected.color) {
+          document.getElementById('fld-color').classList.add('has-err');
+          var ec = document.getElementById('err-color'); ec.hidden = false;
+          document.getElementById('fld-color').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          AZ.toast('اختاري اللون أولاً', 'err');
+          return;
+        }
+        // 3) تحقق من المخزون
+        var qty = Math.max(1, Number(qtyEl.value) || 1);
+        if (qty > p.stock) {
+          AZ.toast('الكمية المطلوبة تتجاوز المتوفر (' + p.stock + ')', 'err');
+          return;
+        }
+        // 4) الإضافة
+        var r = AZ.addToCart({ id: p.id, size: selected.size, color: selected.color, qty: qty });
+        if (!r.ok) return AZ.toast('نفدت الكمية حالياً', 'err');
+        if (r.capped) return AZ.toast('وصلتِ لأقصى كمية متوفرة في العربة', 'err');
+        AZ.toast('✓ أُضيف إلى العربة', 'ok');
+        addBtn.classList.add('added');
+        setTimeout(function () { addBtn.classList.remove('added'); }, 1500);
+      });
+
+      refreshWA();
+
+      // ========== العارض المتقدم ==========
+      var lb = document.getElementById('lightbox');
+      var lbImg = document.getElementById('lightbox-img');
+      var lbCounter = document.getElementById('lb-counter');
+      var lbDots = document.getElementById('lb-dots');
+      var lbStage = document.getElementById('lb-stage');
+      var cur = 0;
+
+      // نقاط
+      lbDots.innerHTML = images.map(function (_, i) {
+        return '<span data-d="' + i + '"' + (i === 0 ? ' class="on"' : '') + '></span>';
+      }).join('');
+      lbDots.style.display = images.length > 1 ? 'flex' : 'none';
+
+      function show(i) {
+        cur = (i + images.length) % images.length;
+        lbImg.src = images[cur];
+        lbImg.alt = p.name;
+        lbCounter.textContent = (cur + 1) + ' / ' + images.length;
+        lbDots.querySelectorAll('[data-d]').forEach(function (d) {
+          d.classList.toggle('on', Number(d.getAttribute('data-d')) === cur);
+        });
+        // إعادة تعيين التحريك
+        lbImg.style.transform = 'scale(1)';
+      }
+
+      var dragging = false, startX = 0, startY = 0;
+
+      function closeLb() {
+        lb.hidden = true;
+        document.body.style.overflow = '';
+        document.getElementById('pd-main').focus();
+      }
+      function openLb() {
+        show(currentIndex());
+        lb.hidden = false;
+        document.body.style.overflow = 'hidden';
+        document.getElementById('lb-close').focus();
+      }
+
+      var pdMain = document.getElementById('pd-main');
+      pdMain.addEventListener('click', openLb);
+      pdMain.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(); } });
+
+      document.getElementById('lb-close').addEventListener('click', closeLb);
+      document.getElementById('lb-next').addEventListener('click', function () { show(cur + 1); });
+      document.getElementById('lb-prev').addEventListener('click', function () { show(cur - 1); });
+      lb.addEventListener('click', function (e) { if (e.target === lb || e.target === lbStage) closeLb(); });
+
+      // نقاط النقر
+      lbDots.addEventListener('click', function (e) {
+        var d = e.target.closest('[data-d]'); if (d) show(Number(d.getAttribute('data-d')));
+      });
+
+      // لوحة المفاتيح
+      document.addEventListener('keydown', function (e) {
+        if (lb.hidden) return;
+        if (e.key === 'Escape') closeLb();
+        if (e.key === 'ArrowLeft') show(cur + 1);
+        if (e.key === 'ArrowRight') show(cur - 1);
+        if (e.key === '+' || e.key === '=') { /* zoom in */ }
+        if (e.key === '-') { /* zoom out */ }
+      });
+
+      // السحب على اللمس (swipe)
+      lbStage.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        dragging = true; startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      }, { passive: true });
+      lbStage.addEventListener('touchend', function (e) {
+        if (!dragging) return;
+        dragging = false;
+        var dx = (e.changedTouches[0].clientX - startX);
+        var dy = (e.changedTouches[0].clientY - startY);
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+          show(cur + (dx > 0 ? -1 : 1)); // RTL: سحب يمين → السابق
+        }
+      }, { passive: true });
+
+      // منتجات مشابهة
+      var related = AZ.getRelated(p, 4);
+      if (related.length) {
+        document.getElementById('related-section').hidden = false;
+        document.getElementById('related-grid').innerHTML = related.map(AZ.productCard).join('');
+      }
+    });
+  </script>
+</body>
+</html>
