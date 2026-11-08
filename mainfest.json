@@ -1,8 +1,8 @@
 {
   "name": "AZIZA Boutique",
   "short_name": "عزيزة",
-  "description": "إدارة متجر عزيزة للفساتين والأزياء النسائية",
-  "start_url": "/aziza-boutique/admin.html",
+  "description": "متجر عزيزة للفساتين والأزياء النسائية - تسوقي أحدث صيحات الموضة",
+  "start_url": "/aziza-boutique/",
   "scope": "/aziza-boutique/",
   "display": "standalone",
   "background_color": "#F7EEE8",
