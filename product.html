@@ -164,7 +164,7 @@
         '<div class="pd-gallery">' +
           '<div class="pd-main" id="pd-main" role="button" tabindex="0" aria-label="تكبير الصورة">' +
             '<img id="main-img" src="' + AZ.esc(images[0]) + '" alt="' + AZ.esc(p.name) + '" draggable="false" loading="eager" fetchpriority="high">' +
-            '<span class="pd-zoom-hint">🔍 اضغطي للتكبير</span>' +
+            '<span class="pd-zoom-hint">اضغطي للتكبير</span>' +
             (sale ? '<span class="pd-badge-sale">- ' + Math.round((1 - p.price / p.oldPrice) * 100) + '%</span>' : '') +
           '</div>' +
           (images.length > 1 ? '<div class="pd-thumbs" id="thumbs" role="tablist" aria-label="صور المنتج">' +
@@ -182,7 +182,7 @@
           '</div>' +
 
           '<p class="pd-stock ' + (out ? 'out' : (lowStock ? 'low' : '')) + '">' +
-            (out ? '✕ نفدت الكمية حالياً' : (lowStock ? '⚡ بقي ' + p.stock + ' قطع فقط — اطلبي الآن' : '✓ متوفر — ' + p.stock + ' قطعة')) +
+            (out ? '✕ نفدت الكمية حالياً' : (lowStock ? 'بقي ' + p.stock + ' قطع فقط — اطلبي الآن' : '✓ متوفر — ' + p.stock + ' قطعة')) +
           '</p>' +
 
           (sizes.length ? '<div class="field pd-field-req" id="fld-size">' +

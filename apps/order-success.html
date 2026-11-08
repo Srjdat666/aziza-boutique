@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تم استلام طلبك | AZIZA Boutique</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#6E1F33">
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://uqzltkgtqwwjruzoflbb.supabase.co" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="success">
+  <div id="site-header"></div>
+
+  <main class="wrap section">
+    <div id="success-root">
+      <div class="notice-box">جارٍ تحميل تفاصيل الطلب…</div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toasts"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script src="store.js"></script>
+  <script>
+    AZ.ready.then(function () {
+      var root = document.getElementById('success-root');
+      var params = new URLSearchParams(location.search);
+      var orderId = params.get('id');
+      var waFailed = params.get('wa') === '1';
+
+      // استرجاع الطلب من localStorage (نسخة محفوظة في cart.html)
+      var order = null;
+      try {
+        var raw = localStorage.getItem('aziza_last_order');
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (!orderId || parsed.id === orderId) order = parsed;
+        }
+      } catch (e) {}
+
+      if (!orderId) {
+        root.innerHTML = '<div class="empty"><b>لا يوجد طلب</b>' +
+          'لم نجد تفاصيل الطلب. إذا أكملتِ الشراء، تحققي من رسالة واتساب.<br>' +
+          '<a class="btn btn-primary" style="margin-top:1rem" href="shop.html">عودة إلى المتجر</a></div>';
+        return;
+      }
+
+      var s = AZ.getSettings();
+      var waMessage = order ? AZ.orderMessage(order) : '';
+      var waLink = order ? AZ.waLink(waMessage) : AZ.waLink('مرحباً، أود الاستفسار عن طلبي رقم ' + orderId);
+
+      function fmtDate(iso) {
+        try {
+          return new Date(iso).toLocaleString('ar-LY', {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          });
+        } catch (e) { return ''; }
+      }
+
+      var itemsHTML = order && order.items && order.items.length
+        ? '<div class="success-items"><h3>تفاصيل الطلب</h3>' +
+          '<div class="table-wrap"><table class="table"><thead><tr><th>المنتج</th><th>المقاس/اللون</th><th>الكمية</th><th>السعر</th></tr></thead><tbody>' +
+          order.items.map(function (i) {
+            return '<tr>' +
+              '<td>' + AZ.esc(i.name) + '</td>' +
+              '<td>' + [i.size, i.color].filter(Boolean).map(AZ.esc).join(' / ') + '</td>' +
+              '<td>' + (Number(i.qty) || 0) + '</td>' +
+              '<td>' + AZ.money((Number(i.price) || 0) * (Number(i.qty) || 0)) + '</td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>' +
+          '<div class="success-totals">' +
+            '<div class="sum-row"><span>المجموع الفرعي</span><span>' + AZ.money(order.subtotal) + '</span></div>' +
+            '<div class="sum-row"><span>التوصيل</span><span>' + (order.shipping ? AZ.money(order.shipping) : 'مجاني') + '</span></div>' +
+            '<div class="sum-row total"><span>الإجمالي</span><span>' + AZ.money(order.total) + '</span></div>' +
+          '</div></div>'
+        : '';
+
+      var warnHTML = waFailed
+        ? '<div class="notice-box err" style="margin-bottom:1rem"><b>تنبيه:</b> لم يُحفظ طلبك في النظام تلقائياً. يرجى إرساله عبر واتساب الآن لضمان المعالجة.</div>'
+        : '';
+
+      root.innerHTML =
+        '<div class="success-page">' +
+          '<div class="success-icon" aria-hidden="true">✓</div>' +
+          '<h1 class="success-title">تم استلام طلبك بنجاح!</h1>' +
+          '<p class="success-sub">شكراً لثقتك بـ <strong>' + AZ.esc(s.storeName) + '</strong>. سنتواصل معك قريباً لتأكيد الطلب.</p>' +
+
+          warnHTML +
+
+          '<div class="success-ref">' +
+            '<span>رقم الطلب المرجعي</span>' +
+            '<strong dir="ltr">' + AZ.esc(orderId) + '</strong>' +
+          '</div>' +
+
+          (order ? '<p class="success-date">' + fmtDate(order.createdAt || new Date().toISOString()) + '</p>' : '') +
+
+          '<div class="success-actions">' +
+            '<a class="btn btn-wa btn-lg" href="' + AZ.esc(waLink) + '" target="_blank" rel="noopener">📱 إرسال الطلب على واتساب</a>' +
+            '<a class="btn btn-outline" href="shop.html">متابعة التسوق</a>' +
+          '</div>' +
+
+          (order ? '<div class="success-customer">' +
+            '<h3>بيانات التوصيل</h3>' +
+            '<p><b>الاسم:</b> ' + AZ.esc(order.customer.name) + '</p>' +
+            '<p><b>الهاتف:</b> <span dir="ltr">' + AZ.esc(order.customer.phone) + '</span></p>' +
+            (order.customer.city || order.customer.address ? '<p><b>العنوان:</b> ' +
+              AZ.esc([order.customer.city, order.customer.address].filter(Boolean).join(' — ')) + '</p>' : '') +
+            (order.customer.note ? '<p><b>ملاحظات:</b> ' + AZ.esc(order.customer.note) + '</p>' : '') +
+          '</div>' : '') +
+
+          itemsHTML +
+
+          '<div class="success-note">' +
+            '<p>💡 <b>احتفظي برقم الطلب</b> للتواصل معنا بخصوص أي استفسار.</p>' +
+            '<p>⏱️ عادةً ما يتم التأكيد خلال ساعات قليلة.</p>' +
+            '<p>📞 للاستفسار: <a href="' + AZ.esc(AZ.waLink('استفسار عن الطلب ' + orderId)) + '" target="_blank" rel="noopener">واتساب</a></p>' +
+          '</div>' +
+
+          '<div class="success-help">' +
+            '<a href="returns.html">سياسة الاستبدال والاسترجاع</a> · ' +
+            '<a href="privacy.html">سياسة الخصوصية</a>' +
+          '</div>' +
+        '</div>';
+    });
+  </script>
+</body>
+</html>
