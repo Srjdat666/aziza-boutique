@@ -10,7 +10,7 @@
   <link rel="icon" type="image/jpeg" href="logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="admin">
@@ -57,7 +57,7 @@
   </main>
 
   <div id="site-footer"></div>
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
 
   <!-- نافذة المنتج -->
   <div class="modal" id="product-modal" hidden>
@@ -171,6 +171,12 @@
       document.querySelectorAll('.panel').forEach(function (p) { p.hidden = p.id !== 'panel-' + b.getAttribute('data-tab'); });
     });
 
+    // مستمع واحد للنظرة العامة (كان يُضاف مع كل رسم فيتكرر)
+    $('panel-overview').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-edit-low]');
+      if (b) openProduct(AZ.getProduct(b.getAttribute('data-edit-low')));
+    });
+
     function loadOrders() {
       return A.getOrders().then(function (o) { orders = o; }).catch(function (e) { orders = []; AZ.toast(msg(e), 'err'); });
     }
@@ -266,10 +272,6 @@
           '<div class="ov-card"><h3 class="section-title" style="font-size:1.1rem;margin-bottom:.75rem">مخزون منخفض أو نافد</h3>' + lowHTML + '</div>' +
         '</div>';
 
-      $('panel-overview').addEventListener('click', function (e) {
-        var b = e.target.closest('[data-edit-low]');
-        if (b) openProduct(AZ.getProduct(b.getAttribute('data-edit-low')));
-      }, { once: false });
     }
 
     /* ===== محرر الصور (مشترك) ===== */
@@ -412,6 +414,11 @@
     }
     function closeCat() { $('cat-modal').hidden = true; }
     $('cm-close').onclick = $('cm-cancel').onclick = closeCat;
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (!$('product-modal').hidden) closeProduct();
+      else if (!$('cat-modal').hidden) closeCat();
+    });
     $('c-upload').addEventListener('change', function (e) {
       var inp = e.target;
       uploadFiles(inp.files, { set textContent(v) {} }, function (url) { cImg = url; drawCImg(); }).then(function () { inp.value = ''; });
@@ -499,7 +506,13 @@
       var debounce;
       qEl.addEventListener('input', function () {
         clearTimeout(debounce);
-        debounce = setTimeout(function () { ordersFilter.q = qEl.value; renderOrders(); }, 200);
+        debounce = setTimeout(function () {
+          ordersFilter.q = qEl.value;
+          var pos = qEl.selectionStart;
+          renderOrders();
+          var n = $('o-q');
+          if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} }
+        }, 200);
       });
       stEl.addEventListener('change', function () { ordersFilter.status = stEl.value; renderOrders(); });
       fromEl.addEventListener('change', function () { ordersFilter.from = fromEl.value; renderOrders(); });

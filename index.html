@@ -25,11 +25,10 @@
   <link rel="icon" type="image/jpeg" href="logo.jpg">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="logo.jpg">
-  <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://uqzltkgtqwwjruzoflbb.supabase.co" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="home">
@@ -95,7 +94,7 @@
   </main>
 
   <div id="site-footer"></div>
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
 
   <div id="loader" aria-hidden="true">
     <div class="loader-content">
@@ -111,6 +110,11 @@
   <script>
     // شاشة التحميل
     var loader = document.getElementById('loader'), hidden = false;
+    // عرض الشاشة مرة واحدة في الجلسة فقط
+    try {
+      if (sessionStorage.getItem('az_seen') === '1') { loader.remove(); loader = null; hidden = true; }
+      else sessionStorage.setItem('az_seen', '1');
+    } catch (e) {}
     function hide() {
       if (hidden || !loader) return;
       hidden = true; loader.style.opacity = '0';

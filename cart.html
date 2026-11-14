@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="cart">
@@ -22,16 +22,15 @@
 
     <!-- شريط التقدم -->
     <div class="steps-bar" id="steps-bar">
-      <div class="step on" data-step="cart"><span>1</span><label>العربة</label></div>
-      <div class="step" data-step="info"><span>2</span><label>البيانات</label></div>
-      <div class="step" data-step="confirm"><span>3</span><label>التأكيد</label></div>
+      <div class="step on" data-step="info"><span>1</span><label>العربة والبيانات</label></div>
+      <div class="step" data-step="confirm"><span>2</span><label>التأكيد</label></div>
     </div>
 
     <div id="cart-root"></div>
   </main>
 
   <div id="site-footer"></div>
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="config.js"></script>
@@ -58,7 +57,7 @@
         stepsBar.querySelectorAll('.step').forEach(function (s) {
           var k = s.getAttribute('data-step');
           s.classList.toggle('on', k === name);
-          s.classList.toggle('done', k === 'cart' && name !== 'cart');
+          s.classList.toggle('done', k === 'info' && name === 'confirm');
         });
       }
 
@@ -68,7 +67,7 @@
         var s = AZ.getSettings();
 
         if (!rows.length) {
-          setStep('cart');
+          setStep('info');
           root.innerHTML = '<div class="empty"><b>العربة فارغة</b>لم تُضيفي أي منتج بعد.' +
             '<div style="margin-top:1.2rem"><a class="btn btn-primary" href="shop.html">تسوّقي الآن</a></div></div>';
           return;
@@ -104,11 +103,11 @@
             '<div class="sum-row total"><span>الإجمالي</span><span>' + AZ.money(total) + '</span></div>' +
             '<form id="checkout-form" style="margin-top:1.2rem" novalidate>' +
               '<div class="field"><label for="c-name">الاسم الكامل <span class="req-star">*</span></label>' +
-                '<input class="input" id="c-name" name="name" required autocomplete="name" value="' + AZ.esc(savedInfo.name || '') + '">' +
-                '<span class="field-err" id="err-name" hidden>أدخلي الاسم الكامل (3 أحرف على الأقل)</span></div>' +
+                '<input class="input" id="c-name" name="name" required autocomplete="name" aria-describedby="err-name" value="' + AZ.esc(savedInfo.name || '') + '">' +
+                '<span class="field-err" id="err-name" role="alert" hidden>أدخلي الاسم الكامل (3 أحرف على الأقل)</span></div>' +
               '<div class="field"><label for="c-phone">رقم الهاتف <span class="req-star">*</span></label>' +
-                '<input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx" value="' + AZ.esc(savedInfo.phone || '') + '">' +
-                '<span class="field-err" id="err-phone" hidden>رقم هاتف غير صحيح</span></div>' +
+                '<input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx" aria-describedby="err-phone" value="' + AZ.esc(savedInfo.phone || '') + '">' +
+                '<span class="field-err" id="err-phone" role="alert" hidden>رقم هاتف غير صحيح (مثال: 0912345678)</span></div>' +
               '<div class="form-row">' +
                 '<div class="field"><label for="c-city">المدينة</label><input class="input" id="c-city" name="city" value="' + AZ.esc(savedInfo.city || 'سرت') + '" autocomplete="address-level2"></div>' +
                 '<div class="field"><label for="c-address">العنوان</label><input class="input" id="c-address" name="address" autocomplete="street-address" value="' + AZ.esc(savedInfo.address || '') + '"></div>' +
@@ -166,10 +165,12 @@
           var fld = el.closest('.field');
           el.hidden = !show;
           if (fld) fld.classList.toggle('has-err', show);
+          var inp = fld && fld.querySelector('.input');
+          if (inp) inp.setAttribute('aria-invalid', show ? 'true' : 'false');
           if (show) ok = false;
         }
         setErr('err-name', name.length < 3);
-        setErr('err-phone', phoneDigits.length < 9);
+        setErr('err-phone', !/^(?:218|0)?9\d{8}$/.test(phoneDigits));
 
         if (!ok) {
           AZ.toast('يرجى تصحيح البيانات المطلوبة', 'err');
@@ -194,6 +195,9 @@
           saveInfo({ name: name, phone: phone, city: f.city.value.trim(), address: f.address.value.trim() });
         }
 
+        // فتح نافذة واتساب الآن (داخل نقرة المستخدم) كي لا يحظرها المتصفح، ثم توجيهها بعد الحفظ
+        var win = window.open('', '_blank');
+
         // تعطيل الزر + عرض شريط التقدم
         sending = true;
         var btn = document.getElementById('checkout-btn');
@@ -211,13 +215,14 @@
           AZ.clearCart();
 
           // فتح واتساب
-          var win = window.open(link, '_blank', 'noopener');
+          if (win) { try { win.opener = null; win.location.href = link; } catch (e) {} }
 
           // توجيه إلى صفحة النجاح
           var params = '?id=' + encodeURIComponent(order.id);
           if (!saved) params += '&wa=1'; // علامة إذا فشل الحفظ
           setTimeout(function () { location.href = 'order-success.html' + params; }, 400);
         }).catch(function () {
+          if (win) { try { win.close(); } catch (e) {} }
           sending = false;
           btn.disabled = false;
           btn.textContent = 'تأكيد الطلب عبر واتساب';

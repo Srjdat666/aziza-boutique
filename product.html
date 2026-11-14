@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://uqzltkgtqwwjruzoflbb.supabase.co" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cinzel+Decorative:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="shop">
@@ -28,7 +28,7 @@
   </main>
 
   <div id="site-footer"></div>
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
 
   <!-- عارض الصور المتقدم -->
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="عرض الصورة" hidden>
@@ -123,7 +123,8 @@
           "@type": "Product",
           "name": p.name,
           "description": desc,
-          "image": images.filter(function (u) { return u && u.indexOf('http') === 0; }),
+          "image": images.filter(function (u) { return u && u.indexOf('data:') !== 0; })
+            .map(function (u) { return u.indexOf('http') === 0 ? u : base + u; }),
           "sku": p.id,
           "brand": { "@type": "Brand", "name": "AZIZA Boutique" },
           "offers": {
@@ -167,9 +168,9 @@
             '<span class="pd-zoom-hint">اضغطي للتكبير</span>' +
             (sale ? '<span class="pd-badge-sale">- ' + Math.round((1 - p.price / p.oldPrice) * 100) + '%</span>' : '') +
           '</div>' +
-          (images.length > 1 ? '<div class="pd-thumbs" id="thumbs" role="tablist" aria-label="صور المنتج">' +
+          (images.length > 1 ? '<div class="pd-thumbs" id="thumbs" role="group" aria-label="صور المنتج">' +
             images.map(function (src, i) {
-              return '<button type="button" role="tab" data-i="' + i + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '" aria-label="صورة ' + (i + 1) + '"><img src="' + AZ.esc(src) + '" alt="" loading="lazy" decoding="async"></button>';
+              return '<button type="button" data-i="' + i + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '" aria-label="صورة ' + (i + 1) + '"><img src="' + AZ.esc(src) + '" alt="" loading="lazy" decoding="async"></button>';
             }).join('') + '</div>' : '') +
         '</div>' +
 
@@ -187,9 +188,9 @@
 
           (sizes.length ? '<div class="field pd-field-req" id="fld-size">' +
             '<label>المقاس <span class="req-star">*</span></label>' +
-            '<div class="opt-group" id="sizes-group" role="radiogroup" aria-label="اختر المقاس">' +
+            '<div class="opt-group" id="sizes-group" role="group" aria-label="اختر المقاس">' +
               sizes.map(function (s) {
-                return '<button type="button" class="opt" role="radio" data-size="' + AZ.esc(s) + '" aria-checked="false">' + AZ.esc(s) + '</button>';
+                return '<button type="button" class="opt" data-size="' + AZ.esc(s) + '" aria-pressed="false">' + AZ.esc(s) + '</button>';
               }).join('') +
             '</div>' +
             '<span class="field-err" id="err-size" hidden>يرجى اختيار المقاس</span>' +
@@ -197,9 +198,9 @@
 
           (colors.length ? '<div class="field pd-field-req" id="fld-color">' +
             '<label>اللون <span class="req-star">*</span></label>' +
-            '<div class="opt-group" id="colors-group" role="radiogroup" aria-label="اختر اللون">' +
+            '<div class="opt-group" id="colors-group" role="group" aria-label="اختر اللون">' +
               colors.map(function (c) {
-                return '<button type="button" class="opt" role="radio" data-color="' + AZ.esc(c) + '" aria-checked="false">' + AZ.esc(c) + '</button>';
+                return '<button type="button" class="opt" data-color="' + AZ.esc(c) + '" aria-pressed="false">' + AZ.esc(c) + '</button>';
               }).join('') +
             '</div>' +
             '<span class="field-err" id="err-color" hidden>يرجى اختيار اللون</span>' +
@@ -239,6 +240,7 @@
       var addBtn = document.getElementById('add-btn');
       var maxQty = Math.max(1, p.stock);
       var selected = { size: '', color: '' };
+      var SMOOTH = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth';
 
       function showImage(i) {
         if (!images[i]) return;
@@ -259,14 +261,14 @@
         if (sizes.length && !selected.size) {
           document.getElementById('fld-size').classList.add('has-err');
           document.getElementById('err-size').hidden = false;
-          document.getElementById('fld-size').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          document.getElementById('fld-size').scrollIntoView({ behavior: SMOOTH, block: 'center' });
           AZ.toast('اختاري المقاس أولاً', 'err');
           return false;
         }
         if (colors.length && !selected.color) {
           document.getElementById('fld-color').classList.add('has-err');
           document.getElementById('err-color').hidden = false;
-          document.getElementById('fld-color').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          document.getElementById('fld-color').scrollIntoView({ behavior: SMOOTH, block: 'center' });
           AZ.toast('اختاري اللون أولاً', 'err');
           return false;
         }
@@ -274,6 +276,7 @@
       }
 
       function refreshWA() {
+        if (out) return;
         var n = Number(qtyEl.value) || 1;
         var msg = 'مرحباً، أرغب في طلب:\n' + p.name +
           (selected.size ? '\nالمقاس: ' + selected.size : '') +
@@ -288,10 +291,10 @@
         var b = e.target.closest('[data-size],[data-color]');
         if (!b) return;
         b.parentNode.querySelectorAll('.opt').forEach(function (x) {
-          x.setAttribute('aria-checked', 'false');
+          x.setAttribute('aria-pressed', 'false');
           x.classList.remove('chosen');
         });
-        b.setAttribute('aria-checked', 'true');
+        b.setAttribute('aria-pressed', 'true');
         b.classList.add('chosen');
 
         if (b.hasAttribute('data-size')) {
@@ -349,6 +352,7 @@
 
       // ✅ زر واتساب — يتحقق قبل الفتح
       waBtn.addEventListener('click', function (e) {
+        if (out) { e.preventDefault(); return; }
         if (!validateSelection()) {
           e.preventDefault();
           return;
@@ -356,6 +360,14 @@
       });
 
       refreshWA();
+      if (out) {
+        waBtn.removeAttribute('href');
+        waBtn.removeAttribute('target');
+        waBtn.setAttribute('aria-disabled', 'true');
+        waBtn.classList.remove('btn-wa');
+        waBtn.classList.add('btn-ghost');
+        waBtn.textContent = 'غير متوفر حالياً';
+      }
 
       // ========== العارض المتقدم ==========
       var lb = document.getElementById('lightbox');
@@ -411,6 +423,11 @@
       document.addEventListener('keydown', function (e) {
         if (lb.hidden) return;
         if (e.key === 'Escape') closeLb();
+        if (e.key === 'Tab') {
+          var fb = lb.querySelectorAll('button'), first = fb[0], last = fb[fb.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
         if (e.key === 'ArrowLeft') show(cur + 1);
         if (e.key === 'ArrowRight') show(cur - 1);
       });

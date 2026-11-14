@@ -638,3 +638,30 @@ body[data-page="admin"] .select,
 body[data-page="admin"] .textarea{background:#fff;border-color:var(--line)}
 body[data-page="admin"] .card,
 body[data-page="admin"] .success-page{background:#fff}
+
+
+/* =====================================================================
+   إصلاحات UI/UX (تباين، لمس، تركيز، حركة) — آخر الملف ليتغلب على ما قبله
+   ===================================================================== */
+.btn-wa{background:#167A42}
+.btn-wa:hover{background:#12663A}
+.btn[aria-disabled="true"]{opacity:.5;pointer-events:none}
+
+/* حدود الحقول مرئية (تباين ≥ 3:1 على كل الخلفيات المستعملة) */
+.input,.select,.textarea,
+body[data-page="admin"] .input,body[data-page="admin"] .select,body[data-page="admin"] .textarea{border-color:#8C6E6B}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--wine);box-shadow:0 0 0 2px var(--wine)}
+
+/* حلقة التركيز على الخلفيات العنابية */
+.band-wine :focus-visible,.site-footer :focus-visible{outline-color:var(--gesso)}
+
+/* أهداف اللمس 44px */
+.chip.sub{min-height:44px}
+.remove-btn{min-height:44px;padding-inline:.6rem}
+.btn-sm{min-height:44px}
+.lb-dots span{width:12px;height:12px}
+
+/* الهيرو على الجوال: صورة أصغر ليظهر العنوان وزر التسوق في الشاشة الأولى */
+@media(max-width:879px){.arch{max-width:300px;aspect-ratio:1/1}}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
