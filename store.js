@@ -205,25 +205,44 @@
     return out;
   }
 
-  /* ---------- الطلبات (الزبونة) ---------- */
-  function buildOrder(customer, items, subtotal, shipping) {
-    return {
-      id: 'AZ-' + Date.now().toString(36).toUpperCase(),
-      items: items.map(function (i) { return { id: i.id, name: i.name, price: i.price, qty: i.qty, size: i.size, color: i.color }; }),
-      subtotal: Number(subtotal) || 0,
-      shipping: Number(shipping) || 0,
-      total: (Number(subtotal) || 0) + (Number(shipping) || 0),
-      customer: customer,
-      status: 'new'
-    };
-  }
-  // يحفظ الطلب في قاعدة البيانات. يرجع true/false (لا يقرأ شيئاً لأن الزائرة لا تملك صلاحية القراءة)
-  function saveOrder(order) {
-    if (!sb) return Promise.resolve(false);
-    return sb.from('orders').insert(order).then(function (r) {
+  /* ---------- الطلبات (الزبونة) ----------
+     الطلب يُنشأ على الخادم فقط عبر الدالة place_order: الأسعار تُقرأ من قاعدة البيانات،
+     والمخزون يُخصم ذرّياً، ورقم الطلب يولّده الخادم. المتصفح يرسل المعرّف والكمية والخيارات فقط. */
+  var ORDER_ERRORS = {
+    invalid_customer: 'بيانات الزبونة غير مكتملة.',
+    empty_cart: 'العربة فارغة.',
+    too_many_items: 'عدد المنتجات في الطلب كبير جداً، قسّميه على طلبين.',
+    invalid_name: 'أدخلي الاسم الكامل (3 أحرف على الأقل).',
+    invalid_phone: 'رقم الهاتف غير صحيح (مثال: 0912345678).',
+    invalid_item: 'بيانات أحد المنتجات غير صحيحة، حدّثي الصفحة وحاولي مجدداً.',
+    product_unavailable: 'أحد المنتجات لم يعد متوفراً وأُزيل من العربة.',
+    invalid_option: 'المقاس أو اللون المختار لأحد المنتجات لم يعد متوفراً.',
+    out_of_stock: 'الكمية المطلوبة من أحد المنتجات لم تعد متوفرة، تم تحديث العربة.',
+    rate_limited: 'لديكِ طلبات قيد المراجعة. انتظري قليلاً أو تواصلي معنا عبر واتساب.'
+  };
+  // أخطاء تعني أن بيانات المتجر عند الزبونة قديمة → نعيد التحميل لتتحدّث العربة
+  var STALE_ERRORS = { product_unavailable: 1, invalid_option: 1, out_of_stock: 1, invalid_item: 1 };
+
+  // يرجع دائماً (لا يرفض): { ok: true, order } أو { ok: false, code, message, productId, known }
+  function placeOrder(items, customer) {
+    if (!sb) return Promise.resolve({ ok: false, code: 'offline', known: false, message: 'تعذر الاتصال بالخادم.' });
+    var payload = (items || []).map(function (i) {
+      return { id: i.id, qty: Number(i.qty) || 0, size: i.size || '', color: i.color || '' };
+    });
+    return sb.rpc('place_order', { p_items: payload, p_customer: customer }).then(function (r) {
+      if (!r.error && r.data && r.data.id) return { ok: true, order: orderFrom(r.data) };
+      var code = (r.error && r.error.message) || 'unknown';
       if (r.error) console.warn(r.error);
-      return !r.error;
-    }).catch(function () { return false; });
+      var res = {
+        ok: false, code: code, known: !!ORDER_ERRORS[code],
+        productId: (r.error && r.error.details) || '',
+        message: ORDER_ERRORS[code] || 'تعذر إتمام الطلب، حاولي مرة أخرى.'
+      };
+      return STALE_ERRORS[code] ? refresh().then(function () { return res; }) : res;
+    }, function (e) {
+      console.warn(e);
+      return { ok: false, code: 'network', known: false, message: 'تعذر الاتصال بالخادم. تحققي من الإنترنت.' };
+    });
   }
 
   var STATUS_LABELS = { new: 'جديد', confirmed: 'مؤكد', shipped: 'تم الشحن', done: 'مكتمل', cancelled: 'ملغي' };
@@ -247,8 +266,9 @@
       L.push(line);
     });
     L.push('');
-    L.push('المجموع: ' + money(order.total));
-    if (order.shipping) L.push('التوصيل: ' + money(order.shipping));
+    L.push('المجموع الفرعي: ' + money(order.subtotal));
+    L.push('التوصيل: ' + (order.shipping ? money(order.shipping) : 'مجاني'));
+    L.push('*الإجمالي: ' + money(order.total) + '*');
     L.push('');
     L.push('الاسم: ' + order.customer.name);
     L.push('الهاتف: ' + order.customer.phone);
@@ -503,6 +523,7 @@
 
   global.AZ = {
     ready: ready,
+    refresh: refresh,
     hasClient: function () { return !!sb; },
     error: function () { return state.error; },
     errorBox: errorBox,
@@ -512,7 +533,7 @@
     getProducts: getProducts, getProduct: getProduct, getRelated: getRelated,
     addToCart: addToCart, setQty: setQty, removeFromCart: removeFromCart, clearCart: clearCart,
     cartCount: cartCount, cartDetailed: cartDetailed, keyOf: keyOf,
-    buildOrder: buildOrder, saveOrder: saveOrder, STATUS_LABELS: STATUS_LABELS,
+    placeOrder: placeOrder, STATUS_LABELS: STATUS_LABELS,
     waLink: waLink, orderMessage: orderMessage,
     productCard: productCard, categoryCard: categoryCard, renderChrome: renderChrome,
     admin: admin,

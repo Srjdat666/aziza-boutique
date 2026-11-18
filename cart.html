@@ -51,7 +51,16 @@
       function saveInfo(info) {
         try { localStorage.setItem('aziza_customer', JSON.stringify(info)); } catch (e) {}
       }
-      var savedInfo = loadInfo();
+      // مسودة النموذج: تبدأ بالبيانات المحفوظة وتُحدَّث قبل كل إعادة رسم كي لا يضيع ما كتبته الزبونة
+      var draft = loadInfo();
+      function captureDraft() {
+        var f = document.getElementById('checkout-form');
+        if (!f) return;
+        draft = {
+          name: f.name.value, phone: f.phone.value, city: f.city.value,
+          address: f.address.value, note: f.note.value
+        };
+      }
 
       function setStep(name) {
         stepsBar.querySelectorAll('.step').forEach(function (s) {
@@ -62,6 +71,7 @@
       }
 
       function render() {
+        captureDraft();
         if (AZ.errorBox(root)) return;
         var rows = AZ.cartDetailed();
         var s = AZ.getSettings();
@@ -103,19 +113,20 @@
             '<div class="sum-row total"><span>الإجمالي</span><span>' + AZ.money(total) + '</span></div>' +
             '<form id="checkout-form" style="margin-top:1.2rem" novalidate>' +
               '<div class="field"><label for="c-name">الاسم الكامل <span class="req-star">*</span></label>' +
-                '<input class="input" id="c-name" name="name" required autocomplete="name" aria-describedby="err-name" value="' + AZ.esc(savedInfo.name || '') + '">' +
+                '<input class="input" id="c-name" name="name" required autocomplete="name" aria-describedby="err-name" value="' + AZ.esc(draft.name || '') + '">' +
                 '<span class="field-err" id="err-name" role="alert" hidden>أدخلي الاسم الكامل (3 أحرف على الأقل)</span></div>' +
               '<div class="field"><label for="c-phone">رقم الهاتف <span class="req-star">*</span></label>' +
-                '<input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx" aria-describedby="err-phone" value="' + AZ.esc(savedInfo.phone || '') + '">' +
+                '<input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx" aria-describedby="err-phone" value="' + AZ.esc(draft.phone || '') + '">' +
                 '<span class="field-err" id="err-phone" role="alert" hidden>رقم هاتف غير صحيح (مثال: 0912345678)</span></div>' +
               '<div class="form-row">' +
-                '<div class="field"><label for="c-city">المدينة</label><input class="input" id="c-city" name="city" value="' + AZ.esc(savedInfo.city || 'سرت') + '" autocomplete="address-level2"></div>' +
-                '<div class="field"><label for="c-address">العنوان</label><input class="input" id="c-address" name="address" autocomplete="street-address" value="' + AZ.esc(savedInfo.address || '') + '"></div>' +
+                '<div class="field"><label for="c-city">المدينة</label><input class="input" id="c-city" name="city" value="' + AZ.esc(draft.city == null ? 'سرت' : draft.city) + '" autocomplete="address-level2"></div>' +
+                '<div class="field"><label for="c-address">العنوان</label><input class="input" id="c-address" name="address" autocomplete="street-address" value="' + AZ.esc(draft.address || '') + '"></div>' +
               '</div>' +
-              '<div class="field"><label for="c-note">ملاحظات (اختياري)</label><textarea class="textarea" id="c-note" name="note" rows="2"></textarea></div>' +
+              '<div class="field"><label for="c-note">ملاحظات (اختياري)</label><textarea class="textarea" id="c-note" name="note" rows="2">' + AZ.esc(draft.note || '') + '</textarea></div>' +
               '<label class="checkbox-line"><input type="checkbox" id="c-save" checked> <span>احفظي بياناتي للطلب القادم</span></label>' +
               '<button class="btn btn-wa btn-block btn-lg" type="submit" id="checkout-btn">تأكيد الطلب عبر واتساب</button>' +
               '<p class="hint" style="text-align:center;margin-top:.6rem">سيتم حفظ طلبك وتوجيهك إلى واتساب لتأكيده.</p>' +
+              '<div class="notice-box err" id="checkout-fallback" style="margin-top:1rem" hidden></div>' +
             '</form>' +
           '</div>' +
         '</div>';
@@ -182,17 +193,15 @@
         var items = AZ.cartDetailed();
         if (!items.length) { render(); return; }
 
-        var subtotal = items.reduce(function (a, r) { return a + r.lineTotal; }, 0);
-        var shipping = Number(AZ.getSettings().shipping) || 0;
-        var order = AZ.buildOrder(
-          { name: name, phone: phone, city: f.city.value.trim(), address: f.address.value.trim(), note: f.note.value.trim() },
-          items, subtotal, shipping
-        );
-        var link = AZ.waLink(AZ.orderMessage(order));
+        var customer = {
+          name: name, phone: phone,
+          city: f.city.value.trim(), address: f.address.value.trim(), note: f.note.value.trim()
+        };
+        captureDraft();
 
         // حفظ بيانات الزبونة
         if (document.getElementById('c-save').checked) {
-          saveInfo({ name: name, phone: phone, city: f.city.value.trim(), address: f.address.value.trim() });
+          saveInfo({ name: name, phone: phone, city: customer.city, address: customer.address });
         }
 
         // فتح نافذة واتساب الآن (داخل نقرة المستخدم) كي لا يحظرها المتصفح، ثم توجيهها بعد الحفظ
@@ -201,32 +210,57 @@
         // تعطيل الزر + عرض شريط التقدم
         sending = true;
         var btn = document.getElementById('checkout-btn');
+        var fallback = document.getElementById('checkout-fallback');
         btn.disabled = true;
         btn.textContent = 'جارٍ الحفظ…';
+        fallback.hidden = true;
         setStep('confirm');
 
-        // حفظ الطلب في قاعدة البيانات
-        AZ.saveOrder(order).then(function (saved) {
-          // حفظ نسخة محلية للصفحة النجاح (لاستخدامها في حالة عدم وجود السحابة)
-          try {
-            localStorage.setItem('aziza_last_order', JSON.stringify(order));
-          } catch (e) {}
+        // الخادم يحسب الأسعار ويخصم المخزون ويولّد رقم الطلب
+        AZ.placeOrder(items, customer).then(function (res) {
+          if (res.ok) {
+            var order = res.order;
+            try { localStorage.setItem('aziza_last_order', JSON.stringify(order)); } catch (e) {}
+            AZ.clearCart();
+            // الرسالة مبنية من الطلب الذي أعاده الخادم (أسعار حقيقية)
+            var link = AZ.waLink(AZ.orderMessage(order));
+            if (win) { try { win.opener = null; win.location.href = link; } catch (e) {} }
+            setTimeout(function () { location.href = 'order-success.html?id=' + encodeURIComponent(order.id); }, 400);
+            return;
+          }
 
-          AZ.clearCart();
-
-          // فتح واتساب
-          if (win) { try { win.opener = null; win.location.href = link; } catch (e) {} }
-
-          // توجيه إلى صفحة النجاح
-          var params = '?id=' + encodeURIComponent(order.id);
-          if (!saved) params += '&wa=1'; // علامة إذا فشل الحفظ
-          setTimeout(function () { location.href = 'order-success.html' + params; }, 400);
-        }).catch(function () {
           if (win) { try { win.close(); } catch (e) {} }
           sending = false;
+          AZ.toast(res.message, 'err');
+
+          if (res.known) {
+            // خطأ في البيانات أو المخزون: نعيد الرسم (العربة تتحدث بالمخزون الجديد)
+            render();
+            if (res.code === 'invalid_name' || res.code === 'invalid_phone') {
+              var bad = document.getElementById(res.code === 'invalid_name' ? 'c-name' : 'c-phone');
+              if (bad) bad.focus();
+            }
+            var fb = document.getElementById('checkout-fallback');
+            if (fb) { fb.textContent = res.message; fb.hidden = false; }
+            return;
+          }
+
+          // عطل في الاتصال أو الخادم: نبقي العربة ونقترح الإرسال اليدوي عبر واتساب
           btn.disabled = false;
-          btn.textContent = 'تأكيد الطلب عبر واتساب';
-          AZ.toast('تعذر إتمام الطلب، حاولي مرة أخرى', 'err');
+          btn.textContent = 'إعادة المحاولة';
+          setStep('info');
+          var rowsNow = AZ.cartDetailed();
+          var sub = rowsNow.reduce(function (a, r) { return a + r.lineTotal; }, 0);
+          var ship = Number(AZ.getSettings().shipping) || 0;
+          var draftOrder = {
+            id: 'غير محفوظ في النظام',
+            items: rowsNow.map(function (r) { return { name: r.name, price: r.price, qty: r.qty, size: r.size, color: r.color }; }),
+            subtotal: sub, shipping: ship, total: sub + ship, customer: customer
+          };
+          fallback.innerHTML = '<b>' + AZ.esc(res.message) + '</b><br>' +
+            'يمكنكِ إعادة المحاولة، أو <a href="' + AZ.esc(AZ.waLink(AZ.orderMessage(draftOrder))) +
+            '" target="_blank" rel="noopener" style="text-decoration:underline">إرسال الطلب يدوياً عبر واتساب</a> (الأسعار تُؤكَّد من البوتيك).';
+          fallback.hidden = false;
         });
       });
 

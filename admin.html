@@ -137,7 +137,15 @@
     var gate = $('gate'), app = $('app'), boot = $('boot');
     var orders = [];
 
-    function msg(e) { return (e && e.message) ? e.message : 'حدث خطأ غير متوقع'; }
+    var ADMIN_ERRORS = {
+      out_of_stock: 'لا يوجد مخزون كافٍ لإعادة تفعيل هذا الطلب الملغى.',
+      'new row violates row-level security policy': 'هذا الحساب ليس له صلاحية المديرة.'
+    };
+    function msg(e) {
+      var m = (e && e.message) ? e.message : '';
+      for (var k in ADMIN_ERRORS) { if (m.indexOf(k) !== -1) return ADMIN_ERRORS[k]; }
+      return m || 'حدث خطأ غير متوقع';
+    }
     function busy(btn, on) { if (btn) btn.classList.toggle('is-busy', !!on); }
 
     /* ===== الدخول ===== */
@@ -149,7 +157,8 @@
     function showGate() { boot.hidden = true; app.hidden = true; gate.hidden = false; }
     function showApp() {
       boot.hidden = true; gate.hidden = true; app.hidden = false;
-      loadOrders().then(renderAll);
+      // إعادة التحميل بجلسة المديرة: المنتجات والتصنيفات المخفية لا تظهر للزوار بعد سياسات RLS الجديدة
+      AZ.refresh().then(loadOrders).then(renderAll);
     }
     A.getSession().then(function (s) { s ? showApp() : showGate(); }).catch(showGate);
 
@@ -590,22 +599,29 @@
     }
 
     $('panel-orders').addEventListener('click', function (e) {
-      if (e.target.closest('#reload-orders')) return loadOrders().then(function () { renderOrders(); renderOverview(); });
+      if (e.target.closest('#reload-orders')) return AZ.refresh().then(loadOrders).then(renderAll);
       if (e.target.closest('#export-orders')) return; // معالج منفصل
       var p = e.target.closest('[data-print]');
       if (p) return printInvoice(p.getAttribute('data-print'));
       var d = e.target.closest('[data-odel]');
-      if (d && confirm('حذف هذا الطلب؟')) {
-        A.deleteOrder(d.getAttribute('data-odel')).then(loadOrders).then(function () { renderOrders(); renderOverview(); })
+      if (d && confirm('حذف هذا الطلب نهائياً؟\nإذا كان «جديد» أو «مؤكد» تُعاد كمياته إلى المخزون تلقائياً.')) {
+        A.deleteOrder(d.getAttribute('data-odel')).then(AZ.refresh).then(loadOrders).then(renderAll)
           .catch(function (err) { AZ.toast(msg(err), 'err'); });
       }
     });
     $('panel-orders').addEventListener('change', function (e) {
       var s = e.target.closest('[data-status]'); if (!s) return;
-      A.updateOrder(s.getAttribute('data-status'), { status: s.value }).then(function () {
-        orders.forEach(function (o) { if (o.id === s.getAttribute('data-status')) o.status = s.value; });
-        renderOverview(); AZ.toast('تم تحديث الحالة', 'ok');
-      }).catch(function (err) { AZ.toast(msg(err), 'err'); });
+      var id = s.getAttribute('data-status'), next = s.value;
+      s.disabled = true;
+      // الإلغاء يعيد الكميات للمخزون، والتراجع عنه يخصمها مجدداً (عبر trigger في قاعدة البيانات)
+      A.updateOrder(id, { status: next }).then(AZ.refresh).then(function () {
+        orders.forEach(function (o) { if (o.id === id) o.status = next; });
+        renderOverview(); renderProducts(); s.disabled = false;
+        AZ.toast('تم تحديث الحالة', 'ok');
+      }).catch(function (err) {
+        AZ.toast(msg(err), 'err');
+        renderOrders(); // يعيد القائمة المنسدلة للحالة المحفوظة فعلاً
+      });
     });
 
     /* ===== الإعدادات ===== */
