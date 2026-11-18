@@ -501,7 +501,7 @@
           var items = (o.items || []).map(function (i) { return esc(i.name) + ' ×' + i.qty + (i.size ? ' (' + esc(i.size) + ')' : ''); }).join('<br>');
           var opts = Object.keys(AZ.STATUS_LABELS).map(function (k) { return '<option value="' + k + '"' + (o.status === k ? ' selected' : '') + '>' + AZ.STATUS_LABELS[k] + '</option>'; }).join('');
           return '<tr><td><b dir="ltr">' + esc(o.id) + '</b><div class="order-items">' + items + '</div><div class="order-items">' + esc(new Date(o.createdAt).toLocaleString('ar-LY')) + '</div></td>' +
-            '<td>' + esc(c.name) + '<br><a href="tel:' + esc(c.phone) + '" dir="ltr">' + esc(c.phone) + '</a><div class="order-items">' + esc([c.city, c.address].filter(Boolean).join(' — ')) + (c.note ? '<br>' + esc(c.note) : '') + '</div></td>' +
+            '<td>' + esc(c.name) + '<br><a href="tel:' + esc(c.phone) + '" dir="ltr">' + esc(c.phone) + '</a><div class="order-items">' + esc([c.region, c.city, c.address].filter(Boolean).join(' — ')) + (c.note ? '<br>' + esc(c.note) : '') + '</div></td>' +
             '<td>' + AZ.money(o.total) + '</td>' +
             '<td><select class="select" data-status="' + esc(o.id) + '" style="min-width:110px">' + opts + '</select></td>' +
             '<td><div class="row-actions">' +
@@ -535,7 +535,7 @@
             return i.name + ' ×' + i.qty + (i.size ? ' (' + i.size + ')' : '') + (i.color ? ' [' + i.color + ']' : '');
           }).join(' | ');
           rows.push([o.id, new Date(o.createdAt).toLocaleString('ar-LY'), c.name || '', c.phone || '',
-            c.city || '', c.address || '', items, o.subtotal, o.shipping, o.total, AZ.STATUS_LABELS[o.status] || o.status]);
+            [c.region, c.city].filter(Boolean).join(' — '), c.address || '', items, o.subtotal, o.shipping, o.total, AZ.STATUS_LABELS[o.status] || o.status]);
         });
         downloadFile('aziza-orders-' + new Date().toISOString().slice(0, 10) + '.csv', toCSV(rows));
         AZ.toast('تم تصدير ' + list.length + ' طلب ✓', 'ok');
@@ -578,7 +578,7 @@
           '<div>' + esc(s.address) + '</div>' +
           '<div dir="ltr">' + esc(s.whatsapp) + '</div></div></div>' +
         '<div class="info"><div><b>الزبونة:</b><br>' + esc(c.name) + '<br>' + esc(c.phone) + '</div>' +
-          '<div><b>العنوان:</b><br>' + esc([c.city, c.address].filter(Boolean).join(' — ') || '—') + '</div></div>' +
+          '<div><b>العنوان:</b><br>' + esc([c.region, c.city, c.address].filter(Boolean).join(' — ') || '—') + '</div></div>' +
         '<table><thead><tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>المجموع</th></tr></thead><tbody>' + rowsHTML + '</tbody></table>' +
         '<div class="totals">' +
           '<div><span>المجموع الفرعي:</span><span>' + AZ.money(o.subtotal) + '</span></div>' +
@@ -632,7 +632,7 @@
         f('storeName', 'اسم المتجر', s.storeName) + f('tagline', 'الشعار النصي', s.tagline) +
         '<div class="form-row">' + f('whatsapp', 'رقم واتساب (بصيغة دولية بدون +)', s.whatsapp, 'dir="ltr"') + f('phones', 'أرقام الهاتف (فاصلة بينها)', (s.phones || []).join(', '), 'dir="ltr"') + '</div>' +
         f('address', 'العنوان', s.address) +
-        '<div class="form-row">' + f('currency', 'العملة', s.currency) + f('shipping', 'رسوم التوصيل (0 = مجاني)', s.shipping, 'type="number" min="0" step="0.5"') + '</div>' +
+        '<div class="form-row">' + f('currency', 'العملة', s.currency) + '<p class="hint" style="align-self:end">رسوم التوصيل تُحدَّد حسب المدينة من جدول shipping_rates في Supabase.</p></div>' +
         f('notice', 'ملاحظة تظهر في صفحة التواصل', s.notice) +
         f('instagram', 'رابط إنستغرام', s.instagram, 'dir="ltr"') + f('tiktok', 'رابط تيك توك', s.tiktok, 'dir="ltr"') +
         f('snapchat', 'رابط سناب شات', s.snapchat, 'dir="ltr"') + f('facebook', 'رابط فيسبوك', s.facebook, 'dir="ltr"') +
@@ -648,7 +648,7 @@
         var data = {
           storeName: v('storeName'), tagline: v('tagline'), whatsapp: v('whatsapp').replace(/\D/g, ''),
           phones: v('phones').split(/[,،]/).map(function (x) { return x.trim(); }).filter(Boolean),
-          address: v('address'), currency: v('currency') || 'د.ل', shipping: Number(v('shipping')) || 0, notice: v('notice'),
+          address: v('address'), currency: v('currency') || 'د.ل', notice: v('notice'),
           instagram: v('instagram'), tiktok: v('tiktok'), snapchat: v('snapchat'), facebook: v('facebook')
         };
         var btn = $('s-save'); busy(btn, true);

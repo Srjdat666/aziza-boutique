@@ -112,8 +112,8 @@
             '<h3>بيانات التوصيل</h3>' +
             '<p><b>الاسم:</b> ' + AZ.esc(order.customer.name) + '</p>' +
             '<p><b>الهاتف:</b> <span dir="ltr">' + AZ.esc(order.customer.phone) + '</span></p>' +
-            (order.customer.city || order.customer.address ? '<p><b>العنوان:</b> ' +
-              AZ.esc([order.customer.city, order.customer.address].filter(Boolean).join(' — ')) + '</p>' : '') +
+            (order.customer.region || order.customer.city || order.customer.address ? '<p><b>العنوان:</b> ' +
+              AZ.esc([order.customer.region, order.customer.city, order.customer.address].filter(Boolean).join(' — ')) + '</p>' : '') +
             (order.customer.note ? '<p><b>ملاحظات:</b> ' + AZ.esc(order.customer.note) + '</p>' : '') +
           '</div>' : '') +
 

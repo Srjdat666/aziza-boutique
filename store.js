@@ -102,6 +102,36 @@
     });
   }
 
+  /* ---------- أسعار التوصيل حسب المنطقة والمدينة ----------
+     المصدر الوحيد: جدول shipping_rates. العرض هنا للزبونة فقط؛ الخادم (place_order)
+     يعيد حساب السعر من الجدول نفسه ويتجاهل أي سعر من المتصفح.
+     تُحمَّل عند الطلب (صفحة العربة فقط) لا مع كل صفحة. */
+  var shippingCache = null; // [{ name, cities: [{ city, price }] }] بترتيب sort_order
+
+  function loadShippingRates(force) {
+    if (shippingCache && !force) return Promise.resolve(shippingCache);
+    if (!sb) return Promise.resolve(null);
+    return sb.from('shipping_rates').select('region,city,price,sort_order')
+      .eq('active', true).order('sort_order', { ascending: true })
+      .then(function (r) {
+        if (r.error) { console.warn(r.error); return null; }
+        var regions = [], byName = {};
+        (r.data || []).forEach(function (row) {
+          if (!byName[row.region]) { byName[row.region] = { name: row.region, cities: [] }; regions.push(byName[row.region]); }
+          byName[row.region].cities.push({ city: row.city, price: Number(row.price) || 0 });
+        });
+        shippingCache = regions.length ? regions : null;
+        return shippingCache;
+      }, function (e) { console.warn(e); return null; });
+  }
+  function getShippingRegions() { return shippingCache || []; }
+  // يرجع السعر أو null إذا لم تكن المدينة ضمن المنطقة
+  function shippingPrice(region, city) {
+    var reg = getShippingRegions().filter(function (x) { return x.name === region; })[0];
+    var c = reg && reg.cities.filter(function (x) { return x.city === city; })[0];
+    return c ? c.price : null;
+  }
+
   /* ---------- قراءة ---------- */
   function getSettings() { return state.settings; }
   function getCategories(onlyActive) {
@@ -218,7 +248,8 @@
     product_unavailable: 'أحد المنتجات لم يعد متوفراً وأُزيل من العربة.',
     invalid_option: 'المقاس أو اللون المختار لأحد المنتجات لم يعد متوفراً.',
     out_of_stock: 'الكمية المطلوبة من أحد المنتجات لم تعد متوفرة، تم تحديث العربة.',
-    rate_limited: 'لديكِ طلبات قيد المراجعة. انتظري قليلاً أو تواصلي معنا عبر واتساب.'
+    rate_limited: 'لديكِ طلبات قيد المراجعة. انتظري قليلاً أو تواصلي معنا عبر واتساب.',
+    invalid_city: 'اختاري المنطقة والمدينة من القائمة (ربما تغيّرت أسعار التوصيل، تم تحديثها).'
   };
   // أخطاء تعني أن بيانات المتجر عند الزبونة قديمة → نعيد التحميل لتتحدّث العربة
   var STALE_ERRORS = { product_unavailable: 1, invalid_option: 1, out_of_stock: 1, invalid_item: 1 };
@@ -238,6 +269,7 @@
         productId: (r.error && r.error.details) || '',
         message: ORDER_ERRORS[code] || 'تعذر إتمام الطلب، حاولي مرة أخرى.'
       };
+      if (code === 'invalid_city') return loadShippingRates(true).then(function () { return res; });
       return STALE_ERRORS[code] ? refresh().then(function () { return res; }) : res;
     }, function (e) {
       console.warn(e);
@@ -272,6 +304,7 @@
     L.push('');
     L.push('الاسم: ' + order.customer.name);
     L.push('الهاتف: ' + order.customer.phone);
+    if (order.customer.region) L.push('المنطقة: ' + order.customer.region);
     if (order.customer.city) L.push('المدينة: ' + order.customer.city);
     if (order.customer.address) L.push('العنوان: ' + order.customer.address);
     if (order.customer.note) L.push('ملاحظات: ' + order.customer.note);
@@ -534,6 +567,7 @@
     addToCart: addToCart, setQty: setQty, removeFromCart: removeFromCart, clearCart: clearCart,
     cartCount: cartCount, cartDetailed: cartDetailed, keyOf: keyOf,
     placeOrder: placeOrder, STATUS_LABELS: STATUS_LABELS,
+    loadShippingRates: loadShippingRates, getShippingRegions: getShippingRegions, shippingPrice: shippingPrice,
     waLink: waLink, orderMessage: orderMessage,
     productCard: productCard, categoryCard: categoryCard, renderChrome: renderChrome,
     admin: admin,

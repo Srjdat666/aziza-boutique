@@ -53,13 +53,87 @@
       }
       // مسودة النموذج: تبدأ بالبيانات المحفوظة وتُحدَّث قبل كل إعادة رسم كي لا يضيع ما كتبته الزبونة
       var draft = loadInfo();
+      var ratesOk = false;   // هل حُمّلت أسعار التوصيل من قاعدة البيانات؟
+
       function captureDraft() {
         var f = document.getElementById('checkout-form');
         if (!f) return;
         draft = {
-          name: f.name.value, phone: f.phone.value, city: f.city.value,
+          name: f.name.value, phone: f.phone.value,
+          region: f.region.value, city: f.city.value,
           address: f.address.value, note: f.note.value
         };
+      }
+
+      /* ===== المنطقة والمدينة وسعر التوصيل ===== */
+      // توحيد الكتابة العربية للبحث: بلا تشكيل، أ/إ/آ → ا، ة → ه، ى → ي
+      function norm(s) {
+        return String(s || '').replace(/[ً-ْـ]/g, '')
+          .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي')
+          .replace(/\s+/g, ' ').trim().toLowerCase();
+      }
+      // بيانات قديمة محفوظة فيها مدينة بلا منطقة (مثل «سرت»): نستنتج المنطقة إن كانت المدينة في منطقة واحدة فقط
+      function regionOfCity(city) {
+        var found = AZ.getShippingRegions().filter(function (r) {
+          return r.cities.some(function (c) { return c.city === city; });
+        });
+        return found.length === 1 ? found[0].name : '';
+      }
+      function regionOptions(sel) {
+        return '<option value="">اختاري المنطقة</option>' + AZ.getShippingRegions().map(function (r) {
+          return '<option value="' + AZ.esc(r.name) + '"' + (r.name === sel ? ' selected' : '') + '>' + AZ.esc(r.name) + '</option>';
+        }).join('');
+      }
+      // بدون منطقة: البحث يشمل كل المدن (الزبونة غالباً تعرف مدينتها لا منطقتها)
+      function cityCandidates(region, q) {
+        var nq = norm(q), out = [];
+        AZ.getShippingRegions().forEach(function (r) {
+          if (region && r.name !== region) return;
+          if (!region && !nq) return;
+          r.cities.forEach(function (c) {
+            if (!nq || norm(c.city).indexOf(nq) !== -1) out.push({ region: r.name, city: c.city, price: c.price });
+          });
+        });
+        return out;
+      }
+      function priceLabel(p) { return p ? AZ.money(p) : 'مجاني'; }
+      function cityOptions(region, q, sel) {
+        var list = cityCandidates(region, q);
+        var ph = (!region && !q) ? 'اختاري المنطقة أولاً أو ابحثي' : (list.length ? 'اختاري المدينة' : 'لا توجد مدينة مطابقة');
+        return '<option value="">' + ph + '</option>' + list.map(function (c) {
+          return '<option value="' + AZ.esc(c.city) + '" data-region="' + AZ.esc(c.region) + '"' +
+            (c.city === sel ? ' selected' : '') + '>' +
+            AZ.esc(c.city) + ' — ' + priceLabel(c.price) + (region ? '' : ' (' + AZ.esc(c.region) + ')') +
+            '</option>';
+        }).join('');
+      }
+      function refreshCities(keepCity) {
+        var reg = document.getElementById('c-region');
+        var sel = document.getElementById('c-city');
+        var q = document.getElementById('c-city-search');
+        if (!reg || !sel) return;
+        sel.innerHTML = cityOptions(reg.value, q.value, keepCity || '');
+        sel.disabled = !reg.value && !q.value.trim();
+        updateShipping();
+      }
+      // يحدّث سعر التوصيل بجانب المدينة والمجموع النهائي دون إعادة رسم الصفحة
+      function updateShipping() {
+        var reg = document.getElementById('c-region'), sel = document.getElementById('c-city');
+        var shipEl = document.getElementById('sum-ship'), totalEl = document.getElementById('sum-total');
+        var tag = document.getElementById('ship-tag');
+        if (!reg || !shipEl) return;
+        var subtotal = AZ.cartDetailed().reduce(function (a, r) { return a + r.lineTotal; }, 0);
+        var price = (reg.value && sel.value) ? AZ.shippingPrice(reg.value, sel.value) : null;
+        if (price == null) {
+          shipEl.textContent = 'اختاري المدينة';
+          totalEl.textContent = AZ.money(subtotal) + ' + التوصيل';
+          tag.hidden = true;
+        } else {
+          shipEl.textContent = priceLabel(price);
+          totalEl.textContent = AZ.money(subtotal + price);
+          tag.textContent = 'التوصيل إلى ' + sel.value + ': ' + priceLabel(price);
+          tag.hidden = false;
+        }
       }
 
       function setStep(name) {
@@ -84,8 +158,11 @@
         }
 
         var subtotal = rows.reduce(function (a, r) { return a + r.lineTotal; }, 0);
-        var shipping = Number(s.shipping) || 0;
-        var total = subtotal + shipping;
+
+        // المنطقة/المدينة من المسودة، مع التحقق أنها ما زالت ضمن القائمة
+        var dRegion = draft.region || regionOfCity(draft.city);
+        var dCity = (dRegion && AZ.shippingPrice(dRegion, draft.city) != null) ? draft.city : '';
+        if (!AZ.getShippingRegions().some(function (r) { return r.name === dRegion; })) dRegion = '';
 
         var linesHTML = rows.map(function (r) {
           return '<div class="cart-line">' +
@@ -109,8 +186,8 @@
           '<div class="cart-side">' +
             '<h2 class="section-title" style="font-size:1.25rem;margin-bottom:.75rem">ملخص الطلب</h2>' +
             '<div class="sum-row"><span>المجموع الفرعي</span><span>' + AZ.money(subtotal) + '</span></div>' +
-            '<div class="sum-row"><span>التوصيل</span><span>' + (shipping ? AZ.money(shipping) : 'مجاني') + '</span></div>' +
-            '<div class="sum-row total"><span>الإجمالي</span><span>' + AZ.money(total) + '</span></div>' +
+            '<div class="sum-row"><span>التوصيل</span><span id="sum-ship">اختاري المدينة</span></div>' +
+            '<div class="sum-row total"><span>الإجمالي</span><span id="sum-total">' + AZ.money(subtotal) + '</span></div>' +
             '<form id="checkout-form" style="margin-top:1.2rem" novalidate>' +
               '<div class="field"><label for="c-name">الاسم الكامل <span class="req-star">*</span></label>' +
                 '<input class="input" id="c-name" name="name" required autocomplete="name" aria-describedby="err-name" value="' + AZ.esc(draft.name || '') + '">' +
@@ -118,10 +195,18 @@
               '<div class="field"><label for="c-phone">رقم الهاتف <span class="req-star">*</span></label>' +
                 '<input class="input" id="c-phone" name="phone" type="tel" inputmode="tel" dir="ltr" required autocomplete="tel" placeholder="09xxxxxxxx" aria-describedby="err-phone" value="' + AZ.esc(draft.phone || '') + '">' +
                 '<span class="field-err" id="err-phone" role="alert" hidden>رقم هاتف غير صحيح (مثال: 0912345678)</span></div>' +
+              (ratesOk ? '' : '<div class="notice-box err" style="margin-bottom:.9rem">تعذر تحميل مدن وأسعار التوصيل. حدّثي الصفحة، أو اطلبي عبر واتساب مباشرة.</div>') +
               '<div class="form-row">' +
-                '<div class="field"><label for="c-city">المدينة</label><input class="input" id="c-city" name="city" value="' + AZ.esc(draft.city == null ? 'سرت' : draft.city) + '" autocomplete="address-level2"></div>' +
-                '<div class="field"><label for="c-address">العنوان</label><input class="input" id="c-address" name="address" autocomplete="street-address" value="' + AZ.esc(draft.address || '') + '"></div>' +
+                '<div class="field"><label for="c-region">المنطقة <span class="req-star">*</span></label>' +
+                  '<select class="select" id="c-region" name="region" required aria-describedby="err-region">' + regionOptions(dRegion) + '</select>' +
+                  '<span class="field-err" id="err-region" role="alert" hidden>اختاري منطقة التوصيل</span></div>' +
+                '<div class="field"><label for="c-city">المدينة <span class="req-star">*</span></label>' +
+                  '<input class="input ship-search" id="c-city-search" type="search" placeholder="ابحثي عن مدينتك…" aria-label="بحث عن مدينة" aria-controls="c-city" autocomplete="off">' +
+                  '<select class="select" id="c-city" name="city" required aria-describedby="err-city"' + (dRegion ? '' : ' disabled') + '>' + cityOptions(dRegion, '', dCity) + '</select>' +
+                  '<span class="field-err" id="err-city" role="alert" hidden>اختاري مدينة التوصيل</span></div>' +
               '</div>' +
+              '<p class="ship-tag" id="ship-tag" aria-live="polite" hidden></p>' +
+              '<div class="field"><label for="c-address">العنوان (الحي، أقرب معلم)</label><input class="input" id="c-address" name="address" autocomplete="street-address" value="' + AZ.esc(draft.address || '') + '"></div>' +
               '<div class="field"><label for="c-note">ملاحظات (اختياري)</label><textarea class="textarea" id="c-note" name="note" rows="2">' + AZ.esc(draft.note || '') + '</textarea></div>' +
               '<label class="checkbox-line"><input type="checkbox" id="c-save" checked> <span>احفظي بياناتي للطلب القادم</span></label>' +
               '<button class="btn btn-wa btn-block btn-lg" type="submit" id="checkout-btn">تأكيد الطلب عبر واتساب</button>' +
@@ -131,6 +216,7 @@
           '</div>' +
         '</div>';
         setStep('info');
+        updateShipping();
       }
 
       // أحداث العربة
@@ -151,7 +237,42 @@
         if (rm) { AZ.removeFromCart(rm.getAttribute('data-remove')); render(); AZ.toast('تمت الإزالة'); }
       });
 
+      function clearErr(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.hidden = true;
+        var fld = el.closest('.field');
+        if (fld) fld.classList.remove('has-err');
+      }
+
+      // البحث عن مدينة
+      root.addEventListener('input', function (e) {
+        if (e.target.id !== 'c-city-search') return;
+        refreshCities(document.getElementById('c-city').value);
+      });
+
       root.addEventListener('change', function (e) {
+        if (e.target.id === 'c-region') {
+          document.getElementById('c-city-search').value = '';
+          refreshCities('');
+          clearErr('err-region');
+          return;
+        }
+        if (e.target.id === 'c-city') {
+          // مدينة مختارة من بحث شامل → نضبط المنطقة تلقائياً ونعرض مدنها
+          var opt = e.target.selectedOptions[0];
+          var reg = document.getElementById('c-region');
+          var city = e.target.value;
+          if (opt && opt.getAttribute('data-region') && reg.value !== opt.getAttribute('data-region')) {
+            reg.value = opt.getAttribute('data-region');
+            document.getElementById('c-city-search').value = '';
+            refreshCities(city);
+          } else {
+            updateShipping();
+          }
+          if (city) { clearErr('err-city'); clearErr('err-region'); }
+          return;
+        }
         var inp = e.target.closest('[data-qty]');
         if (!inp) return;
         AZ.setQty(inp.getAttribute('data-qty'), Math.max(1, Number(inp.value) || 1));
@@ -176,16 +297,20 @@
           var fld = el.closest('.field');
           el.hidden = !show;
           if (fld) fld.classList.toggle('has-err', show);
-          var inp = fld && fld.querySelector('.input');
+          var inp = fld && fld.querySelector('.input, .select');
           if (inp) inp.setAttribute('aria-invalid', show ? 'true' : 'false');
           if (show) ok = false;
         }
+        var region = f.region.value, city = f.city.value;
+        var shipPrice = (region && city) ? AZ.shippingPrice(region, city) : null;
         setErr('err-name', name.length < 3);
         setErr('err-phone', !/^(?:218|0)?9\d{8}$/.test(phoneDigits));
+        setErr('err-region', !region);
+        setErr('err-city', !!region && shipPrice == null);
 
         if (!ok) {
-          AZ.toast('يرجى تصحيح البيانات المطلوبة', 'err');
-          var firstErr = document.querySelector('.has-err .input');
+          AZ.toast(ratesOk ? 'يرجى تصحيح البيانات المطلوبة' : 'تعذر تحميل مدن التوصيل، حدّثي الصفحة', 'err');
+          var firstErr = document.querySelector('.has-err .input, .has-err .select:not([disabled])');
           if (firstErr) firstErr.focus();
           return;
         }
@@ -193,15 +318,16 @@
         var items = AZ.cartDetailed();
         if (!items.length) { render(); return; }
 
+        // لا نرسل سعر التوصيل: الخادم يقرأه من جدول shipping_rates حسب المنطقة والمدينة
         var customer = {
-          name: name, phone: phone,
-          city: f.city.value.trim(), address: f.address.value.trim(), note: f.note.value.trim()
+          name: name, phone: phone, region: region, city: city,
+          address: f.address.value.trim(), note: f.note.value.trim()
         };
         captureDraft();
 
         // حفظ بيانات الزبونة
         if (document.getElementById('c-save').checked) {
-          saveInfo({ name: name, phone: phone, city: customer.city, address: customer.address });
+          saveInfo({ name: name, phone: phone, region: region, city: city, address: customer.address });
         }
 
         // فتح نافذة واتساب الآن (داخل نقرة المستخدم) كي لا يحظرها المتصفح، ثم توجيهها بعد الحفظ
@@ -235,9 +361,11 @@
 
           if (res.known) {
             // خطأ في البيانات أو المخزون: نعيد الرسم (العربة تتحدث بالمخزون الجديد)
+            if (res.code === 'invalid_city') ratesOk = AZ.getShippingRegions().length > 0;
             render();
-            if (res.code === 'invalid_name' || res.code === 'invalid_phone') {
-              var bad = document.getElementById(res.code === 'invalid_name' ? 'c-name' : 'c-phone');
+            var focusId = { invalid_name: 'c-name', invalid_phone: 'c-phone', invalid_city: 'c-region' }[res.code];
+            if (focusId) {
+              var bad = document.getElementById(focusId);
               if (bad) bad.focus();
             }
             var fb = document.getElementById('checkout-fallback');
@@ -251,7 +379,7 @@
           setStep('info');
           var rowsNow = AZ.cartDetailed();
           var sub = rowsNow.reduce(function (a, r) { return a + r.lineTotal; }, 0);
-          var ship = Number(AZ.getSettings().shipping) || 0;
+          var ship = AZ.shippingPrice(region, city) || 0;
           var draftOrder = {
             id: 'غير محفوظ في النظام',
             items: rowsNow.map(function (r) { return { name: r.name, price: r.price, qty: r.qty, size: r.size, color: r.color }; }),
@@ -264,7 +392,11 @@
         });
       });
 
-      render();
+      // أسعار التوصيل تُحمَّل قبل أول رسم؛ إن فشلت تُعرض رسالة ويُمنع الإرسال
+      AZ.loadShippingRates().then(function (regions) {
+        ratesOk = !!(regions && regions.length);
+        render();
+      });
     });
   </script>
 </body>

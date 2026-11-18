@@ -4,7 +4,7 @@
 --
 -- What it does:
 --   1. public.admins table + is_admin() function: only listed accounts are
---      admins (no longer "any signed-in account").
+--      admins (both srjawidat@gmail.com and azizabotiqe1@gmail.com included).
 --   2. place_order(items, customer): the only way to create an order.
 --      Prices come from the products table, stock is checked and decremented
 --      atomically, the order ID is generated server-side, and there is a basic
@@ -13,12 +13,6 @@
 --      returns its quantities to stock; un-cancelling deducts them again.
 --   4. Drops every old policy on the categories / products / settings / orders
 --      tables and the four product-images storage policies, then recreates them on is_admin().
---
--- Before running:
---   * Replace azizabotiqe1@gmail.com below with the admin account's email
---     (it must already exist under Authentication → Users).
---   * Run the whole file at once in the SQL Editor. It runs inside a single transaction:
---     any error rolls back everything.
 -- =====================================================================
 
 begin;
@@ -41,26 +35,31 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------
--- 1) Admins
+-- 1) Schema & Admins Permissions
 -- ---------------------------------------------------------------------
+grant usage on schema public to postgres, anon, authenticated, service_role;
+grant create on schema public to postgres, service_role;
+
 create table if not exists public.admins (
   user_id    uuid primary key references auth.users(id) on delete cascade,
   created_at timestamptz not null default now()
 );
 alter table public.admins enable row level security;
--- No policies on purpose: no one reads or edits this table via the API.
-revoke all on public.admins from anon, authenticated;
 
+-- Grant select to authenticated so Studio/Rls checks can verify admins smoothly
+grant select on public.admins to authenticated;
+grant all on public.admins to postgres, service_role;
+
+-- Insert both admin emails automatically
 do $$
-declare
-  v_email text := 'srjawidat@gmail.com';   -- البريد الخاص بك
 begin
   insert into public.admins (user_id)
-  select id from auth.users where lower(email) = lower(btrim(v_email))
-  on conflict do nothing;
+  select id from auth.users 
+  where lower(email) in ('srjawidat@gmail.com', 'azizabotiqe1@gmail.com')
+  on conflict (user_id) do nothing;
 
   if not exists (select 1 from public.admins) then
-    raise exception 'No user with this email in auth.users: %', v_email;
+    raise exception 'No admin users found in auth.users for srjawidat@gmail.com or azizabotiqe1@gmail.com';
   end if;
 end $$;
 
@@ -79,15 +78,12 @@ grant execute on function public.is_admin() to anon, authenticated;
 -- ---------------------------------------------------------------------
 -- 2) Table hardening
 -- ---------------------------------------------------------------------
--- Orders created before this migration did not deduct stock, so the trigger must not
--- return stock for them. This column tells them apart.
 alter table public.orders add column if not exists stock_managed boolean not null default false;
 
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
 
 do $$
 begin
-  -- NOT VALID: applies to new writes without checking old rows
   if not exists (select 1 from pg_constraint where conname = 'products_stock_nonneg') then
     alter table public.products add constraint products_stock_nonneg check (stock >= 0) not valid;
   end if;
@@ -97,7 +93,7 @@ begin
 end $$;
 
 -- ---------------------------------------------------------------------
--- 3) Remove the old policies
+-- 3) Remove old policies
 -- ---------------------------------------------------------------------
 do $$
 declare r record;
@@ -122,10 +118,9 @@ alter table public.settings   enable row level security;
 alter table public.orders     enable row level security;
 
 -- ---------------------------------------------------------------------
--- 4) New policies
---    (select public.is_admin()) in parentheses so Postgres evaluates it once per query
+-- 4) New RLS policies based on is_admin()
 -- ---------------------------------------------------------------------
--- Categories: everyone sees active ones, the admin sees all and edits
+-- Categories
 create policy categories_read on public.categories
   for select to anon, authenticated
   using (active is not false or (select public.is_admin()));
@@ -141,7 +136,7 @@ create policy products_admin_write on public.products
   for all to authenticated
   using ((select public.is_admin())) with check ((select public.is_admin()));
 
--- Settings: public read, admin-only write
+-- Settings
 create policy settings_read on public.settings
   for select to anon, authenticated
   using (true);
@@ -149,7 +144,7 @@ create policy settings_admin_write on public.settings
   for all to authenticated
   using ((select public.is_admin())) with check ((select public.is_admin()));
 
--- Orders: no direct insert policy at all. Creation goes only through place_order().
+-- Orders
 create policy orders_admin_read on public.orders
   for select to authenticated
   using ((select public.is_admin()));
@@ -161,7 +156,7 @@ create policy orders_admin_delete on public.orders
   using ((select public.is_admin()));
 revoke insert on public.orders from anon, authenticated;
 
--- Images
+-- Storage Images
 create policy product_images_public_read on storage.objects
   for select to public
   using (bucket_id = 'product-images');
@@ -177,13 +172,7 @@ create policy product_images_admin_delete on storage.objects
   using (bucket_id = 'product-images' and (select public.is_admin()));
 
 -- ---------------------------------------------------------------------
--- 5) place_order — the only way to create an order
---    p_items:    [{ "id": "...", "qty": 2, "size": "M", "color": "Black" }, ...]
---    p_customer: { "name", "phone", "city", "address", "note" }
---    Errors (error.message): invalid_customer | empty_cart | too_many_items |
---      invalid_name | invalid_phone | invalid_item | product_unavailable |
---      invalid_option | out_of_stock | rate_limited
---      error.details = product id when relevant, error.hint = remaining stock (out_of_stock)
+-- 5) place_order — secure RPC function for checkout
 -- ---------------------------------------------------------------------
 create or replace function public.place_order(p_items jsonb, p_customer jsonb)
 returns jsonb
@@ -212,7 +201,6 @@ declare
   v_id       text;
   v_now      timestamptz := now();
 begin
-  -- ---- Validate inputs ----
   if coalesce(jsonb_typeof(p_customer), '') <> 'object' then
     raise exception using message = 'invalid_customer';
   end if;
@@ -237,7 +225,6 @@ begin
     raise exception using message = 'invalid_phone';
   end if;
 
-  -- ---- Basic rate limit: at most 3 new orders per number every 30 minutes ----
   select count(*) into v_recent
     from public.orders
    where created_at > v_now - interval '30 minutes'
@@ -247,14 +234,12 @@ begin
     raise exception using message = 'rate_limited';
   end if;
 
-  -- ---- Lock product rows in a fixed order (prevents deadlocks between concurrent orders) ----
   perform 1
      from public.products
     where id in (select e->>'id' from jsonb_array_elements(p_items) e where jsonb_typeof(e) = 'object')
     order by id
     for update;
 
-  -- ---- Process each line ----
   for v_line in select value from jsonb_array_elements(p_items) loop
     if jsonb_typeof(v_line) <> 'object' then
       raise exception using message = 'invalid_item';
@@ -279,7 +264,6 @@ begin
       raise exception using message = 'product_unavailable', detail = v_pid;
     end if;
 
-    -- Size/color: must be one of the product's options; ignored if it has none
     v_size  := left(btrim(coalesce(v_line->>'size', '')), 40);
     v_color := left(btrim(coalesce(v_line->>'color', '')), 40);
     if jsonb_typeof(v_prod.sizes_j) = 'array' and jsonb_array_length(v_prod.sizes_j) > 0 then
@@ -297,7 +281,6 @@ begin
       v_color := '';
     end if;
 
-    -- Conditional deduction: fails if there isn't enough stock (correctly covers multiple lines of the same product)
     update public.products
        set stock = stock - v_qty
      where id = v_pid and stock >= v_qty;
@@ -314,7 +297,6 @@ begin
     v_subtotal := v_subtotal + v_prod.price * v_qty;
   end loop;
 
-  -- ---- Shipping from settings ----
   begin
     select greatest(coalesce(nullif(data->>'shipping', '')::numeric, 0), 0)
       into v_shipping
@@ -324,7 +306,6 @@ begin
   end;
   v_shipping := coalesce(v_shipping, 0);
 
-  -- ---- Order ID ----
   loop
     v_id := 'AZ-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8));
     exit when not exists (select 1 from public.orders where id = v_id);
@@ -346,11 +327,7 @@ revoke all on function public.place_order(jsonb, jsonb) from public;
 grant execute on function public.place_order(jsonb, jsonb) to anon, authenticated;
 
 -- ---------------------------------------------------------------------
--- 6) Sync stock with order status
---    * new/confirmed/shipped/done → cancelled : return quantities
---    * cancelled → any other status : deduct again (fails if stock is insufficient)
---    * delete a new/confirmed order       : return quantities
---    Applies only to orders created through place_order (stock_managed = true).
+-- 6) Trigger: Sync stock with order status
 -- ---------------------------------------------------------------------
 create or replace function public.orders_stock_sync()
 returns trigger
@@ -406,16 +383,3 @@ create trigger orders_stock_sync
   for each row execute function public.orders_stock_sync();
 
 commit;
-
--- =====================================================================
--- Checks after running (run them separately):
---
---   select tablename, policyname, cmd, roles from pg_policies
---    where schemaname in ('public','storage') order by 1, 2;
---
---   -- must fail with invalid_phone:
---   select public.place_order('[{"id":"x","qty":1}]', '{"name":"test","phone":"123"}');
---
---   -- must fail with permission denied / RLS (direct insert closed):
---   set role anon; insert into public.orders (id, items, customer) values ('X','[]','{}'); reset role;
--- =====================================================================

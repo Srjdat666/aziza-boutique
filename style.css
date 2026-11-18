@@ -665,3 +665,11 @@ body[data-page="admin"] .input,body[data-page="admin"] .select,body[data-page="a
 @media(max-width:879px){.arch{max-width:300px;aspect-ratio:1/1}}
 
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* ============ منطقة ومدينة التوصيل (cart) ============ */
+.ship-search{margin-bottom:.4rem}
+.select[disabled]{opacity:.6;cursor:not-allowed}
+.field.has-err .select{border-color:var(--err)}
+.ship-tag{margin:-.3rem 0 .9rem;padding:.55rem .9rem;border-radius:var(--radius);background:#fff;color:var(--wine);font-weight:700;font-size:.92rem}
+.ship-tag[hidden]{display:none}
+.field-err[hidden]{display:none}
