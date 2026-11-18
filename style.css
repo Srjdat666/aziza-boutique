@@ -403,8 +403,9 @@ h2.section-title,h1.section-title{font-family:var(--ruqaa);font-weight:700;font-
 .steps-bar .step span { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--line); color: var(--muted); font-weight: 700; font-size: .9rem; transition: background .25s, color .25s; }
 .steps-bar .step.on span { background: var(--wine); color: #fff; }
 .steps-bar .step.done span { background: var(--ok); color: #fff; }
-.steps-bar .step label { font-size: .8rem; font-weight: 600; color: var(--muted); }
-.steps-bar .step.on label { color: var(--wine); }
+.steps-bar { list-style: none; padding: 0; }
+.steps-bar .step small { font-size: .8rem; font-weight: 600; color: var(--muted); }
+.steps-bar .step.on small { color: var(--wine); }
 @media (min-width: 620px) {
   .steps-bar .step:not(:last-child)::after {
     content: "";
@@ -673,3 +674,17 @@ body[data-page="admin"] .input,body[data-page="admin"] .select,body[data-page="a
 .ship-tag{margin:-.3rem 0 .9rem;padding:.55rem .9rem;border-radius:var(--radius);background:#fff;color:var(--wine);font-weight:700;font-size:.92rem}
 .ship-tag[hidden]{display:none}
 .field-err[hidden]{display:none}
+
+/* ============ مراجعة UI/UX: التخطّي، المخزون المنخفض، هياكل التحميل ============ */
+.skip-link{position:absolute;inset-inline-start:1rem;top:-100px;z-index:1000;background:var(--wine);color:#fff;padding:.6rem 1.1rem;border-radius:var(--radius);font-weight:600}
+.skip-link:focus{top:.75rem}
+main:focus{outline:none}
+.pd-stock.low{color:var(--warn)}
+.menu-btn{color:var(--wine)}
+
+.sk{background:linear-gradient(90deg,var(--petal) 0%,#F3E4DD 50%,var(--petal) 100%);background-size:200% 100%;animation:skShimmer 1.3s ease-in-out infinite}
+.sk-card{pointer-events:none}
+.sk-card:hover{transform:none;box-shadow:none}
+.sk-line{display:block;height:1rem;border-radius:4px;margin-bottom:.6rem;width:80%}
+.sk-line.short{width:45%}
+@keyframes skShimmer{from{background-position:100% 0}to{background-position:-100% 0}}

@@ -21,12 +21,12 @@
     </div>
 
     <!-- شريط التقدم -->
-    <div class="steps-bar" id="steps-bar">
-      <div class="step on" data-step="info"><span>1</span><label>العربة والبيانات</label></div>
-      <div class="step" data-step="confirm"><span>2</span><label>التأكيد</label></div>
-    </div>
+    <ol class="steps-bar" id="steps-bar" aria-label="مراحل الطلب">
+      <li class="step on" data-step="info" aria-current="step"><span aria-hidden="true">1</span><small>العربة والبيانات</small></li>
+      <li class="step" data-step="confirm"><span aria-hidden="true">2</span><small>التأكيد</small></li>
+    </ol>
 
-    <div id="cart-root"></div>
+    <div id="cart-root"><div class="notice-box">جارٍ تحميل العربة…</div></div>
   </main>
 
   <div id="site-footer"></div>
@@ -140,6 +140,7 @@
         stepsBar.querySelectorAll('.step').forEach(function (s) {
           var k = s.getAttribute('data-step');
           s.classList.toggle('on', k === name);
+          if (k === name) s.setAttribute('aria-current', 'step'); else s.removeAttribute('aria-current');
           s.classList.toggle('done', k === 'info' && name === 'confirm');
         });
       }

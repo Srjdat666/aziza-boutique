@@ -325,8 +325,36 @@
     el.className = 'toast ' + (type || '');
     el.textContent = msg;
     box.appendChild(el);
-    setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 2200);
-    setTimeout(function () { el.remove(); }, 2600);
+    // رسائل الخطأ تبقى أطول كي تُقرأ كاملة
+    var life = type === 'err' ? 4500 : 2200;
+    setTimeout(function () { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, life);
+    setTimeout(function () { el.remove(); }, life + 400);
+  }
+
+  /* هياكل تحميل مؤقتة تحجز المكان حتى تصل البيانات (بلا قفز في التخطيط) */
+  function skeletonCards(n) {
+    var one = '<div class="card sk-card" aria-hidden="true"><div class="card-media sk"></div>' +
+      '<div class="card-body"><span class="sk sk-line"></span><span class="sk sk-line short"></span></div></div>';
+    return new Array(n + 1).join(one);
+  }
+  function fillSkeletons() {
+    document.querySelectorAll('[data-skeleton]').forEach(function (el) {
+      if (el.children.length) return;
+      var kind = el.getAttribute('data-skeleton');
+      el.setAttribute('aria-busy', 'true');
+      if (kind === 'product') {
+        el.innerHTML = '<div class="pd-grid" aria-hidden="true"><div class="pd-main sk"></div>' +
+          '<div><span class="sk sk-line" style="width:40%;height:2.4rem"></span><span class="sk sk-line" style="width:25%;height:1.8rem"></span>' +
+          '<span class="sk sk-line"></span><span class="sk sk-line short"></span></div></div>';
+      } else if (kind === 'cats') {
+        el.innerHTML = new Array(5).join('<div class="cat-card sk" aria-hidden="true"></div>');
+      } else {
+        el.innerHTML = skeletonCards(Number(kind) || 4);
+      }
+    });
+  }
+  function clearBusy() {
+    document.querySelectorAll('[data-skeleton]').forEach(function (el) { el.removeAttribute('aria-busy'); });
   }
   function errorBox(el) {
     if (!state.error) return false;
@@ -382,7 +410,8 @@
       ['about', 'index.html#about', 'عن البوتيك'],
       ['contact', 'index.html#contact', 'تواصلي معنا']
     ];
-    return '<header class="site-header"><div class="wrap header-inner">' +
+    return '<a class="skip-link" href="#main">تخطّي إلى المحتوى</a>' +
+      '<header class="site-header"><div class="wrap header-inner">' +
       '<a class="brand" href="index.html"><span lang="en" dir="ltr">AZIZA</span><span class="brand-sub">بوتيك</span></a>' +
       '<nav class="main-nav" id="main-nav" aria-label="التنقل الرئيسي">' +
         nav.map(function (n) { return '<a href="' + n[1] + '"' + (page === n[0] ? ' aria-current="page"' : '') + '>' + n[2] + '</a>'; }).join('') +
@@ -392,7 +421,8 @@
           '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4H5L4 6h2l3.6 7.6L8.2 16c-.3.5 0 1 .6 1H18v-2H9.4l1-1.8h6.9c.4 0 .8-.2 1-.6L21 5H6.2L5.5 4H7zm2 15a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm8 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>' +
           '<span class="cart-count" data-cart-count hidden>0</span>' +
         '</a>' +
-        '<button class="menu-btn" id="menu-btn" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="main-nav">☰</button>' +
+        '<button class="menu-btn" id="menu-btn" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="main-nav">' +
+          '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg></button>' +
       '</div></div></header>';
   }
 
@@ -406,7 +436,8 @@
         '<p style="margin-top:.6rem"><a href="' + esc(waLink('')) + '" target="_blank" rel="noopener">واتساب</a></p></div>' +
       '<div><h3>روابط</h3><div class="footer-links">' +
         '<a href="shop.html">المتجر</a><a href="cart.html">عربة التسوق</a>' +
-        '<a href="index.html#contact">تواصلي معنا</a></div></div>' +
+        '<a href="index.html#contact">تواصلي معنا</a>' +
+        '<a href="returns.html">الاستبدال والاسترجاع</a><a href="privacy.html">سياسة الخصوصية</a></div></div>' +
       '</div>' +
       '<p class="copyright">© ' + new Date().getFullYear() + ' ' + esc(s.storeName) + ' — جميع الحقوق محفوظة</p>' +
     '</footer>';
@@ -422,13 +453,29 @@
     var btn = document.getElementById('menu-btn');
     var nav = document.getElementById('main-nav');
     if (btn && nav) {
-      btn.addEventListener('click', function () {
-        var open = nav.classList.toggle('open');
+      var setOpen = function (open) {
+        nav.classList.toggle('open', open);
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
+      };
+      btn.addEventListener('click', function () { setOpen(!nav.classList.contains('open')); });
+      // الروابط الداخلية (#about) لا تغيّر الصفحة، فنغلق القائمة يدوياً
+      nav.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
     }
+    // هدف رابط التخطّي
+    var main = document.querySelector('main');
+    if (main && !main.id) { main.id = 'main'; main.setAttribute('tabindex', '-1'); }
     updateCartBadge();
   }
+
+  // Escape يغلق قائمة الجوال ويعيد التركيز لزرها (مستمع واحد لأن renderChrome تُستدعى مرتين)
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var nav = document.getElementById('main-nav'), btn = document.getElementById('menu-btn');
+    if (nav && nav.classList.contains('open')) {
+      nav.classList.remove('open');
+      if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+    }
+  });
 
   /* زر "أضيفي للعربة" في بطاقات المنتجات */
   document.addEventListener('click', function (e) {
@@ -550,9 +597,10 @@
     if (document.readyState !== 'loading') resolve();
     else document.addEventListener('DOMContentLoaded', resolve);
   });
-  domReady.then(renderChrome);
+  domReady.then(function () { renderChrome(); fillSkeletons(); });
 
   var ready = Promise.all([refresh(), domReady]).then(function () { renderChrome(); });
+  ready.then(function () { setTimeout(clearBusy, 0); });
 
   global.AZ = {
     ready: ready,

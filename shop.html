@@ -37,8 +37,8 @@
 
     <div class="chips" id="chips" role="group" aria-label="تصفية حسب التصنيف"></div>
 
-    <p class="count-line" id="count-line"></p>
-    <div class="grid-products" id="grid"></div>
+    <p class="count-line" id="count-line" aria-live="polite"></p>
+    <div class="grid-products" id="grid" data-skeleton="8"></div>
   </main>
 
   <div id="site-footer"></div>
@@ -218,7 +218,7 @@
         titleEl.textContent = cat ? cat.name : 'المتجر';
         subEl.textContent = cat ? ('كل منتجات ' + cat.name) : 'كل ما وصل إلى البوتيك';
 
-        countEl.textContent = list.length ? ('عدد المنتجات: ' + list.length) : '';
+        countEl.textContent = list.length ? ('عدد المنتجات: ' + list.length) : 'لا توجد نتائج';
         gridEl.innerHTML = list.length
           ? list.map(AZ.productCard).join('')
           : '<div class="empty" style="grid-column:1/-1"><b>لا توجد نتائج</b>جرّبي كلمة بحث أخرى أو تصنيفاً مختلفاً.</div>';

@@ -19,7 +19,7 @@
 
   <main class="wrap">
     <nav class="crumbs" id="crumbs" aria-label="مسار التنقل"></nav>
-    <div id="product-root"></div>
+    <div id="product-root" data-skeleton="product"></div>
 
     <section class="section" id="related-section" hidden>
       <div class="section-head"><h2 class="section-title">قد يعجبك أيضاً</h2></div>
@@ -187,8 +187,8 @@
           '</p>' +
 
           (sizes.length ? '<div class="field pd-field-req" id="fld-size">' +
-            '<label>المقاس <span class="req-star">*</span></label>' +
-            '<div class="opt-group" id="sizes-group" role="group" aria-label="اختر المقاس">' +
+            '<label id="lbl-size">المقاس <span class="req-star">*</span></label>' +
+            '<div class="opt-group" id="sizes-group" role="group" aria-labelledby="lbl-size" aria-describedby="err-size">' +
               sizes.map(function (s) {
                 return '<button type="button" class="opt" data-size="' + AZ.esc(s) + '" aria-pressed="false">' + AZ.esc(s) + '</button>';
               }).join('') +
@@ -197,8 +197,8 @@
           '</div>' : '') +
 
           (colors.length ? '<div class="field pd-field-req" id="fld-color">' +
-            '<label>اللون <span class="req-star">*</span></label>' +
-            '<div class="opt-group" id="colors-group" role="group" aria-label="اختر اللون">' +
+            '<label id="lbl-color">اللون <span class="req-star">*</span></label>' +
+            '<div class="opt-group" id="colors-group" role="group" aria-labelledby="lbl-color" aria-describedby="err-color">' +
               colors.map(function (c) {
                 return '<button type="button" class="opt" data-color="' + AZ.esc(c) + '" aria-pressed="false">' + AZ.esc(c) + '</button>';
               }).join('') +
@@ -206,10 +206,10 @@
             '<span class="field-err" id="err-color" hidden>يرجى اختيار اللون</span>' +
           '</div>' : '') +
 
-          '<div class="field"><label>الكمية</label>' +
+          '<div class="field"><label for="qty">الكمية</label>' +
             '<div class="qty">' +
               '<button type="button" id="q-minus" aria-label="تقليل">−</button>' +
-              '<input id="qty" type="number" value="1" min="1" max="' + Math.max(1, p.stock) + '" aria-label="الكمية" inputmode="numeric">' +
+              '<input id="qty" type="number" value="1" min="1" max="' + Math.max(1, p.stock) + '" inputmode="numeric">' +
               '<button type="button" id="q-plus" aria-label="زيادة">+</button>' +
             '</div>' +
           '</div>' +
