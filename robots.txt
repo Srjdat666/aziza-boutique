@@ -1,6 +1,14 @@
+# ملاحظة: محركات البحث تقرأ robots.txt من جذر الدومين فقط:
+#   https://srjdat666.github.io/robots.txt
+# هذا الملف داخل /aziza-boutique/ لا يُقرأ ما دام الموقع على github.io.
+# ليعمل: انسخيه إلى مستودع srjdat666.github.io (إن وُجد)، أو انقلي المتجر إلى دومين خاص.
+# المسارات أدناه مكتوبة كاملة لتكون صحيحة عند نقله إلى الجذر.
+# (صفحتا الإدارة ونجاح الطلب محميتان أصلاً بوسم noindex.)
+
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /order-success.html
+Disallow: /aziza-boutique/admin.html
+Disallow: /aziza-boutique/order-success.html
+Disallow: /aziza-boutique/cart.html
 
 Sitemap: https://srjdat666.github.io/aziza-boutique/sitemap.xml

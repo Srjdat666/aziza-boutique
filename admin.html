@@ -82,6 +82,11 @@
           <div class="field"><label for="f-colors">الألوان (فاصلة بينها)</label><input class="input" id="f-colors" name="colors" placeholder="أسود, بيج"></div>
         </div>
         <div class="field">
+          <label class="checkbox-line" style="margin:0"><input type="checkbox" id="f-vtrack"> <span>مخزون منفصل لكل مقاس ولون</span></label>
+          <span class="hint" id="variant-hint">اكتبي المقاسات أو الألوان أولاً لتفعيل هذا الخيار.</span>
+          <div class="table-wrap variant-edit" id="variant-edit" hidden></div>
+        </div>
+        <div class="field">
           <label>الصور</label>
           <div class="img-edit" id="img-edit"></div>
           <input class="input" id="f-upload" type="file" accept="image/*" multiple>
@@ -320,6 +325,54 @@
     var pForm = $('product-form'), pImages = [];
     var drawPImgs = imgEditor($('img-edit'), function () { return pImages; }, function (l) { pImages = l; });
 
+    /* ===== مخزون لكل مقاس/لون ===== */
+    var vMap = {};   // يحتفظ بالقيم حتى لو حُذف مقاس ثم أُعيد أثناء التعديل
+    function splitList(v) { return String(v || '').split(/[,،]/).map(function (x) { return x.trim(); }).filter(Boolean); }
+    function variantOn() { return $('f-vtrack').checked && !$('f-vtrack').disabled; }
+    function updateVariantSum() {
+      var sum = 0;
+      $('variant-edit').querySelectorAll('[data-vkey]').forEach(function (i) {
+        var n = Math.max(0, parseInt(i.value, 10) || 0);
+        vMap[i.getAttribute('data-vkey')] = n; sum += n;
+      });
+      pForm.stock.value = sum;
+    }
+    function drawVariants() {
+      var sizes = splitList(pForm.sizes.value), colors = splitList(pForm.colors.value);
+      var can = sizes.length > 0 || colors.length > 0;
+      var box = $('variant-edit'), hint = $('variant-hint');
+      $('f-vtrack').disabled = !can;
+      var on = variantOn();
+      box.hidden = !on;
+      pForm.stock.readOnly = on;
+      hint.textContent = !can ? 'اكتبي المقاسات أو الألوان أولاً لتفعيل هذا الخيار.'
+        : (on ? 'المخزون الإجمالي يُحسب تلقائياً من هذا الجدول.' : 'عند التفعيل لا يُباع مقاس أو لون نفدت كميته.');
+      if (!on) return;
+      var rows = sizes.length ? sizes : [''], cols = colors.length ? colors : [''];
+      box.innerHTML = '<table class="table"><thead><tr><th>' + (sizes.length ? 'المقاس' : '') + '</th>' +
+        cols.map(function (c) { return '<th>' + (c ? esc(c) : 'الكمية') + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        rows.map(function (s) {
+          return '<tr><th scope="row">' + (s ? esc(s) : '—') + '</th>' + cols.map(function (c) {
+            var k = AZ.variantKey(s, c);
+            return '<td><input class="input" type="number" min="0" inputmode="numeric" data-vkey="' + esc(k) + '" value="' + (vMap[k] || 0) + '"' +
+              ' aria-label="' + esc([s && ('مقاس ' + s), c].filter(Boolean).join(' — ')) + '"></td>';
+          }).join('') + '</tr>';
+        }).join('') + '</tbody></table>';
+      updateVariantSum();
+    }
+    function collectVariants() {
+      if (!variantOn()) return null;
+      var out = {};
+      $('variant-edit').querySelectorAll('[data-vkey]').forEach(function (i) {
+        out[i.getAttribute('data-vkey')] = Math.max(0, parseInt(i.value, 10) || 0);
+      });
+      return out;
+    }
+    $('f-vtrack').addEventListener('change', drawVariants);
+    pForm.sizes.addEventListener('input', drawVariants);
+    pForm.colors.addEventListener('input', drawVariants);
+    $('variant-edit').addEventListener('input', updateVariantSum);
+
     function renderProducts() {
       var prods = AZ.getProducts({ all: true });
       $('panel-products').innerHTML =
@@ -332,7 +385,7 @@
         '</div>' +
         (prods.length ? '<div class="table-wrap"><table class="table"><thead><tr><th></th><th>الاسم</th><th>التصنيف</th><th>السعر</th><th>المخزون</th><th>الحالة</th><th></th></tr></thead><tbody>' +
         prods.map(function (p) {
-          return '<tr><td>' + thumb(p.images[0]) + '</td><td>' + esc(p.name) + '</td><td>' + esc(catName(p.category)) + '</td><td>' + AZ.money(p.price) + '</td><td>' + p.stock + '</td>' +
+          return '<tr><td>' + thumb(p.images[0]) + '</td><td>' + esc(p.name) + '</td><td>' + esc(catName(p.category)) + '</td><td>' + AZ.money(p.price) + '</td><td>' + p.stock + (AZ.hasVariants(p) ? '<div class="order-items">حسب المقاس/اللون</div>' : '') + '</td>' +
             '<td><span class="status ' + (p.active ? 'done' : 'cancelled') + '">' + (p.active ? 'معروض' : 'مخفي') + '</span></td>' +
             '<td><div class="row-actions"><button class="btn btn-outline btn-sm" data-edit="' + esc(p.id) + '">تعديل</button><button class="btn btn-ghost btn-sm" data-del="' + esc(p.id) + '">حذف</button></div></td></tr>';
         }).join('') + '</tbody></table></div>' : '<div class="empty"><b>لا توجد منتجات</b>أضيفي منتجاً أو استوردي منتجاتك القديمة من تبويب «استيراد».</div>');
@@ -364,6 +417,9 @@
       pForm.desc.value = p.desc; pForm.featured.checked = !!p.featured; pForm.active.checked = p.active !== false;
       $('f-cat').innerHTML = catOptions(p.category, null, false);
       pImages = (p.images || []).slice(); drawPImgs();
+      vMap = Object.assign({}, p.variantStock || {});
+      $('f-vtrack').checked = Object.keys(vMap).length > 0;
+      drawVariants();
       $('product-modal').hidden = false; pForm.name.focus();
     }
     function closeProduct() { $('product-modal').hidden = true; }
@@ -380,6 +436,7 @@
         id: f.id.value, name: f.name.value.trim(), category: f.category.value,
         price: f.price.value, oldPrice: f.oldPrice.value, stock: f.stock.value,
         sizes: list(f.sizes.value), colors: list(f.colors.value), images: pImages,
+        variantStock: collectVariants(),
         desc: f.desc.value.trim(), featured: f.featured.checked, active: f.active.checked
       }).then(function () { closeProduct(); renderAll(); AZ.toast('تم حفظ المنتج ✓', 'ok'); })
         .catch(function (err) { AZ.toast(msg(err), 'err'); }).then(function () { busy(btn, false); });
@@ -489,6 +546,7 @@
             '<button class="btn btn-outline btn-sm" id="reload-orders" type="button">تحديث</button>' +
           '</div>' +
         '</div>' +
+        '<p class="hint" style="margin-bottom:.75rem">الطلبات «الجديدة» التي لا تُؤكَّد خلال 48 ساعة تُلغى تلقائياً وتعود كمياتها للمخزون. غيّري الحالة إلى «مؤكد» لحجزها.</p>' +
         '<div class="orders-filter">' +
           '<input class="input" id="o-q" type="search" placeholder="ابحثي برقم الطلب، الاسم، الهاتف، أو المنتج…" value="' + esc(ordersFilter.q) + '">' +
           '<select class="select" id="o-status">' + statusOpts + '</select>' +

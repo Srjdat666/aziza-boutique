@@ -124,6 +124,7 @@ select region, count(*) as cities, min(price) as min_price, max(price) as max_pr
 --   Change from Part 2: p_customer must include region and city that exist in the table,
 --   otherwise the error is invalid_city. The shipping value in settings is no longer used.
 --   (Run the whole step together, from create to grant)
+-- ⚠ SUPERSEDED by 04_variant_stock_and_expiry.sql — do NOT re-run this step after Part 4.
 -- =====================================================================
 create or replace function public.place_order(p_items jsonb, p_customer jsonb)
 returns jsonb

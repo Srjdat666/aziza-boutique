@@ -687,4 +687,12 @@ main:focus{outline:none}
 .sk-card:hover{transform:none;box-shadow:none}
 .sk-line{display:block;height:1rem;border-radius:4px;margin-bottom:.6rem;width:80%}
 .sk-line.short{width:45%}
+/* مقاس/لون غير متوفر */
+.opt.opt-off{opacity:.45;text-decoration:line-through}
+.opt.opt-off.chosen{opacity:1;text-decoration:none}
+/* جدول المخزون التفصيلي في لوحة التحكم */
+.variant-edit{margin-top:.6rem}
+.variant-edit .table{min-width:0}
+.variant-edit .input{width:84px;padding:.4rem .5rem;text-align:center}
+.input[readonly]{background:var(--petal);cursor:not-allowed}
 @keyframes skShimmer{from{background-position:100% 0}to{background-position:-100% 0}}

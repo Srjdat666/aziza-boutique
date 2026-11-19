@@ -191,6 +191,8 @@ create policy product_images_admin_delete on storage.objects
 
 -- =====================================================================
 -- Step 8: place_order function (run the whole step together, from create to grant)
+-- ⚠ SUPERSEDED by 04_variant_stock_and_expiry.sql — do NOT re-run this step after Part 3/4:
+--   it would bring back the old version (shipping from settings = free delivery everywhere).
 -- =====================================================================
 create or replace function public.place_order(p_items jsonb, p_customer jsonb)
 returns jsonb
@@ -348,6 +350,7 @@ grant execute on function public.place_order(jsonb, jsonb) to anon, authenticate
 
 -- =====================================================================
 -- Step 9: Stock sync trigger (run the whole step together)
+-- ⚠ SUPERSEDED by 04_variant_stock_and_expiry.sql — do NOT re-run after Part 4.
 -- =====================================================================
 create or replace function public.orders_stock_sync()
 returns trigger

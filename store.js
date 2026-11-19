@@ -56,11 +56,17 @@
       price: Number(r.price) || 0, oldPrice: Number(r.old_price) || 0, stock: Number(r.stock) || 0,
       sizes: r.sizes || [], colors: r.colors || [], images: r.images || [],
       desc: r.description || '', featured: !!r.featured, active: r.active !== false,
-      createdAt: r.created_at || ''
+      createdAt: r.created_at || '',
+      // مخزون لكل مقاس/لون: { "M|أسود": 2 } — فارغ يعني مخزوناً إجمالياً فقط
+      variantStock: (r.variant_stock && typeof r.variant_stock === 'object') ? r.variant_stock : {}
     };
   }
+  function variantKey(size, color) { return (size || '') + '|' + (color || ''); }
+  function hasVariants(p) { return !!(p && p.variantStock && Object.keys(p.variantStock).length); }
   function prodTo(p) {
+    var vs = p.variantStock && Object.keys(p.variantStock).length ? p.variantStock : null;
     return {
+      variant_stock: vs,
       id: p.id, name: p.name, category: p.category || null,
       price: Number(p.price) || 0, old_price: Number(p.oldPrice) || 0,
       stock: Math.max(0, parseInt(p.stock, 10) || 0),
@@ -181,13 +187,16 @@
   }
   function keyOf(it) { return [it.id, it.size || '', it.color || ''].join('|'); }
 
-  function stockOf(id) {
+  // المخزون المتاح لمنتج، ولمقاس/لون محدد إن كان للمنتج مخزون تفصيلي
+  function stockOf(id, size, color) {
     var p = getProduct(id);
-    return p ? Math.max(0, Number(p.stock) || 0) : 0;
+    if (!p) return 0;
+    if (hasVariants(p)) return Math.max(0, Number(p.variantStock[variantKey(size, color)]) || 0);
+    return Math.max(0, Number(p.stock) || 0);
   }
   // يضيف للعربة مع احترام المخزون. يرجع { ok, capped }
   function addToCart(item) {
-    var max = stockOf(item.id);
+    var max = stockOf(item.id, item.size, item.color);
     if (max <= 0) return { ok: false, capped: false };
     var items = readCart();
     var key = keyOf(item);
@@ -209,7 +218,7 @@
     var items = readCart();
     var it = items.filter(function (x) { return keyOf(x) === key; })[0];
     if (!it) return;
-    it.qty = Math.min(Math.max(0, Number(qty) || 0), stockOf(it.id));
+    it.qty = Math.min(Math.max(0, Number(qty) || 0), stockOf(it.id, it.size, it.color));
     writeCart(items.filter(function (x) { return x.qty > 0; }));
   }
   function removeFromCart(key) { writeCart(readCart().filter(function (x) { return keyOf(x) !== key; })); }
@@ -221,7 +230,7 @@
     readCart().forEach(function (it) {
       var p = getProduct(it.id);
       if (!p || p.active === false) return;
-      var stock = Math.max(0, Number(p.stock) || 0);
+      var stock = stockOf(p.id, it.size, it.color);
       if (stock <= 0) return;
       var qty = Math.min(Number(it.qty) || 0, stock);
       if (qty <= 0) return;
@@ -612,6 +621,7 @@
     getSettings: getSettings,
     getCategories: getCategories, getCategory: getCategory, childrenOf: childrenOf,
     getProducts: getProducts, getProduct: getProduct, getRelated: getRelated,
+    stockOf: stockOf, hasVariants: hasVariants, variantKey: variantKey,
     addToCart: addToCart, setQty: setQty, removeFromCart: removeFromCart, clearCart: clearCart,
     cartCount: cartCount, cartDetailed: cartDetailed, keyOf: keyOf,
     placeOrder: placeOrder, STATUS_LABELS: STATUS_LABELS,
